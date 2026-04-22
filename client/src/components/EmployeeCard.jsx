@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export default function EmployeeCard({ employee }) {
+export default function EmployeeCard({ employee, onDetailsClick, onDayOffClick }) {
   const [isHovered, setIsHovered] = useState(false)
 
   const statusConfig = {
@@ -83,10 +83,22 @@ export default function EmployeeCard({ employee }) {
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          <button className="text-xs font-medium text-gray-600 hover:text-navy transition-colors px-2 py-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onDetailsClick?.()
+            }}
+            className="text-xs font-medium text-gray-600 hover:text-navy transition-colors px-2 py-1"
+          >
             Détails
           </button>
-          <button className="text-xs font-medium text-gray-600 hover:text-navy transition-colors px-2 py-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onDayOffClick?.()
+            }}
+            className="text-xs font-medium text-gray-600 hover:text-navy transition-colors px-2 py-1"
+          >
             + Congé
           </button>
         </div>
