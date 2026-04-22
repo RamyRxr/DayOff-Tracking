@@ -1,10 +1,10 @@
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 
-export default function Layout() {
+export default function Layout({ currentAdmin, onLogout }) {
   return (
     <div className="min-h-screen bg-warm-gray-200 flex">
-      <Sidebar />
+      <Sidebar currentAdmin={currentAdmin} onLogout={onLogout} />
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col">
