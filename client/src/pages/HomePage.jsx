@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { Plus, Loader2, AlertCircle } from 'lucide-react'
 import EmployeeCard from '../components/EmployeeCard'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
+import AddEmployeeModal from '../components/AddEmployeeModal'
 import { useEmployees } from '../hooks/useEmployees'
 
 export default function HomePage() {
   const [selectedEmployee, setSelectedEmployee] = useState(null)
-  const { employees, loading, error, refetch } = useEmployees()
+  const [showAddEmployee, setShowAddEmployee] = useState(false)
+  const { employees, loading, error, refetch, addEmployee } = useEmployees()
 
   // Calculate stats from employees data
   const stats = {
@@ -14,6 +16,16 @@ export default function HomePage() {
     actif: employees.filter((e) => e.status === 'actif').length,
     risque: employees.filter((e) => e.status === 'risque').length,
     bloqué: employees.filter((e) => e.status === 'bloqué').length,
+  }
+
+  const handleAddEmployeeSubmit = async (employeeData) => {
+    try {
+      await addEmployee(employeeData)
+      setShowAddEmployee(false)
+      alert('✅ Employé ajouté avec succès')
+    } catch (error) {
+      alert(`Erreur: ${error.message}`)
+    }
   }
 
   // Loading state
@@ -81,7 +93,10 @@ export default function HomePage() {
       )}
 
       {/* Floating FAB */}
-      <button className="fixed bottom-8 right-8 w-[52px] h-[52px] bg-navy rounded-full flex items-center justify-center text-white shadow-modal hover:shadow-ambient hover:scale-105 transition-all duration-200">
+      <button
+        onClick={() => setShowAddEmployee(true)}
+        className="fixed bottom-8 right-8 w-[52px] h-[52px] bg-navy rounded-full flex items-center justify-center text-white shadow-modal hover:shadow-ambient hover:scale-105 transition-all duration-200"
+      >
         <Plus className="w-6 h-6" strokeWidth={2} />
       </button>
 
@@ -91,6 +106,13 @@ export default function HomePage() {
         isOpen={!!selectedEmployee}
         onClose={() => setSelectedEmployee(null)}
         onUpdate={refetch}
+      />
+
+      {/* Add Employee Modal */}
+      <AddEmployeeModal
+        isOpen={showAddEmployee}
+        onClose={() => setShowAddEmployee(false)}
+        onSubmit={handleAddEmployeeSubmit}
       />
     </div>
   )
