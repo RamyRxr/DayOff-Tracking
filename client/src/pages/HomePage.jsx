@@ -1,78 +1,61 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Loader2, AlertCircle } from 'lucide-react'
 import EmployeeCard from '../components/EmployeeCard'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
-
-// Mock NAFTAL employee data
-const mockEmployees = [
-  {
-    id: 1,
-    name: 'Ahmed Benali',
-    matricule: 'NAF-2847',
-    department: 'Direction Commerciale',
-    position: 'Chef de Projet',
-    daysUsed: 12,
-    daysTotal: 30,
-    status: 'actif',
-    avatar: 'AB',
-  },
-  {
-    id: 2,
-    name: 'Fatima Zerrouki',
-    matricule: 'NAF-3102',
-    department: 'Ressources Humaines',
-    position: 'Responsable RH',
-    daysUsed: 8,
-    daysTotal: 30,
-    status: 'actif',
-    avatar: 'FZ',
-  },
-  {
-    id: 3,
-    name: 'Karim Boudiaf',
-    matricule: 'NAF-2956',
-    department: 'Logistique',
-    position: 'Superviseur',
-    daysUsed: 18,
-    daysTotal: 30,
-    status: 'risque',
-    avatar: 'KB',
-  },
-  {
-    id: 4,
-    name: 'Leila Hamidi',
-    matricule: 'NAF-3215',
-    department: 'Finance',
-    position: 'Contrôleur',
-    daysUsed: 22,
-    daysTotal: 30,
-    status: 'bloqué',
-    avatar: 'LH',
-  },
-  {
-    id: 5,
-    name: 'Rachid Meziane',
-    matricule: 'NAF-2741',
-    department: 'IT',
-    position: 'Développeur',
-    daysUsed: 6,
-    daysTotal: 30,
-    status: 'actif',
-    avatar: 'RM',
-  },
-]
+import { useEmployees } from '../hooks/useEmployees'
 
 export default function HomePage() {
   const [selectedEmployee, setSelectedEmployee] = useState(null)
+  const { employees, loading, error, refetch } = useEmployees()
+
+  // Calculate stats from employees data
+  const stats = {
+    total: employees.length,
+    actif: employees.filter((e) => e.status === 'actif').length,
+    risque: employees.filter((e) => e.status === 'risque').length,
+    bloqué: employees.filter((e) => e.status === 'bloqué').length,
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 text-navy animate-spin" />
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-apple-red/10 border border-apple-red/20 rounded-2xl p-6">
+        <div className="flex items-center gap-3">
+          <AlertCircle className="w-6 h-6 text-apple-red" />
+          <div>
+            <div className="font-semibold text-apple-red">
+              Erreur de chargement
+            </div>
+            <p className="text-sm text-gray-700 mt-1">{error}</p>
+            <button
+              onClick={refetch}
+              className="text-sm text-navy hover:underline mt-2"
+            >
+              Réessayer
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
       {/* Stat cards row */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <StatCard number="47" label="Employés" />
-        <StatCard number="41" label="Actifs" />
-        <StatCard number="4" label="À risque" dot="amber" />
-        <StatCard number="2" label="Bloqués" dot="red" />
+        <StatCard number={stats.total} label="Employés" />
+        <StatCard number={stats.actif} label="Actifs" />
+        <StatCard number={stats.risque} label="À risque" dot="amber" />
+        <StatCard number={stats.bloqué} label="Bloqués" dot="red" />
       </div>
 
       {/* Section label */}
@@ -81,15 +64,21 @@ export default function HomePage() {
       </h2>
 
       {/* Employee list */}
-      <div className="space-y-3">
-        {mockEmployees.map((employee) => (
-          <EmployeeCard
-            key={employee.id}
-            employee={employee}
-            onDetailsClick={() => setSelectedEmployee(employee)}
-          />
-        ))}
-      </div>
+      {employees.length === 0 ? (
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-12 text-center shadow-ambient">
+          <p className="text-gray-500">Aucun employé trouvé</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {employees.slice(0, 5).map((employee) => (
+            <EmployeeCard
+              key={employee.id}
+              employee={employee}
+              onDetailsClick={() => setSelectedEmployee(employee)}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Floating FAB */}
       <button className="fixed bottom-8 right-8 w-[52px] h-[52px] bg-navy rounded-full flex items-center justify-center text-white shadow-modal hover:shadow-ambient hover:scale-105 transition-all duration-200">

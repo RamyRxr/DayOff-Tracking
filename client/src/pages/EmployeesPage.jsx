@@ -1,90 +1,11 @@
 import { useState } from 'react'
-import { Search, Filter, Plus, ChevronDown } from 'lucide-react'
+import { Search, Filter, Plus, ChevronDown, Loader2 } from 'lucide-react'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import AddDayOffModal from '../components/AddDayOffModal'
-
-// Mock NAFTAL employee data (expanded)
-const mockEmployees = [
-  {
-    id: 1,
-    name: 'Ahmed Benali',
-    matricule: 'NAF-2847',
-    department: 'Direction Commerciale',
-    position: 'Chef de Projet',
-    daysUsed: 12,
-    daysTotal: 30,
-    status: 'actif',
-    avatar: 'AB',
-  },
-  {
-    id: 2,
-    name: 'Fatima Zerrouki',
-    matricule: 'NAF-3102',
-    department: 'Ressources Humaines',
-    position: 'Responsable RH',
-    daysUsed: 8,
-    daysTotal: 30,
-    status: 'actif',
-    avatar: 'FZ',
-  },
-  {
-    id: 3,
-    name: 'Karim Boudiaf',
-    matricule: 'NAF-2956',
-    department: 'Logistique',
-    position: 'Superviseur',
-    daysUsed: 18,
-    daysTotal: 30,
-    status: 'risque',
-    avatar: 'KB',
-  },
-  {
-    id: 4,
-    name: 'Leila Hamidi',
-    matricule: 'NAF-3215',
-    department: 'Finance',
-    position: 'Contrôleur',
-    daysUsed: 22,
-    daysTotal: 30,
-    status: 'bloqué',
-    avatar: 'LH',
-  },
-  {
-    id: 5,
-    name: 'Rachid Meziane',
-    matricule: 'NAF-2741',
-    department: 'IT',
-    position: 'Développeur',
-    daysUsed: 6,
-    daysTotal: 30,
-    status: 'actif',
-    avatar: 'RM',
-  },
-  {
-    id: 6,
-    name: 'Amina Boucher',
-    matricule: 'NAF-2889',
-    department: 'Marketing',
-    position: 'Chargée de Communication',
-    daysUsed: 14,
-    daysTotal: 30,
-    status: 'actif',
-    avatar: 'AB',
-  },
-  {
-    id: 7,
-    name: 'Yacine Larbi',
-    matricule: 'NAF-3044',
-    department: 'Production',
-    position: 'Technicien',
-    daysUsed: 19,
-    daysTotal: 30,
-    status: 'risque',
-    avatar: 'YL',
-  },
-]
+import { useEmployees } from '../hooks/useEmployees'
 
 export default function EmployeesPage() {
+  const { employees, loading, error } = useEmployees()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('tous')
   const [selectedEmployee, setSelectedEmployee] = useState(null)
@@ -93,7 +14,7 @@ export default function EmployeesPage() {
   const [sortDirection, setSortDirection] = useState('asc')
 
   // Filter employees
-  const filteredEmployees = mockEmployees.filter((emp) => {
+  const filteredEmployees = employees.filter((emp) => {
     const matchesSearch =
       emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       emp.matricule.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -155,6 +76,27 @@ export default function EmployeesPage() {
       bgColor: 'bg-apple-red/10',
       textColor: 'text-apple-red',
     },
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 text-navy animate-spin" />
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-apple-red/10 border border-apple-red/20 rounded-2xl p-6">
+        <div className="font-semibold text-apple-red mb-2">
+          Erreur de chargement
+        </div>
+        <p className="text-sm text-gray-700">{error}</p>
+      </div>
+    )
   }
 
   return (
