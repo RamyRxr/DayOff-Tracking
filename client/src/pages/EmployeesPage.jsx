@@ -1,12 +1,386 @@
+import { useState } from 'react'
+import { Search, Filter, Plus, ChevronDown } from 'lucide-react'
+import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
+import AddDayOffModal from '../components/AddDayOffModal'
+
+// Mock NAFTAL employee data (expanded)
+const mockEmployees = [
+  {
+    id: 1,
+    name: 'Ahmed Benali',
+    matricule: 'NAF-2847',
+    department: 'Direction Commerciale',
+    position: 'Chef de Projet',
+    daysUsed: 12,
+    daysTotal: 30,
+    status: 'actif',
+    avatar: 'AB',
+  },
+  {
+    id: 2,
+    name: 'Fatima Zerrouki',
+    matricule: 'NAF-3102',
+    department: 'Ressources Humaines',
+    position: 'Responsable RH',
+    daysUsed: 8,
+    daysTotal: 30,
+    status: 'actif',
+    avatar: 'FZ',
+  },
+  {
+    id: 3,
+    name: 'Karim Boudiaf',
+    matricule: 'NAF-2956',
+    department: 'Logistique',
+    position: 'Superviseur',
+    daysUsed: 18,
+    daysTotal: 30,
+    status: 'risque',
+    avatar: 'KB',
+  },
+  {
+    id: 4,
+    name: 'Leila Hamidi',
+    matricule: 'NAF-3215',
+    department: 'Finance',
+    position: 'Contrôleur',
+    daysUsed: 22,
+    daysTotal: 30,
+    status: 'bloqué',
+    avatar: 'LH',
+  },
+  {
+    id: 5,
+    name: 'Rachid Meziane',
+    matricule: 'NAF-2741',
+    department: 'IT',
+    position: 'Développeur',
+    daysUsed: 6,
+    daysTotal: 30,
+    status: 'actif',
+    avatar: 'RM',
+  },
+  {
+    id: 6,
+    name: 'Amina Boucher',
+    matricule: 'NAF-2889',
+    department: 'Marketing',
+    position: 'Chargée de Communication',
+    daysUsed: 14,
+    daysTotal: 30,
+    status: 'actif',
+    avatar: 'AB',
+  },
+  {
+    id: 7,
+    name: 'Yacine Larbi',
+    matricule: 'NAF-3044',
+    department: 'Production',
+    position: 'Technicien',
+    daysUsed: 19,
+    daysTotal: 30,
+    status: 'risque',
+    avatar: 'YL',
+  },
+]
+
 export default function EmployeesPage() {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('tous')
+  const [selectedEmployee, setSelectedEmployee] = useState(null)
+  const [showAddDayOff, setShowAddDayOff] = useState(false)
+  const [sortField, setSortField] = useState('name')
+  const [sortDirection, setSortDirection] = useState('asc')
+
+  // Filter employees
+  const filteredEmployees = mockEmployees.filter((emp) => {
+    const matchesSearch =
+      emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.matricule.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.department.toLowerCase().includes(searchQuery.toLowerCase())
+
+    const matchesStatus =
+      statusFilter === 'tous' || emp.status === statusFilter
+
+    return matchesSearch && matchesStatus
+  })
+
+  // Sort employees
+  const sortedEmployees = [...filteredEmployees].sort((a, b) => {
+    let aVal, bVal
+
+    if (sortField === 'name') {
+      aVal = a.name
+      bVal = b.name
+    } else if (sortField === 'daysUsed') {
+      aVal = a.daysUsed
+      bVal = b.daysUsed
+    } else if (sortField === 'status') {
+      aVal = a.status
+      bVal = b.status
+    }
+
+    if (sortDirection === 'asc') {
+      return aVal > bVal ? 1 : -1
+    } else {
+      return aVal < bVal ? 1 : -1
+    }
+  })
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortDirection('asc')
+    }
+  }
+
+  const statusConfig = {
+    actif: {
+      label: 'Actif',
+      dotColor: 'bg-apple-green',
+      bgColor: 'bg-apple-green/10',
+      textColor: 'text-apple-green',
+    },
+    risque: {
+      label: 'À risque',
+      dotColor: 'bg-apple-amber',
+      bgColor: 'bg-apple-amber/10',
+      textColor: 'text-apple-amber',
+    },
+    bloqué: {
+      label: 'Bloqué',
+      dotColor: 'bg-apple-red',
+      bgColor: 'bg-apple-red/10',
+      textColor: 'text-apple-red',
+    },
+  }
+
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-        Employés
-      </h1>
-      <p className="text-sm text-gray-600 mt-1">
-        Liste complète des employés
-      </p>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+            Employés
+          </h1>
+          <p className="text-sm text-gray-600 mt-1">
+            Gérez tous les employés et leurs congés
+          </p>
+        </div>
+        <button
+          onClick={() => {}}
+          className="flex items-center gap-2 bg-navy text-white px-4 py-2.5 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200"
+        >
+          <Plus className="w-4 h-4" strokeWidth={2} />
+          Nouvel employé
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 shadow-ambient mb-6">
+        <div className="flex gap-4">
+          {/* Search */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Rechercher par nom, matricule ou département..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-warm-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all"
+            />
+          </div>
+
+          {/* Status filter */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="pl-10 pr-10 py-2.5 bg-warm-gray-200 rounded-xl text-gray-900 font-medium text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all"
+            >
+              <option value="tous">Tous les statuts</option>
+              <option value="actif">Actifs</option>
+              <option value="risque">À risque</option>
+              <option value="bloqué">Bloqués</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          </div>
+        </div>
+      </div>
+
+      {/* Results count */}
+      <div className="text-xs text-gray-600 mb-3">
+        {sortedEmployees.length} employé{sortedEmployees.length > 1 ? 's' : ''}{' '}
+        {statusFilter !== 'tous' && `(${statusConfig[statusFilter]?.label})`}
+      </div>
+
+      {/* Table */}
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-ambient overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-warm-gray-200 border-b border-warm-gray-400">
+            <tr>
+              <th
+                onClick={() => handleSort('name')}
+                className="text-left px-6 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-warm-gray-300 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  Employé
+                  {sortField === 'name' && (
+                    <span className="text-navy">
+                      {sortDirection === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Département
+              </th>
+              <th
+                onClick={() => handleSort('daysUsed')}
+                className="text-left px-6 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-warm-gray-300 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  Congés
+                  {sortField === 'daysUsed' && (
+                    <span className="text-navy">
+                      {sortDirection === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th
+                onClick={() => handleSort('status')}
+                className="text-left px-6 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-warm-gray-300 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  Statut
+                  {sortField === 'status' && (
+                    <span className="text-navy">
+                      {sortDirection === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th className="text-right px-6 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-warm-gray-300">
+            {sortedEmployees.map((employee) => {
+              const status = statusConfig[employee.status]
+              const progressPercent =
+                (employee.daysUsed / employee.daysTotal) * 100
+
+              return (
+                <tr
+                  key={employee.id}
+                  className="hover:bg-warm-gray-200/50 transition-colors cursor-pointer"
+                  onClick={() => setSelectedEmployee(employee)}
+                >
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-warm-gray-400 flex items-center justify-center text-sm font-semibold text-gray-700 flex-shrink-0">
+                        {employee.avatar}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">
+                          {employee.name}
+                        </div>
+                        <div className="text-xs font-mono text-gray-600">
+                          {employee.matricule}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-900">
+                      {employee.department}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      {employee.position}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-900 mb-1">
+                      {employee.daysUsed} / {employee.daysTotal} jours
+                    </div>
+                    <div className="w-24 h-1.5 bg-warm-gray-300 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-navy transition-all duration-300"
+                        style={{ width: `${progressPercent}%` }}
+                      />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${status.bgColor}`}
+                    >
+                      <div className={`w-1.5 h-1.5 rounded-full ${status.dotColor}`} />
+                      <span className={`text-xs font-medium ${status.textColor}`}>
+                        {status.label}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedEmployee(employee)
+                        }}
+                        className="text-xs font-medium text-gray-600 hover:text-navy transition-colors px-2 py-1"
+                      >
+                        Détails
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedEmployee(employee)
+                          setShowAddDayOff(true)
+                        }}
+                        className="text-xs font-medium text-navy hover:text-navy/80 transition-colors px-2 py-1"
+                      >
+                        + Congé
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+
+        {/* Empty state */}
+        {sortedEmployees.length === 0 && (
+          <div className="py-16 text-center">
+            <p className="text-gray-500">Aucun employé trouvé</p>
+          </div>
+        )}
+      </div>
+
+      {/* Employee Detail Panel */}
+      <EmployeeDetailPanel
+        employee={selectedEmployee}
+        isOpen={!!selectedEmployee && !showAddDayOff}
+        onClose={() => setSelectedEmployee(null)}
+      />
+
+      {/* Add Day Off Modal */}
+      <AddDayOffModal
+        employee={selectedEmployee}
+        isOpen={showAddDayOff}
+        onClose={() => {
+          setShowAddDayOff(false)
+          setSelectedEmployee(null)
+        }}
+        onSubmit={(data) => {
+          console.log('Add day off:', data)
+        }}
+      />
     </div>
   )
 }
