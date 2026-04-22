@@ -1,7 +1,10 @@
 import { X } from 'lucide-react'
-import { useState } from 'react'
+import { useDaysOff } from '../hooks/useDaysOff'
 
 export default function EmployeeDetailPanel({ employee, isOpen, onClose }) {
+  // Fetch day-off records for this employee
+  const { daysOff } = useDaysOff({ employeeId: employee?.id })
+
   if (!isOpen || !employee) return null
 
   const progressPercent = (employee.daysUsed / employee.daysTotal) * 100
@@ -16,15 +19,27 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose }) {
   const periodStart = new Date(currentYear, currentMonth, 20)
   const periodEnd = new Date(currentYear, currentMonth + 1, 19)
 
+  // Create set of day-off dates for quick lookup
+  const dayOffDates = new Set()
+  daysOff.forEach((dayOff) => {
+    const start = new Date(dayOff.startDate)
+    const end = new Date(dayOff.endDate)
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      dayOffDates.add(d.toISOString().split('T')[0])
+    }
+  })
+
   // Generate all days in period
   const periodDays = []
   const current = new Date(periodStart)
   while (current <= periodEnd) {
+    const dateString = current.toISOString().split('T')[0]
     periodDays.push({
       date: new Date(current),
       day: current.getDate(),
       isWeekend: current.getDay() === 5 || current.getDay() === 6, // Friday or Saturday
-      isDayOff: Math.random() > 0.7, // Mock: random days off
+      isDayOff: dayOffDates.has(dateString), // Real day-off data
     })
     current.setDate(current.getDate() + 1)
   }
