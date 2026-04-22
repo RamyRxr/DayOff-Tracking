@@ -3,6 +3,52 @@ import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
+// Realistic Algerian names
+const algerianNames = [
+  'Ahmed Benali', 'Fatima Zerrouki', 'Karim Boudiaf', 'Leila Hamidi', 'Rachid Meziane',
+  'Amina Boucher', 'Yacine Larbi', 'Nabil Khelifi', 'Sarah Boukhari', 'Omar Bendjelloul',
+  'Hocine Brahim', 'Samia Kaddour', 'Mehdi Taleb', 'Nassima Ouali', 'Sofiane Hamdani',
+  'Karima Belaidi', 'Fares Mansouri', 'Naima Hadj', 'Salim Cherif', 'Hafida Mokrani',
+  'Abdelkader Zidane', 'Djamila Benabdallah', 'Mourad Belkacem', 'Zineb Bouarab', 'Tarek Bouras',
+  'Malika Touati', 'Kamel Ghoul', 'Souad Benali', 'Redouane Ferhat', 'Wassila Amara',
+  'Noureddine Kaci', 'Yamina Sahli', 'Bachir Slimani', 'Farida Benmoussa', 'Hicham Rahmani',
+  'Sabrina Medjdoub', 'Mustapha Aouni', 'Houria Boumediene', 'Larbi Berkani', 'Soraya Hamdi',
+  'Boualem Chergui', 'Nabila Mekki', 'Farid Derradji', 'Latifa Rezki', 'Azzedine Boukhari',
+  'Khadija Saadi', 'Hamza Messaoudi', 'Selma Touil', 'Karim Brahimi', 'Zahra Benamara',
+  'Mokhtar Zenati', 'Meriem Charef', 'Said Benabdellah', 'Imene Bencheikh', 'Rabah Mebarki',
+  'Amel Badaoui', 'Djamel Allaoui', 'Fadila Meziane', 'Slimane Oukaci', 'Wafa Zouaoui'
+]
+
+const departments = [
+  'Production',
+  'Logistique',
+  'Administration',
+  'Maintenance',
+  'Qualité',
+  'Sécurité'
+]
+
+const positions = {
+  Production: ['Opérateur', 'Chef d\'Équipe', 'Superviseur', 'Technicien', 'Ingénieur Production'],
+  Logistique: ['Agent Logistique', 'Coordinateur', 'Responsable Transport', 'Magasinier', 'Chef de Quai'],
+  Administration: ['Assistant RH', 'Comptable', 'Contrôleur de Gestion', 'Secrétaire', 'Chef de Service'],
+  Maintenance: ['Technicien', 'Électricien', 'Mécanicien', 'Chef d\'Atelier', 'Ingénieur Maintenance'],
+  Qualité: ['Contrôleur Qualité', 'Auditeur', 'Responsable QSE', 'Technicien Labo', 'Inspecteur'],
+  Sécurité: ['Agent de Sécurité', 'Chef de Sécurité', 'Coordinateur HSE', 'Pompier', 'Responsable Sûreté']
+}
+
+function getRandomElement(array) {
+  return array[Math.floor(Math.random() * array.length)]
+}
+
+function generateMatricule() {
+  return `NAF-${2500 + Math.floor(Math.random() * 1500)}`
+}
+
+function getInitials(name) {
+  return name.split(' ').map(n => n[0]).join('').toUpperCase()
+}
+
 async function main() {
   console.log('🌱 Starting seed...')
 
@@ -26,16 +72,16 @@ async function main() {
     }),
     prisma.admin.create({
       data: {
-        name: 'Amina Belkacem',
-        email: 'amina.belkacem@naftal.dz',
+        name: 'Fatima Zohra',
+        email: 'fatima.zohra@naftal.dz',
         role: 'RH',
         pinHash: await bcrypt.hash('5678', 10), // PIN: 5678
       },
     }),
     prisma.admin.create({
       data: {
-        name: 'Karim Mansouri',
-        email: 'karim.mansouri@naftal.dz',
+        name: 'Ahmed Bachir',
+        email: 'ahmed.bachir@naftal.dz',
         role: 'Admin',
         pinHash: await bcrypt.hash('9999', 10), // PIN: 9999
       },
@@ -44,368 +90,124 @@ async function main() {
 
   console.log(`✅ Created ${admins.length} admins`)
 
-  // Create employees with realistic Algerian names
-  const employees = await Promise.all([
-    prisma.employee.create({
-      data: {
-        matricule: 'NAF-2847',
-        name: 'Ahmed Benali',
-        department: 'Direction Commerciale',
-        position: 'Chef de Projet',
-        avatar: 'AB',
-        status: 'actif',
-        daysTotal: 30,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        matricule: 'NAF-3102',
-        name: 'Fatima Zerrouki',
-        department: 'Ressources Humaines',
-        position: 'Responsable RH',
-        avatar: 'FZ',
-        status: 'actif',
-        daysTotal: 30,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        matricule: 'NAF-2956',
-        name: 'Karim Boudiaf',
-        department: 'Logistique',
-        position: 'Superviseur',
-        avatar: 'KB',
-        status: 'risque',
-        daysTotal: 30,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        matricule: 'NAF-3215',
-        name: 'Leila Hamidi',
-        department: 'Finance',
-        position: 'Contrôleur',
-        avatar: 'LH',
-        status: 'bloqué',
-        daysTotal: 30,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        matricule: 'NAF-2741',
-        name: 'Rachid Meziane',
-        department: 'IT',
-        position: 'Développeur',
-        avatar: 'RM',
-        status: 'actif',
-        daysTotal: 30,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        matricule: 'NAF-2889',
-        name: 'Amina Boucher',
-        department: 'Marketing',
-        position: 'Chargée de Communication',
-        avatar: 'AB',
-        status: 'actif',
-        daysTotal: 30,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        matricule: 'NAF-3044',
-        name: 'Yacine Larbi',
-        department: 'Production',
-        position: 'Technicien',
-        avatar: 'YL',
-        status: 'risque',
-        daysTotal: 30,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        matricule: 'NAF-2978',
-        name: 'Nabil Khelifi',
-        department: 'Production',
-        position: 'Opérateur',
-        avatar: 'NK',
-        status: 'bloqué',
-        daysTotal: 30,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        matricule: 'NAF-3156',
-        name: 'Sarah Boukhari',
-        department: 'Finance',
-        position: 'Comptable',
-        avatar: 'SB',
-        status: 'actif',
-        daysTotal: 30,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        matricule: 'NAF-2834',
-        name: 'Omar Bendjelloul',
-        department: 'Direction Commerciale',
-        position: 'Analyste',
-        avatar: 'OB',
-        status: 'actif',
-        daysTotal: 30,
-      },
-    }),
-  ])
+  // Create 60 employees with varied status
+  const employeeData = []
+  const usedNames = new Set()
+
+  for (let i = 0; i < 60; i++) {
+    let name
+    do {
+      name = algerianNames[i % algerianNames.length]
+      if (i >= algerianNames.length) {
+        name = name.replace(/^(\w+)/, `$1 ${String.fromCharCode(65 + Math.floor(i / algerianNames.length))}`)
+      }
+    } while (usedNames.has(name))
+
+    usedNames.add(name)
+
+    const department = departments[i % departments.length]
+    const position = getRandomElement(positions[department])
+
+    // Status distribution: 70% actif, 20% risque, 10% bloqué
+    let status
+    const rand = Math.random()
+    if (rand < 0.70) status = 'actif'
+    else if (rand < 0.90) status = 'risque'
+    else status = 'bloqué'
+
+    employeeData.push({
+      matricule: generateMatricule(),
+      name,
+      department,
+      position,
+      avatar: getInitials(name),
+      status,
+      daysTotal: 30,
+    })
+  }
+
+  const employees = await Promise.all(
+    employeeData.map(data => prisma.employee.create({ data }))
+  )
 
   console.log(`✅ Created ${employees.length} employees`)
 
-  // Create day-off records (some in current period: April 20 - May 19, 2026)
-  const daysOff = await Promise.all([
-    // Ahmed Benali - 12 days used
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[0].id,
-        startDate: new Date('2026-03-22'),
-        endDate: new Date('2026-03-26'),
-        workingDays: 5,
-        calendarDays: 5,
-        isSandwich: false,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[0].id,
-        startDate: new Date('2026-04-23'),
-        endDate: new Date('2026-04-24'),
-        workingDays: 2,
-        calendarDays: 2,
-        isSandwich: false,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[0].id,
-        startDate: new Date('2026-04-10'),
-        endDate: new Date('2026-04-14'),
-        workingDays: 5,
-        calendarDays: 5,
-        isSandwich: false,
-      },
-    }),
+  // Create realistic day-off records (varied usage across employees)
+  const daysOffData = []
 
-    // Fatima Zerrouki - 8 days used
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[1].id,
-        startDate: new Date('2026-03-25'),
-        endDate: new Date('2026-03-27'),
-        workingDays: 3,
-        calendarDays: 3,
-        isSandwich: false,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[1].id,
-        startDate: new Date('2026-04-25'),
-        endDate: new Date('2026-04-25'),
-        workingDays: 1,
-        calendarDays: 1,
-        isSandwich: false,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[1].id,
-        startDate: new Date('2026-05-05'),
-        endDate: new Date('2026-05-08'),
-        workingDays: 4,
-        calendarDays: 4,
-        isSandwich: false,
-      },
-    }),
+  for (let i = 0; i < employees.length; i++) {
+    const employee = employees[i]
 
-    // Karim Boudiaf - 18 days used (at risk)
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[2].id,
-        startDate: new Date('2026-03-15'),
-        endDate: new Date('2026-03-21'),
-        workingDays: 5,
-        calendarDays: 7,
-        isSandwich: true, // Weekend included
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[2].id,
-        startDate: new Date('2026-04-01'),
-        endDate: new Date('2026-04-10'),
-        workingDays: 8,
-        calendarDays: 10,
-        isSandwich: true,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[2].id,
-        startDate: new Date('2026-04-28'),
-        endDate: new Date('2026-05-01'),
-        workingDays: 3,
-        calendarDays: 4,
-        isSandwich: false,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[2].id,
-        startDate: new Date('2026-05-08'),
-        endDate: new Date('2026-05-09'),
-        workingDays: 2,
-        calendarDays: 2,
-        isSandwich: false,
-      },
-    }),
+    // Generate random number of day-off periods (0-5 periods per employee)
+    const numPeriods = Math.floor(Math.random() * 6)
 
-    // Leila Hamidi - 22 days used (blocked)
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[3].id,
-        startDate: new Date('2026-03-10'),
-        endDate: new Date('2026-03-21'),
-        workingDays: 10,
-        calendarDays: 12,
-        isSandwich: true,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[3].id,
-        startDate: new Date('2026-03-28'),
-        endDate: new Date('2026-04-04'),
-        workingDays: 6,
-        calendarDays: 8,
-        isSandwich: true,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[3].id,
-        startDate: new Date('2026-04-15'),
-        endDate: new Date('2026-04-21'),
-        workingDays: 5,
-        calendarDays: 7,
-        isSandwich: true,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[3].id,
-        startDate: new Date('2026-05-12'),
-        endDate: new Date('2026-05-12'),
-        workingDays: 1,
-        calendarDays: 1,
-        isSandwich: false,
-      },
-    }),
+    for (let j = 0; j < numPeriods; j++) {
+      // Random date in past 60 days
+      const daysAgo = Math.floor(Math.random() * 60)
+      const startDate = new Date(2026, 2, 20) // March 20, 2026
+      startDate.setDate(startDate.getDate() + daysAgo)
 
-    // Rachid Meziane - 6 days used
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[4].id,
-        startDate: new Date('2026-04-01'),
-        endDate: new Date('2026-04-03'),
-        workingDays: 3,
-        calendarDays: 3,
-        isSandwich: false,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[4].id,
-        startDate: new Date('2026-04-29'),
-        endDate: new Date('2026-04-30'),
-        workingDays: 2,
-        calendarDays: 2,
-        isSandwich: false,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[4].id,
-        startDate: new Date('2026-05-15'),
-        endDate: new Date('2026-05-15'),
-        workingDays: 1,
-        calendarDays: 1,
-        isSandwich: false,
-      },
-    }),
+      // Random duration 1-7 working days
+      const workingDays = Math.floor(Math.random() * 7) + 1
+      const endDate = new Date(startDate)
+      endDate.setDate(endDate.getDate() + workingDays - 1)
 
-    // Yacine Larbi - 19 days used (at risk)
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[6].id,
-        startDate: new Date('2026-03-08'),
-        endDate: new Date('2026-03-20'),
-        workingDays: 11,
-        calendarDays: 13,
-        isSandwich: true,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[6].id,
-        startDate: new Date('2026-04-07'),
-        endDate: new Date('2026-04-11'),
-        workingDays: 5,
-        calendarDays: 5,
-        isSandwich: false,
-      },
-    }),
-    prisma.dayOff.create({
-      data: {
-        employeeId: employees[6].id,
-        startDate: new Date('2026-05-06'),
-        endDate: new Date('2026-05-08'),
-        workingDays: 3,
-        calendarDays: 3,
-        isSandwich: false,
-      },
-    }),
-  ])
+      const calendarDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1
+      const isSandwich = calendarDays > workingDays
+
+      daysOffData.push({
+        employeeId: employee.id,
+        startDate,
+        endDate,
+        workingDays,
+        calendarDays,
+        isSandwich,
+        reason: isSandwich ? 'Congé avec sandwich' : 'Congé ordinaire',
+      })
+    }
+  }
+
+  const daysOff = await Promise.all(
+    daysOffData.map(data => prisma.dayOff.create({ data }))
+  )
 
   console.log(`✅ Created ${daysOff.length} day-off records`)
 
-  // Create block records for blocked employees
-  const blocks = await Promise.all([
-    prisma.block.create({
-      data: {
-        employeeId: employees[3].id, // Leila Hamidi
-        reason: 'Jours ouvrables insuffisants - 8 jours restants sur 30',
-        daysUsed: 22,
-        daysRemaining: 8,
-        blockedById: admins[0].id,
-        blockedAt: new Date('2026-04-15'),
-        isActive: true,
-      },
-    }),
-    prisma.block.create({
-      data: {
-        employeeId: employees[7].id, // Nabil Khelifi
-        reason: 'Dépassement du quota - 6 jours restants',
-        daysUsed: 24,
-        daysRemaining: 6,
-        blockedById: admins[0].id,
-        blockedAt: new Date('2026-04-18'),
-        isActive: true,
-      },
-    }),
-  ])
+  // Create block records for employees with status = 'bloqué'
+  const blockedEmployees = employees.filter(e => e.status === 'bloqué')
+  const blocks = await Promise.all(
+    blockedEmployees.map(employee => {
+      // Calculate days used from day-off records
+      const employeeDaysOff = daysOffData.filter(d => d.employeeId === employee.id)
+      const daysUsed = employeeDaysOff.reduce((sum, d) => sum + d.workingDays, 0)
+      const daysRemaining = 30 - daysUsed
+
+      return prisma.block.create({
+        data: {
+          employeeId: employee.id,
+          reason: `Jours ouvrables insuffisants - ${daysRemaining} jours restants sur 30`,
+          daysUsed,
+          daysRemaining,
+          blockedById: admins[0].id,
+          blockedAt: new Date(2026, 3, 15 + Math.floor(Math.random() * 10)),
+          isActive: true,
+        },
+      })
+    })
+  )
 
   console.log(`✅ Created ${blocks.length} block records`)
 
-  console.log('🎉 Seed completed successfully!')
+  // Summary
+  console.log('\n📊 Seed Summary:')
+  console.log(`   Admins: ${admins.length}`)
+  console.log(`   Employees: ${employees.length}`)
+  console.log(`   - Actifs: ${employees.filter(e => e.status === 'actif').length}`)
+  console.log(`   - À risque: ${employees.filter(e => e.status === 'risque').length}`)
+  console.log(`   - Bloqués: ${employees.filter(e => e.status === 'bloqué').length}`)
+  console.log(`   Day-off records: ${daysOff.length}`)
+  console.log(`   Active blocks: ${blocks.length}`)
+  console.log('\n🎉 Seed completed successfully!')
 }
 
 main()
