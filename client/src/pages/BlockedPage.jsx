@@ -1,44 +1,49 @@
 import { useState } from 'react'
-import { ShieldAlert, AlertCircle, Unlock } from 'lucide-react'
+import { ShieldAlert, AlertCircle, Unlock, Loader2 } from 'lucide-react'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import AdminPinEntry from '../components/AdminPinEntry'
-
-// Mock blocked employees data
-const mockBlockedEmployees = [
-  {
-    id: 4,
-    name: 'Leila Hamidi',
-    matricule: 'NAF-3215',
-    department: 'Finance',
-    position: 'Contrôleur',
-    daysUsed: 22,
-    daysTotal: 30,
-    status: 'bloqué',
-    avatar: 'LH',
-    blockedAt: '2026-04-15',
-    blockedReason: 'Jours ouvrables insuffisants - 8 jours restants sur 30',
-    blockedBy: 'Mohammed S.',
-  },
-  {
-    id: 8,
-    name: 'Nabil Khelifi',
-    matricule: 'NAF-2978',
-    department: 'Production',
-    position: 'Opérateur',
-    daysUsed: 24,
-    daysTotal: 30,
-    status: 'bloqué',
-    avatar: 'NK',
-    blockedAt: '2026-04-18',
-    blockedReason: 'Dépassement du quota - 6 jours restants',
-    blockedBy: 'Mohammed S.',
-  },
-]
+import { useBlocks } from '../hooks/useBlocks'
 
 export default function BlockedPage() {
+  const { blocks, loading, error } = useBlocks(true)
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [unblockEmployee, setUnblockEmployee] = useState(null)
   const [showPinEntry, setShowPinEntry] = useState(false)
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 text-navy animate-spin" />
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-apple-red/10 border border-apple-red/20 rounded-2xl p-6">
+        <div className="font-semibold text-apple-red mb-2">Erreur</div>
+        <p className="text-sm text-gray-700">{error}</p>
+      </div>
+    )
+  }
+
+  // Transform blocks to match component format
+  const mockBlockedEmployees = blocks.map((block) => ({
+    id: block.employee.id,
+    name: block.employee.name,
+    matricule: block.employee.matricule,
+    department: block.employee.department,
+    position: block.employee.position,
+    daysUsed: block.daysUsed,
+    daysTotal: block.employee.daysTotal,
+    status: 'bloqué',
+    avatar: block.employee.avatar,
+    blockedAt: block.blockedAt,
+    blockedReason: block.reason,
+    blockedBy: block.blockedBy.name,
+  }))
 
   const handleUnblockClick = (employee, e) => {
     e.stopPropagation()
