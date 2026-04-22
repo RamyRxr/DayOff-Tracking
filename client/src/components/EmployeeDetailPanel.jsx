@@ -1,11 +1,74 @@
 import { X } from 'lucide-react'
+import { useState } from 'react'
 import { useDaysOff } from '../hooks/useDaysOff'
+import { useBlocks } from '../hooks/useBlocks'
+import AddDayOffModal from './AddDayOffModal'
+import BlockEmployeeModal from './BlockEmployeeModal'
 
-export default function EmployeeDetailPanel({ employee, isOpen, onClose }) {
+export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdate }) {
+  const [showAddDayOff, setShowAddDayOff] = useState(false)
+  const [showBlock, setShowBlock] = useState(false)
+
   // Fetch day-off records for this employee
-  const { daysOff } = useDaysOff({ employeeId: employee?.id })
+  const { daysOff, addDayOff } = useDaysOff({ employeeId: employee?.id })
+
+  // Block management
+  const { blocks, block, unblock } = useBlocks()
 
   if (!isOpen || !employee) return null
+
+  const handleAddDayOffSubmit = async (dayOffData) => {
+    try {
+      const result = await addDayOff(dayOffData)
+      setShowAddDayOff(false)
+
+      // Refresh employee data
+      if (onUpdate) onUpdate()
+
+      // Show alert if employee was auto-blocked
+      if (result.block) {
+        alert(`⚠️ Employé bloqué automatiquement: ${result.block.reason}`)
+      }
+    } catch (error) {
+      alert(`Erreur: ${error.message}`)
+    }
+  }
+
+  const handleBlockSubmit = async (blockData) => {
+    try {
+      await block(blockData)
+      setShowBlock(false)
+      if (onUpdate) onUpdate()
+      alert('✅ Employé bloqué avec succès')
+    } catch (error) {
+      alert(`Erreur: ${error.message}`)
+    }
+  }
+
+  const handleUnblock = async () => {
+    try {
+      // Find active block for this employee
+      const activeBlock = blocks.find(
+        (b) => b.employeeId === employee.id && b.isActive
+      )
+
+      if (!activeBlock) {
+        alert('Aucun blocage actif trouvé pour cet employé')
+        return
+      }
+
+      // For now, using mock admin data (will be replaced with PIN entry)
+      await unblock(activeBlock.id, {
+        adminId: 1,
+        pin: '1234'
+      })
+
+      if (onUpdate) onUpdate()
+      alert('✅ Employé débloqué avec succès')
+    } catch (error) {
+      alert(`Erreur: ${error.message}`)
+    }
+  }
 
   const progressPercent = (employee.daysUsed / employee.daysTotal) * 100
   const daysRemaining = employee.daysTotal - employee.daysUsed
@@ -206,22 +269,45 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose }) {
 
           {/* Action buttons */}
           <div className="flex gap-3">
-            <button className="flex-1 bg-navy text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200">
+            <button
+              onClick={() => setShowAddDayOff(true)}
+              className="flex-1 bg-navy text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200"
+            >
               + Ajouter un congé
             </button>
             {employee.status !== 'bloqué' && (
-              <button className="px-4 py-3 border border-apple-red/20 text-apple-red rounded-xl font-medium text-sm hover:bg-apple-red/5 transition-all duration-200">
+              <button
+                onClick={() => setShowBlock(true)}
+                className="px-4 py-3 border border-apple-red/20 text-apple-red rounded-xl font-medium text-sm hover:bg-apple-red/5 transition-all duration-200"
+              >
                 Bloquer
               </button>
             )}
             {employee.status === 'bloqué' && (
-              <button className="px-4 py-3 border border-apple-green/20 text-apple-green rounded-xl font-medium text-sm hover:bg-apple-green/5 transition-all duration-200">
+              <button
+                onClick={handleUnblock}
+                className="px-4 py-3 border border-apple-green/20 text-apple-green rounded-xl font-medium text-sm hover:bg-apple-green/5 transition-all duration-200"
+              >
                 Débloquer
               </button>
             )}
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <AddDayOffModal
+        employee={employee}
+        isOpen={showAddDayOff}
+        onClose={() => setShowAddDayOff(false)}
+        onSubmit={handleAddDayOffSubmit}
+      />
+      <BlockEmployeeModal
+        employee={employee}
+        isOpen={showBlock}
+        onClose={() => setShowBlock(false)}
+        onSubmit={handleBlockSubmit}
+      />
     </>
   )
 }
