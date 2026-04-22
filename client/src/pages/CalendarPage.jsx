@@ -1,22 +1,30 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Filter } from 'lucide-react'
-
-// Mock day-off data
-const mockDayOffs = [
-  { id: 1, employeeId: 1, employeeName: 'Ahmed Benali', date: '2026-04-23', avatar: 'AB' },
-  { id: 2, employeeId: 1, employeeName: 'Ahmed Benali', date: '2026-04-24', avatar: 'AB' },
-  { id: 3, employeeId: 2, employeeName: 'Fatima Zerrouki', date: '2026-04-25', avatar: 'FZ' },
-  { id: 4, employeeId: 3, employeeName: 'Karim Boudiaf', date: '2026-04-28', avatar: 'KB' },
-  { id: 5, employeeId: 5, employeeName: 'Rachid Meziane', date: '2026-04-29', avatar: 'RM' },
-  { id: 6, employeeId: 5, employeeName: 'Rachid Meziane', date: '2026-04-30', avatar: 'RM' },
-  { id: 7, employeeId: 2, employeeName: 'Fatima Zerrouki', date: '2026-05-05', avatar: 'FZ' },
-  { id: 8, employeeId: 3, employeeName: 'Karim Boudiaf', date: '2026-05-08', avatar: 'KB' },
-  { id: 9, employeeId: 3, employeeName: 'Karim Boudiaf', date: '2026-05-09', avatar: 'KB' },
-]
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Filter, Loader2, AlertCircle } from 'lucide-react'
+import { useDaysOff } from '../hooks/useDaysOff'
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date(2026, 3, 1)) // April 2026
   const [selectedDate, setSelectedDate] = useState(null)
+  const { daysOff, loading, error, refetch } = useDaysOff()
+
+  // Transform API data to calendar format
+  const transformedDaysOff = daysOff.flatMap((dayOff) => {
+    const dates = []
+    const start = new Date(dayOff.startDate)
+    const end = new Date(dayOff.endDate)
+
+    // Generate all dates in the range
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      dates.push({
+        id: `${dayOff.id}-${d.toISOString().split('T')[0]}`,
+        employeeId: dayOff.employeeId,
+        employeeName: dayOff.employee?.name || 'Unknown',
+        date: d.toISOString().split('T')[0],
+        avatar: dayOff.employee?.avatar || '??',
+      })
+    }
+    return dates
+  })
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -45,7 +53,7 @@ export default function CalendarPage() {
       const dateString = date.toISOString().split('T')[0]
       const dayOfWeek = date.getDay()
       const isWeekend = dayOfWeek === 5 || dayOfWeek === 6 // Friday or Saturday
-      const dayOffs = mockDayOffs.filter(d => d.date === dateString)
+      const dayOffs = transformedDaysOff.filter(d => d.date === dateString)
 
       days.push({
         day,
@@ -73,8 +81,38 @@ export default function CalendarPage() {
 
   // Get day-offs for selected date
   const selectedDayOffs = selectedDate
-    ? mockDayOffs.filter(d => d.date === selectedDate)
+    ? transformedDaysOff.filter(d => d.date === selectedDate)
     : []
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 text-navy animate-spin" />
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-apple-red/10 border border-apple-red/20 rounded-2xl p-6">
+        <div className="flex items-center gap-3">
+          <AlertCircle className="w-6 h-6 text-apple-red" />
+          <div>
+            <div className="font-semibold text-apple-red">Erreur de chargement</div>
+            <p className="text-sm text-gray-700 mt-1">{error}</p>
+            <button
+              onClick={refetch}
+              className="text-sm text-navy hover:underline mt-2"
+            >
+              Réessayer
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -257,19 +295,21 @@ export default function CalendarPage() {
       <div className="mt-6 grid grid-cols-3 gap-4">
         <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
           <div className="text-2xl font-bold text-navy">
-            {mockDayOffs.filter(d => d.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length}
+            {transformedDaysOff.filter(d => d.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length}
           </div>
           <div className="text-sm text-gray-600 mt-1">Congés ce mois</div>
         </div>
         <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
           <div className="text-2xl font-bold text-navy">
-            {new Set(mockDayOffs.map(d => d.employeeId)).size}
+            {new Set(transformedDaysOff.map(d => d.employeeId)).size}
           </div>
           <div className="text-sm text-gray-600 mt-1">Employés en congé</div>
         </div>
         <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
           <div className="text-2xl font-bold text-navy">
-            {Math.round((mockDayOffs.filter(d => d.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length / 30) * 100)}%
+            {transformedDaysOff.length > 0
+              ? Math.round((transformedDaysOff.filter(d => d.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length / 30) * 100)
+              : 0}%
           </div>
           <div className="text-sm text-gray-600 mt-1">Taux d'utilisation</div>
         </div>
