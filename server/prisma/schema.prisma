@@ -4,10 +4,78 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id          Int       @id @default(autoincrement())
+  matricule   String    @unique
+  name        String
+  department  String
+  position    String
+  avatar      String?
+  status      String    @default("actif") // actif, risque, bloqué
+  daysTotal   Int       @default(30)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  daysOff     DayOff[]
+  blocks      Block[]
+
+  @@map("employees")
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  role      String   // "RH Sénior", "RH", "Admin"
+  pinHash   String   // bcrypt hashed 4-digit PIN
+  createdAt DateTime @default(now())
+
+  blocks    Block[]  @relation("BlockedBy")
+  unblocks  Block[]  @relation("UnblockedBy")
+
+  @@map("admins")
+}
+
+model DayOff {
+  id            Int       @id @default(autoincrement())
+  employeeId    Int
+  startDate     DateTime
+  endDate       DateTime
+  workingDays   Int       // Calculated working days (excluding weekends)
+  calendarDays  Int       // Total calendar days
+  isSandwich    Boolean   @default(false) // True if calendar days > working days
+  reason        String?
+  justification String?   // File path for uploaded document
+  createdAt     DateTime  @default(now())
+
+  employee      Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("days_off")
+}
+
+model Block {
+  id            Int       @id @default(autoincrement())
+  employeeId    Int
+  reason        String
+  daysUsed      Int       // Days used at time of blocking
+  daysRemaining Int       // Days remaining at time of blocking
+  blockedById   Int
+  blockedAt     DateTime  @default(now())
+  unblockedById Int?
+  unblockedAt   DateTime?
+  isActive      Boolean   @default(true)
+
+  employee      Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  blockedBy     Admin     @relation("BlockedBy", fields: [blockedById], references: [id])
+  unblockedBy   Admin?    @relation("UnblockedBy", fields: [unblockedById], references: [id])
+
+  @@map("blocks")
 }
