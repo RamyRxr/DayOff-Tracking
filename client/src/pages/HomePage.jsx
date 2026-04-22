@@ -90,6 +90,7 @@ export default function HomePage() {
         employee={selectedEmployee}
         isOpen={!!selectedEmployee}
         onClose={() => setSelectedEmployee(null)}
+        onUpdate={refetch}
       />
     </div>
   )
