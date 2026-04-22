@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import EmployeeCard from '../components/EmployeeCard'
+import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 
 // Mock NAFTAL employee data
 const mockEmployees = [
@@ -62,6 +63,8 @@ const mockEmployees = [
 ]
 
 export default function HomePage() {
+  const [selectedEmployee, setSelectedEmployee] = useState(null)
+
   return (
     <div>
       {/* Stat cards row */}
@@ -80,7 +83,11 @@ export default function HomePage() {
       {/* Employee list */}
       <div className="space-y-3">
         {mockEmployees.map((employee) => (
-          <EmployeeCard key={employee.id} employee={employee} />
+          <EmployeeCard
+            key={employee.id}
+            employee={employee}
+            onDetailsClick={() => setSelectedEmployee(employee)}
+          />
         ))}
       </div>
 
@@ -88,6 +95,13 @@ export default function HomePage() {
       <button className="fixed bottom-8 right-8 w-[52px] h-[52px] bg-navy rounded-full flex items-center justify-center text-white shadow-modal hover:shadow-ambient hover:scale-105 transition-all duration-200">
         <Plus className="w-6 h-6" strokeWidth={2} />
       </button>
+
+      {/* Employee Detail Panel */}
+      <EmployeeDetailPanel
+        employee={selectedEmployee}
+        isOpen={!!selectedEmployee}
+        onClose={() => setSelectedEmployee(null)}
+      />
     </div>
   )
 }
