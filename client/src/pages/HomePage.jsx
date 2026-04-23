@@ -4,17 +4,21 @@ import { Plus, Loader2, AlertCircle } from 'lucide-react'
 import EmployeeCard from '../components/EmployeeCard'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import AddEmployeeModal from '../components/AddEmployeeModal'
+import AddDayOffModal from '../components/AddDayOffModal'
 import { useEmployees } from '../hooks/useEmployees'
+import { useDaysOff } from '../hooks/useDaysOff'
 
 export default function HomePage() {
   const location = useLocation()
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [showAddEmployee, setShowAddEmployee] = useState(false)
+  const [dayOffEmployee, setDayOffEmployee] = useState(null)
   const [activeFilter, setActiveFilter] = useState(null)
   const { employees, loading, error, refetch, addEmployee } = useEmployees()
+  const { addDayOff } = useDaysOff({ employeeId: dayOffEmployee?.id })
 
   const isHomePage = location.pathname === '/'
-  const isAnyModalOpen = !!selectedEmployee || showAddEmployee
+  const isAnyModalOpen = !!selectedEmployee || showAddEmployee || !!dayOffEmployee
 
   // Calculate stats from employees data
   const stats = {
@@ -46,6 +50,23 @@ export default function HomePage() {
       await addEmployee(employeeData)
       setShowAddEmployee(false)
       alert('✅ Employé ajouté avec succès')
+    } catch (error) {
+      alert(`Erreur: ${error.message}`)
+    }
+  }
+
+  const handleAddDayOffSubmit = async (dayOffData) => {
+    try {
+      const result = await addDayOff(dayOffData)
+      setDayOffEmployee(null)
+      refetch()
+
+      // Show alert if employee was auto-blocked
+      if (result.block) {
+        alert(`⚠️ Employé bloqué automatiquement: ${result.block.reason}`)
+      } else {
+        alert('✅ Congé ajouté avec succès')
+      }
     } catch (error) {
       alert(`Erreur: ${error.message}`)
     }
@@ -151,6 +172,7 @@ export default function HomePage() {
               <EmployeeCard
                 employee={employee}
                 onDetailsClick={() => setSelectedEmployee(employee)}
+                onDayOffClick={() => setDayOffEmployee(employee)}
               />
             </div>
           ))}
@@ -182,6 +204,14 @@ export default function HomePage() {
         isOpen={showAddEmployee}
         onClose={() => setShowAddEmployee(false)}
         onSubmit={handleAddEmployeeSubmit}
+      />
+
+      {/* Add Day Off Modal */}
+      <AddDayOffModal
+        employee={dayOffEmployee}
+        isOpen={!!dayOffEmployee}
+        onClose={() => setDayOffEmployee(null)}
+        onSubmit={handleAddDayOffSubmit}
       />
     </div>
   )
