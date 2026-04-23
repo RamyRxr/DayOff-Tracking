@@ -25,7 +25,7 @@ export default function EmployeeCard({ employee, onDetailsClick, onDayOffClick }
 
   return (
     <div
-      className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 shadow-ambient hover:shadow-modal hover:scale-[1.01] transition-all duration-200 cursor-pointer animate-fade-up"
+      className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 shadow-ambient hover:shadow-modal hover:scale-[1.01] transition-all duration-200 cursor-pointer animate-fade-up group"
       onClick={() => onDetailsClick?.()}
     >
       <div className="flex items-center gap-4">
@@ -72,8 +72,8 @@ export default function EmployeeCard({ employee, onDetailsClick, onDayOffClick }
           </span>
         </div>
 
-        {/* Action buttons (always visible) */}
-        <div className="flex items-center gap-2">
+        {/* Action buttons (hidden by default, appear on hover with delay) */}
+        <div className="flex items-center gap-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-150 delay-100 group-hover:delay-100">
           <button
             onClick={(e) => {
               e.stopPropagation()
