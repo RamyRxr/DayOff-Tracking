@@ -5,7 +5,7 @@ import { useEmployees } from '../hooks/useEmployees'
 
 export default function Layout({ currentAdmin, onLogout }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false)
-  const [unreadNotifications, setUnreadNotifications] = useState(true)
+  const [readNotifications, setReadNotifications] = useState(new Set())
   const notifRef = useRef(null)
   const { employees } = useEmployees()
 
@@ -24,8 +24,8 @@ export default function Layout({ currentAdmin, onLogout }) {
       timestamp: 'Aujourd\'hui',
     }))
 
-  const notificationCount = notifications.length
-  const displayCount = notificationCount > 9 ? '9+' : notificationCount
+  const unreadCount = notifications.filter(n => !readNotifications.has(n.id)).length
+  const displayCount = unreadCount > 9 ? '9+' : unreadCount
 
   // Close on outside click
   useEffect(() => {
@@ -45,8 +45,15 @@ export default function Layout({ currentAdmin, onLogout }) {
   }, [notificationsOpen])
 
   const handleMarkAllRead = () => {
-    setUnreadNotifications(false)
+    const allIds = new Set(notifications.map(n => n.id))
+    setReadNotifications(allIds)
     setTimeout(() => setNotificationsOpen(false), 300)
+  }
+
+  const handleNotificationHover = (notifId) => {
+    if (!readNotifications.has(notifId)) {
+      setReadNotifications(prev => new Set([...prev, notifId]))
+    }
   }
 
   return (
@@ -77,7 +84,7 @@ export default function Layout({ currentAdmin, onLogout }) {
               <svg className="w-5 h-5 text-[#6B7280]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
-              {unreadNotifications && notificationCount > 0 && (
+              {unreadCount > 0 && (
                 <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-status-red rounded-full flex items-center justify-center text-[10px] font-bold text-white animate-pulse px-1">
                   {displayCount}
                 </span>
@@ -90,7 +97,7 @@ export default function Layout({ currentAdmin, onLogout }) {
                 {/* Header */}
                 <div className="px-4 py-3 border-b border-black/6 flex items-center justify-between">
                   <h3 className="font-semibold text-[#111827]">Notifications</h3>
-                  {notificationCount > 0 && (
+                  {unreadCount > 0 && (
                     <button
                       onClick={handleMarkAllRead}
                       className="text-xs text-navy hover:underline font-medium"
@@ -107,44 +114,50 @@ export default function Layout({ currentAdmin, onLogout }) {
                       <p className="text-[#6B7280] text-sm">Aucune notification</p>
                     </div>
                   ) : (
-                    notifications.map((notif) => (
-                      <div
-                        key={notif.id}
-                        className="px-4 py-3 hover:bg-black/[0.02] transition-colors border-b-0.5 border-black/6 last:border-b-0"
-                      >
-                        <div className="flex gap-3">
-                          {/* Icon */}
-                          <div className="flex-shrink-0">
-                            <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                notif.type === 'risque'
-                                  ? 'bg-status-amber/10'
-                                  : 'bg-status-red/10'
-                              }`}
-                            >
-                              <span className="text-sm">
-                                {notif.type === 'risque' ? '⚠' : '🚫'}
-                              </span>
+                    notifications.map((notif) => {
+                      const isRead = readNotifications.has(notif.id)
+                      return (
+                        <div
+                          key={notif.id}
+                          onMouseEnter={() => handleNotificationHover(notif.id)}
+                          className={`px-4 py-3 hover:bg-black/[0.02] transition-all duration-200 border-b-0.5 border-black/6 last:border-b-0 ${
+                            isRead ? 'opacity-60' : ''
+                          }`}
+                        >
+                          <div className="flex gap-3">
+                            {/* Icon */}
+                            <div className="flex-shrink-0">
+                              <div
+                                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                  notif.type === 'risque'
+                                    ? 'bg-status-amber/10'
+                                    : 'bg-status-red/10'
+                                }`}
+                              >
+                                <span className="text-sm">
+                                  {notif.type === 'risque' ? '⚠' : '🚫'}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[13px] text-[#111827] leading-snug">
+                                {notif.message}
+                              </p>
+                              <p className="text-[11px] text-[#6B7280] mt-1">
+                                {notif.matricule}
+                              </p>
+                            </div>
+
+                            {/* Timestamp */}
+                            <div className="text-[11px] text-[#6B7280] flex-shrink-0">
+                              {notif.timestamp}
                             </div>
                           </div>
-
-                          {/* Content */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[13px] text-[#111827] leading-snug">
-                              {notif.message}
-                            </p>
-                            <p className="text-[11px] text-[#6B7280] mt-1">
-                              {notif.matricule}
-                            </p>
-                          </div>
-
-                          {/* Timestamp */}
-                          <div className="text-[11px] text-[#6B7280] flex-shrink-0">
-                            {notif.timestamp}
-                          </div>
                         </div>
-                      </div>
-                    ))
+                      )
+                    })
                   )}
                 </div>
               </div>
