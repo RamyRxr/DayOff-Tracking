@@ -268,22 +268,22 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
           </div>
 
           {/* Split Calendar */}
-          <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-            <h4 className="text-sm font-semibold text-[#111827] mb-3">
+          <div className="bg-white/80 backdrop-blur-xl rounded-xl p-3 shadow-ambient">
+            <h4 className="text-[11px] uppercase tracking-wider font-semibold text-[#6B7280] mb-2">
               Période actuelle
             </h4>
-            <div className="text-xs text-[#6B7280] mb-4">
+            <div className="text-[10px] text-[#6B7280] mb-3">
               20 {periodStart.toLocaleDateString('fr-DZ', { month: 'long' })} —{' '}
               19 {periodEnd.toLocaleDateString('fr-DZ', { month: 'long' })}
             </div>
 
             {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-0.5">
               {/* Day headers */}
               {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
                 <div
                   key={i}
-                  className="text-center text-[10px] font-medium text-[#6B7280] pb-1"
+                  className="h-5 flex items-center justify-center text-[10px] font-medium text-[#6B7280]"
                 >
                   {day}
                 </div>
@@ -293,7 +293,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               {periodDays.map((day, i) => (
                 <div
                   key={i}
-                  className={`aspect-square flex items-center justify-center text-[11px] rounded-md transition-all ${
+                  className={`w-7 h-7 flex items-center justify-center text-[11px] rounded-md transition-all ${
                     day.isDayOff
                       ? 'bg-navy text-white font-semibold'
                       : day.isWeekend
@@ -307,7 +307,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-black/6">
+            <div className="flex items-center gap-3 mt-3 pt-2 border-t border-black/6">
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded bg-navy" />
                 <span className="text-[10px] text-[#6B7280]">Congé</span>
