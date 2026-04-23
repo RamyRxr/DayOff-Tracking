@@ -184,27 +184,103 @@ export default function HomePage() {
       )}
 
       {/* Section label */}
-      <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-semibold mb-4 mt-8 animate-fade-up" style={{ animationDelay: '0.4s' }}>
+      <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-semibold mb-4 mt-8">
         Activité récente
       </h2>
 
-      {/* Employee list */}
-      {filteredEmployees.length === 0 ? (
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-12 text-center shadow-ambient">
-          <p className="text-[#6B7280]">Aucun employé trouvé</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredEmployees.slice(0, 5).map((employee, index) => (
-            <div key={employee.id} style={{ animationDelay: `${index * 0.1}s` }}>
-              <EmployeeCard
-                employee={employee}
-                onDetailsClick={() => setSelectedEmployee(employee)}
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Employee table */}
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-ambient overflow-hidden">
+        {filteredEmployees.length === 0 ? (
+          <div className="py-16 text-center">
+            <p className="text-[#6B7280]">Aucun employé trouvé</p>
+          </div>
+        ) : (
+          <table className="w-full">
+            <thead className="bg-warm-gray-200 border-b border-black/6">
+              <tr>
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
+                  Employé
+                </th>
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
+                  Département
+                </th>
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
+                  Congé
+                </th>
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
+                  Statut
+                </th>
+                <th className="text-right px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-black/6">
+              {filteredEmployees.slice(0, 5).map((employee) => {
+                const statusConfig = {
+                  actif: { label: 'Actif', dotColor: 'bg-status-green', bgColor: 'bg-status-green/10', textColor: 'text-status-green' },
+                  risque: { label: 'À risque', dotColor: 'bg-status-amber', bgColor: 'bg-status-amber/10', textColor: 'text-status-amber' },
+                  bloqué: { label: 'Bloqué', dotColor: 'bg-status-red', bgColor: 'bg-status-red/10', textColor: 'text-status-red' },
+                }
+                const status = statusConfig[employee.status] || statusConfig.actif
+
+                return (
+                  <tr
+                    key={employee.id}
+                    className="h-[52px] hover:bg-black/[0.02] transition-colors cursor-pointer"
+                    onClick={() => setSelectedEmployee(employee)}
+                  >
+                    <td className="px-6 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-warm-gray-200 flex items-center justify-center text-xs font-semibold text-[#374151]">
+                          {employee.avatar}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-sm text-[#111827]">
+                            {employee.name}
+                          </div>
+                          <div className="text-[11px] font-mono text-[#6B7280]">
+                            {employee.matricule}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-3">
+                      <span className="inline-block px-2 py-0.5 bg-warm-gray-300 text-[#374151] text-[11px] rounded-md">
+                        {employee.department}
+                      </span>
+                    </td>
+                    <td className="px-6 py-3">
+                      <div className="text-sm text-[#111827]">
+                        {employee.daysUsed} jours
+                      </div>
+                    </td>
+                    <td className="px-6 py-3">
+                      <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${status.bgColor}`}>
+                        <div className={`w-1.5 h-1.5 rounded-full ${status.dotColor}`} />
+                        <span className={`text-[11px] font-medium ${status.textColor}`}>
+                          {status.label}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-3 text-right">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedEmployee(employee)
+                        }}
+                        className="text-xs font-medium text-[#6B7280] hover:text-navy transition-colors px-2 py-1"
+                      >
+                        Détails
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
 
       {/* Floating FAB - Only show on home page when no modals are open */}
       {isHomePage && (
