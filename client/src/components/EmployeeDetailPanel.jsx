@@ -70,8 +70,37 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     (b) => b.employeeId === employee?.id && b.isActive
   )
 
-  const progressPercent = (employee.daysUsed / employee.daysTotal) * 100
-  const daysRemaining = employee.daysTotal - employee.daysUsed
+  // Calculate total day-off days taken from actual records
+  const totalDayOffDays = daysOff.reduce((sum, dayOff) => {
+    const start = new Date(dayOff.startDate)
+    const end = new Date(dayOff.endDate)
+    let count = 0
+    const current = new Date(start)
+    while (current <= end) {
+      const day = current.getDay()
+      // Exclude Friday (5) and Saturday (6) weekends
+      if (day !== 5 && day !== 6) {
+        count++
+      }
+      current.setDate(current.getDate() + 1)
+    }
+    return sum + count
+  }, 0)
+
+  // Calculate working days elapsed since period start (20th of month)
+  const periodStart = new Date(currentYear, currentMonth, 20)
+  const today = new Date()
+  let workingDaysElapsed = 0
+  const tempDate = new Date(periodStart)
+  while (tempDate <= today) {
+    const day = tempDate.getDay()
+    if (day !== 5 && day !== 6) {
+      workingDaysElapsed++
+    }
+    tempDate.setDate(tempDate.getDate() + 1)
+  }
+
+  const daysAvailable = 30 - totalDayOffDays
 
   // Generate email from name if not present
   const getEmail = () => {
@@ -216,39 +245,25 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
               <div className="text-2xl font-bold text-[#111827]">
-                {employee.daysUsed}
+                {totalDayOffDays}
               </div>
-              <div className="text-xs text-[#6B7280] mt-1">Jours pris</div>
-            </div>
-            <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-              <div className="text-2xl font-bold text-status-green">
-                {daysRemaining}
-              </div>
-              <div className="text-xs text-[#6B7280] mt-1">Jours restants</div>
+              <div className="text-xs text-[#6B7280] mt-1">Jours de congé</div>
             </div>
             <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
               <div className="text-2xl font-bold text-[#111827]">
-                {employee.daysTotal}
+                {workingDaysElapsed}
               </div>
-              <div className="text-xs text-[#6B7280] mt-1">Total annuel</div>
+              <div className="text-xs text-[#6B7280] mt-1">Jours travaillés</div>
             </div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-            <div className="flex items-baseline justify-between mb-2">
-              <span className="text-sm font-medium text-[#111827]">
-                Utilisation des congés
-              </span>
-              <span className="text-xs text-[#6B7280]">
-                {Math.round(progressPercent)}%
-              </span>
-            </div>
-            <div className="w-full h-2 bg-warm-gray-300 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-navy transition-all duration-300"
-                style={{ width: `${progressPercent}%` }}
-              />
+            <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
+              <div className={`text-2xl font-bold ${
+                daysAvailable <= 0 ? 'text-status-red' :
+                daysAvailable <= 4 ? 'text-status-amber' :
+                'text-[#111827]'
+              }`}>
+                {daysAvailable}
+              </div>
+              <div className="text-xs text-[#6B7280] mt-1">Jours disponibles</div>
             </div>
           </div>
 
