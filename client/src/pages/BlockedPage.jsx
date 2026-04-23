@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { ShieldAlert, AlertCircle, Unlock, Loader2 } from 'lucide-react'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
-import AdminPinEntry from '../components/AdminPinEntry'
+import UnblockModal from '../components/UnblockModal'
 import { useBlocks } from '../hooks/useBlocks'
 
 export default function BlockedPage() {
-  const { blocks, loading, error } = useBlocks(true)
+  const { blocks, loading, error, unblock, refetch } = useBlocks(true)
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [unblockEmployee, setUnblockEmployee] = useState(null)
-  const [showPinEntry, setShowPinEntry] = useState(false)
+  const [showUnblock, setShowUnblock] = useState(false)
 
   // Loading state
   if (loading) {
@@ -43,22 +43,31 @@ export default function BlockedPage() {
     blockedAt: block.blockedAt,
     blockedReason: block.reason,
     blockedBy: block.blockedBy.name,
+    blockId: block.id,
+    blockData: block,
   }))
 
-  const handleUnblockClick = (employee, e) => {
+  const handleUnblockClick = (employee, block, e) => {
     e.stopPropagation()
-    setUnblockEmployee(employee)
+    setUnblockEmployee({ employee, block })
+    setShowUnblock(true)
   }
 
-  const handleConfirmUnblock = () => {
-    setShowPinEntry(true)
-  }
-
-  const handlePinSuccess = () => {
-    // Handle unblock action
-    console.log('Unblock employee:', unblockEmployee)
-    setUnblockEmployee(null)
-    setShowPinEntry(false)
+  const handleUnblockSubmit = async (unblockData) => {
+    try {
+      await unblock(unblockData.blockId, {
+        adminId: 1,
+        pin: '1234',
+        reason: unblockData.reason,
+        description: unblockData.description,
+      })
+      setShowUnblock(false)
+      setUnblockEmployee(null)
+      refetch()
+      alert('✅ Employé débloqué avec succès')
+    } catch (error) {
+      alert(`Erreur: ${error.message}`)
+    }
   }
 
   const formatDate = (dateString) => {
@@ -192,7 +201,7 @@ export default function BlockedPage() {
                   Voir détails
                 </button>
                 <button
-                  onClick={(e) => handleUnblockClick(employee, e)}
+                  onClick={(e) => handleUnblockClick(employee, employee.blockData, e)}
                   className="flex-1 flex items-center justify-center gap-2 bg-apple-green text-white px-4 py-2.5 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200"
                 >
                   <Unlock className="w-4 h-4" strokeWidth={2} />
@@ -219,69 +228,24 @@ export default function BlockedPage() {
         </div>
       )}
 
-      {/* Unblock confirmation popover */}
-      {unblockEmployee && !showPinEntry && (
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center"
-          onClick={() => setUnblockEmployee(null)}
-        >
-          <div
-            className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-[400px] p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Icon */}
-            <div className="flex justify-center mb-4">
-              <div className="w-14 h-14 rounded-full bg-apple-green/10 flex items-center justify-center">
-                <Unlock className="w-7 h-7 text-apple-green" strokeWidth={2} />
-              </div>
-            </div>
-
-            {/* Title */}
-            <h3 className="text-center text-xl font-semibold text-gray-900 mb-2">
-              Débloquer l'employé
-            </h3>
-
-            {/* Message */}
-            <p className="text-center text-sm text-gray-600 mb-6">
-              Voulez-vous débloquer <strong>{unblockEmployee.name}</strong> ?
-              L'employé pourra à nouveau demander des congés.
-            </p>
-
-            {/* Actions */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setUnblockEmployee(null)}
-                className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-gray-600 hover:bg-black/5 transition-all duration-200"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleConfirmUnblock}
-                className="flex-1 bg-apple-green text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200"
-              >
-                Confirmer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Employee Detail Panel */}
       <EmployeeDetailPanel
         employee={selectedEmployee}
         isOpen={!!selectedEmployee}
         onClose={() => setSelectedEmployee(null)}
+        onUpdate={refetch}
       />
 
-      {/* PIN Entry */}
-      <AdminPinEntry
-        isOpen={showPinEntry}
+      {/* Unblock Modal */}
+      <UnblockModal
+        employee={unblockEmployee?.employee}
+        activeBlock={unblockEmployee?.block}
+        isOpen={showUnblock}
         onClose={() => {
-          setShowPinEntry(false)
+          setShowUnblock(false)
           setUnblockEmployee(null)
         }}
-        onSuccess={handlePinSuccess}
-        actionLabel="Débloquer l'employé"
+        onSubmit={handleUnblockSubmit}
       />
     </div>
   )
