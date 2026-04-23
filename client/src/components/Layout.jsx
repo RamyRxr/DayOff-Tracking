@@ -93,7 +93,7 @@ export default function Layout({ currentAdmin, onLogout }) {
 
             {/* Notification Dropdown */}
             {notificationsOpen && (
-              <div className="absolute top-full right-0 mt-2 w-80 bg-white/90 backdrop-blur-xl rounded-2xl shadow-ambient border border-black/6 overflow-hidden animate-in">
+              <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-2xl shadow-ambient border border-black/6 overflow-hidden animate-in">
                 {/* Header */}
                 <div className="px-4 py-3 border-b border-black/6 flex items-center justify-between">
                   <h3 className="font-semibold text-[#111827]">Notifications</h3>
