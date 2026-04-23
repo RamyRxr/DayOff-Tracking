@@ -117,8 +117,8 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
   }
 
   const workingDays = calculateWorkingDays()
-  const calendarDays = calculateCalendarDays()
-  const hasSandwich = calendarDays > workingDays
+  const totalCalendarDays = calculateCalendarDays()
+  const hasSandwich = totalCalendarDays > workingDays
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0]
@@ -306,7 +306,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                   <div className="flex gap-2 p-3 bg-status-amber/10 border border-status-amber/20 rounded-xl mt-2">
                     <AlertTriangle className="w-4 h-4 text-status-amber flex-shrink-0 mt-0.5" />
                     <div className="text-xs text-status-amber">
-                      ⚠ Détection sandwich — Jours réels: {calendarDays} · Déclarés: {workingDays}
+                      ⚠ Détection sandwich — Jours réels: {totalCalendarDays} · Déclarés: {workingDays}
                     </div>
                   </div>
                 )}
