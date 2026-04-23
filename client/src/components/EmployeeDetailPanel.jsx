@@ -1,5 +1,7 @@
-import { X } from 'lucide-react'
+import { X, Mail, Phone, Calendar as CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useBlocks } from '../hooks/useBlocks'
 import AddDayOffModal from './AddDayOffModal'
@@ -72,6 +74,27 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
 
   const progressPercent = (employee.daysUsed / employee.daysTotal) * 100
   const daysRemaining = employee.daysTotal - employee.daysUsed
+
+  // Generate email from name if not present
+  const getEmail = () => {
+    if (employee.email) return employee.email
+    const names = employee.name.toLowerCase().split(' ')
+    if (names.length >= 2) {
+      return `${names[0]}.${names[names.length - 1]}@naftal.dz`
+    }
+    return `${names[0]}@naftal.dz`
+  }
+
+  // Format start date
+  const getStartDate = () => {
+    const date = employee.startDate || employee.createdAt
+    if (!date) return '—'
+    try {
+      return format(new Date(date), 'dd MMM yyyy', { locale: fr })
+    } catch {
+      return '—'
+    }
+  }
 
   // Generate calendar for current period (20th to 19th)
   const currentDate = new Date()
@@ -170,6 +193,22 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                   <span className={`text-xs font-medium ${status.color}`}>
                     {status.label}
                   </span>
+                </div>
+
+                {/* Contact & Start Date Info Pills */}
+                <div className="flex items-center gap-2 mt-3 flex-wrap">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 rounded-lg">
+                    <Mail className="w-3.5 h-3.5 text-[#6B7280]" />
+                    <span className="text-xs text-[#6B7280]">{getEmail()}</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 rounded-lg">
+                    <Phone className="w-3.5 h-3.5 text-[#6B7280]" />
+                    <span className="text-xs text-[#6B7280]">{employee.phone || '—'}</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 rounded-lg">
+                    <CalendarIcon className="w-3.5 h-3.5 text-[#6B7280]" />
+                    <span className="text-xs text-[#6B7280]">{getStartDate()}</span>
+                  </div>
                 </div>
               </div>
             </div>
