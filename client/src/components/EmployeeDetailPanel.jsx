@@ -70,6 +70,13 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     (b) => b.employeeId === employee?.id && b.isActive
   )
 
+  // Current date and period variables
+  const currentDate = new Date()
+  const currentMonth = currentDate.getMonth()
+  const currentYear = currentDate.getFullYear()
+  const periodStart = new Date(currentYear, currentMonth, 20)
+  const periodEnd = new Date(currentYear, currentMonth + 1, 19)
+
   // Calculate total day-off days taken from actual records
   const totalDayOffDays = daysOff.reduce((sum, dayOff) => {
     const start = new Date(dayOff.startDate)
@@ -88,7 +95,6 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
   }, 0)
 
   // Calculate working days elapsed since period start (20th of month)
-  const periodStart = new Date(currentYear, currentMonth, 20)
   const today = new Date()
   let workingDaysElapsed = 0
   const tempDate = new Date(periodStart)
@@ -124,14 +130,6 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
   }
 
   // Generate calendar for current period (20th to 19th)
-  const currentDate = new Date()
-  const currentMonth = currentDate.getMonth()
-  const currentYear = currentDate.getFullYear()
-
-  // Period: 20th of current month to 19th of next month
-  const periodStart = new Date(currentYear, currentMonth, 20)
-  const periodEnd = new Date(currentYear, currentMonth + 1, 19)
-
   // Create set of day-off dates for quick lookup
   const dayOffDates = new Set()
   daysOff.forEach((dayOff) => {
