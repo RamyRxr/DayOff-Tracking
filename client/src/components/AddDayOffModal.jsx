@@ -61,17 +61,17 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center"
+        className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center animate-fade-in"
         onClick={handleClose}
       >
         {/* Modal */}
         <div
-          className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-[480px] max-h-[90vh] overflow-y-auto"
+          className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-[480px] max-h-[90vh] overflow-y-auto animate-scale-in"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="sticky top-0 bg-white/90 backdrop-blur-xl border-b border-black/6 px-6 py-4 flex items-center justify-between rounded-t-3xl">
-            <h2 className="text-lg font-semibold text-[#111827]">
+            <h2 className="font-display text-xl font-bold text-[#111827]">
               Ajouter un congé
             </h2>
             <button

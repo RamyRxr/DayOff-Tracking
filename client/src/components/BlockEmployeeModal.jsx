@@ -35,12 +35,12 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center"
+        className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center animate-fade-in"
         onClick={handleClose}
       >
         {/* Modal */}
         <div
-          className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-[480px]"
+          className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-[480px] animate-scale-in"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -49,7 +49,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
               <div className="w-10 h-10 rounded-full bg-status-red/20 flex items-center justify-center">
                 <ShieldAlert className="w-5 h-5 text-status-red" strokeWidth={2} />
               </div>
-              <h2 className="text-lg font-semibold text-[#111827]">
+              <h2 className="font-display text-xl font-bold text-[#111827]">
                 Bloquer l'employé
               </h2>
             </div>

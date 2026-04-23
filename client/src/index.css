@@ -1,3 +1,65 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  /* Premium background with subtle noise texture */
+  body {
+    background-color: #FAFAFA;
+    background-image:
+      radial-gradient(at 0% 0%, rgba(26, 47, 79, 0.02) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(26, 47, 79, 0.015) 0px, transparent 50%);
+  }
+
+  /* Custom scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Remove default focus outline, we'll add custom ones */
+  *:focus {
+    outline: none;
+  }
+
+  /* Custom focus ring */
+  *:focus-visible {
+    outline: 2px solid rgba(26, 47, 79, 0.3);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+}
+
+@layer utilities {
+  /* Premium glass morphism helper */
+  .glass-surface {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
+  /* Smooth hardware acceleration */
+  .gpu-accelerate {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+}

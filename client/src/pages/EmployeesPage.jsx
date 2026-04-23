@@ -102,12 +102,12 @@ export default function EmployeesPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 animate-fade-up">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-[#111827]">
+          <h1 className="font-display text-3xl font-bold tracking-tight text-[#111827]">
             Employés
           </h1>
-          <p className="text-sm text-[#6B7280] mt-1">
+          <p className="text-sm text-[#6B7280] mt-2 font-medium">
             Gérez tous les employés et leurs congés
           </p>
         </div>
