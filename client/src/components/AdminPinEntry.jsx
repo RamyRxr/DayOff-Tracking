@@ -6,22 +6,23 @@ import { Lock, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
  * 5 states: idle, entering, validating, success, error
  */
 export default function AdminPinEntry({ isOpen, onClose, onSuccess, actionLabel }) {
-  const [pin, setPin] = useState('')
+  const [pinDigits, setPinDigits] = useState(['', '', '', ''])
   const [status, setStatus] = useState('idle') // idle | entering | validating | success | error
-  const inputRef = useRef(null)
+  const inputRefs = useRef([null, null, null, null])
 
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus()
+    if (isOpen && inputRefs.current[0]) {
+      inputRefs.current[0].focus()
     }
   }, [isOpen])
 
   useEffect(() => {
-    if (pin.length === 4) {
-      // Auto-validate when 4 digits entered
+    const pin = pinDigits.join('')
+    if (pin.length === 4 && pinDigits.every(d => d !== '')) {
+      // Auto-validate when all 4 digits entered
       handleValidate()
     }
-  }, [pin])
+  }, [pinDigits])
 
   const handleValidate = async () => {
     setStatus('validating')
@@ -29,6 +30,7 @@ export default function AdminPinEntry({ isOpen, onClose, onSuccess, actionLabel 
     // Simulate API call to validate PIN
     await new Promise((resolve) => setTimeout(resolve, 800))
 
+    const pin = pinDigits.join('')
     // Mock validation: accept "1234" as correct PIN
     if (pin === '1234') {
       setStatus('success')
@@ -39,28 +41,62 @@ export default function AdminPinEntry({ isOpen, onClose, onSuccess, actionLabel 
     } else {
       setStatus('error')
       setTimeout(() => {
-        setPin('')
+        setPinDigits(['', '', '', ''])
         setStatus('idle')
+        inputRefs.current[0]?.focus()
       }, 1500)
     }
   }
 
   const handleClose = () => {
-    setPin('')
+    setPinDigits(['', '', '', ''])
     setStatus('idle')
     onClose?.()
   }
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Escape') {
+  const handleDigitChange = (index, value) => {
+    // Only allow single digit
+    if (value.length > 1) {
+      value = value[value.length - 1]
+    }
+
+    // Only allow digits
+    if (value && !/^[0-9]$/.test(value)) {
+      return
+    }
+
+    const newDigits = [...pinDigits]
+    newDigits[index] = value
+
+    setPinDigits(newDigits)
+
+    if (status === 'idle' && value) setStatus('entering')
+    if (status === 'error') setStatus('idle')
+
+    // Auto-advance to next input
+    if (value && index < 3) {
+      inputRefs.current[index + 1]?.focus()
+    }
+  }
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !pinDigits[index] && index > 0) {
+      // Move to previous input on backspace if current is empty
+      inputRefs.current[index - 1]?.focus()
+    } else if (e.key === 'Escape') {
       handleClose()
-    } else if (e.key === 'Backspace') {
-      setPin((prev) => prev.slice(0, -1))
-      if (status === 'error') setStatus('idle')
-    } else if (e.key >= '0' && e.key <= '9' && pin.length < 4) {
-      setPin((prev) => prev + e.key)
-      if (status === 'idle') setStatus('entering')
-      if (status === 'error') setStatus('entering')
+    }
+  }
+
+  const handlePaste = (e) => {
+    e.preventDefault()
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4)
+
+    if (pastedData.length === 4) {
+      const newDigits = pastedData.split('')
+      setPinDigits(newDigits)
+      setStatus('entering')
+      inputRefs.current[3]?.focus()
     }
   }
 
@@ -145,88 +181,30 @@ export default function AdminPinEntry({ isOpen, onClose, onSuccess, actionLabel 
             {config.message}
           </p>
 
-          {/* PIN dots */}
-          <div className="flex justify-center gap-3 mb-8">
-            {[0, 1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className={`w-4 h-4 rounded-full transition-all duration-200 ${
-                  i < pin.length ? config.dotColor : 'bg-warm-gray-300'
-                } ${
-                  status === 'error' && i < pin.length
-                    ? 'animate-pulse'
-                    : ''
+          {/* PIN input boxes */}
+          <div className="flex justify-center gap-3 mb-6">
+            {[0, 1, 2, 3].map((index) => (
+              <input
+                key={index}
+                ref={(el) => (inputRefs.current[index] = el)}
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={1}
+                value={pinDigits[index]}
+                onChange={(e) => handleDigitChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                onPaste={index === 0 ? handlePaste : undefined}
+                disabled={status === 'validating' || status === 'success'}
+                className={`w-14 h-14 text-center text-xl font-semibold bg-warm-gray-200 rounded-xl border-2 transition-all duration-200 shadow-inner focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
+                  status === 'error'
+                    ? 'border-status-red'
+                    : pinDigits[index]
+                    ? 'border-navy'
+                    : 'border-transparent focus:border-navy'
                 }`}
               />
             ))}
-          </div>
-
-          {/* Hidden input for keyboard capture */}
-          <input
-            ref={inputRef}
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={4}
-            value={pin}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, '')
-              if (value.length <= 4) {
-                setPin(value)
-                if (value.length > 0 && status === 'idle') {
-                  setStatus('entering')
-                }
-              }
-            }}
-            onKeyDown={handleKeyPress}
-            className="sr-only"
-            autoFocus
-          />
-
-          {/* Number pad */}
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-              <button
-                key={num}
-                onClick={() => {
-                  if (pin.length < 4 && status !== 'validating') {
-                    setPin((prev) => prev + num)
-                    if (status === 'idle') setStatus('entering')
-                  }
-                }}
-                disabled={status === 'validating' || status === 'success'}
-                className="h-14 rounded-xl bg-warm-gray-200 hover:bg-warm-gray-300 active:bg-warm-gray-400 text-gray-900 font-semibold text-lg transition-all duration-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {num}
-              </button>
-            ))}
-          </div>
-
-          {/* Bottom row: empty, 0, delete */}
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <div />
-            <button
-              onClick={() => {
-                if (pin.length < 4 && status !== 'validating') {
-                  setPin((prev) => prev + '0')
-                  if (status === 'idle') setStatus('entering')
-                }
-              }}
-              disabled={status === 'validating' || status === 'success'}
-              className="h-14 rounded-xl bg-warm-gray-200 hover:bg-warm-gray-300 active:bg-warm-gray-400 text-gray-900 font-semibold text-lg transition-all duration-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              0
-            </button>
-            <button
-              onClick={() => {
-                setPin((prev) => prev.slice(0, -1))
-                if (status === 'error') setStatus('idle')
-              }}
-              disabled={status === 'validating' || status === 'success'}
-              className="h-14 rounded-xl bg-warm-gray-200 hover:bg-warm-gray-300 active:bg-warm-gray-400 text-gray-600 font-medium text-sm transition-all duration-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ⌫
-            </button>
           </div>
 
           {/* Cancel button */}
