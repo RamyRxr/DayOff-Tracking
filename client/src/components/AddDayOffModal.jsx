@@ -1,13 +1,24 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { X, Calendar, AlertTriangle } from 'lucide-react'
+import { startOfDay, isBefore, parseISO, isWithinInterval } from 'date-fns'
 import AdminPinEntry from './AdminPinEntry'
+import { useDaysOff } from '../hooks/useDaysOff'
 
 export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [showPinEntry, setShowPinEntry] = useState(false)
 
+  // Fetch existing day-off records for this employee
+  const { daysOff } = useDaysOff({ employeeId: employee?.id })
+
   if (!isOpen) return null
+
+  // Get today's date in YYYY-MM-DD format for min attribute
+  const today = useMemo(() => {
+    const d = new Date()
+    return d.toISOString().split('T')[0]
+  }, [])
 
   // Calculate working days between dates (excluding weekends: Fri/Sat)
   const calculateWorkingDays = (start, end) => {
@@ -35,8 +46,33 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
   const daysRemaining = (employee?.daysTotal || 30) - newTotalDaysUsed
   const wouldBlock = daysRemaining < 14 // Block if < 16 working days remaining (30 - 16 = 14)
 
+  // Check if selected dates overlap with existing day-off dates
+  const hasDateConflict = useMemo(() => {
+    if (!startDate || !endDate || !daysOff || daysOff.length === 0) return false
+
+    try {
+      const selectedStart = parseISO(startDate)
+      const selectedEnd = parseISO(endDate)
+
+      return daysOff.some((dayOff) => {
+        const existingStart = parseISO(dayOff.startDate)
+        const existingEnd = parseISO(dayOff.endDate)
+
+        // Check if any part of the selected range overlaps with existing range
+        return (
+          isWithinInterval(selectedStart, { start: existingStart, end: existingEnd }) ||
+          isWithinInterval(selectedEnd, { start: existingStart, end: existingEnd }) ||
+          isWithinInterval(existingStart, { start: selectedStart, end: selectedEnd }) ||
+          isWithinInterval(existingEnd, { start: selectedStart, end: selectedEnd })
+        )
+      })
+    } catch {
+      return false
+    }
+  }, [startDate, endDate, daysOff])
+
   const handleSubmit = () => {
-    if (!startDate || !endDate || !employee) return
+    if (!startDate || !endDate || !employee || hasDateConflict) return
     setShowPinEntry(true)
   }
 
@@ -121,7 +157,10 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white border border-warm-gray-400 rounded-xl text-[#111827] focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all"
+                    min={today}
+                    className={`w-full pl-10 pr-4 py-3 bg-white border rounded-xl text-[#111827] focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all ${
+                      hasDateConflict ? 'border-status-red' : 'border-warm-gray-400'
+                    }`}
                   />
                 </div>
               </div>
@@ -136,12 +175,29 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    min={startDate}
-                    className="w-full pl-10 pr-4 py-3 bg-white border border-warm-gray-400 rounded-xl text-[#111827] focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all"
+                    min={startDate || today}
+                    className={`w-full pl-10 pr-4 py-3 bg-white border rounded-xl text-[#111827] focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all ${
+                      hasDateConflict ? 'border-status-red' : 'border-warm-gray-400'
+                    }`}
                   />
                 </div>
               </div>
             </div>
+
+            {/* Date Conflict Warning */}
+            {hasDateConflict && (
+              <div className="flex gap-3 p-4 bg-status-amber/10 border border-status-amber/20 rounded-xl">
+                <AlertTriangle className="w-5 h-5 text-status-amber flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <div className="font-semibold text-status-amber text-sm">
+                    Conflit de dates
+                  </div>
+                  <p className="text-xs text-[#374151] mt-1">
+                    Les dates sélectionnées chevauchent un congé déjà enregistré pour cet employé.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Preview */}
             {startDate && endDate && workingDays > 0 && (
@@ -214,7 +270,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
             </button>
             <button
               onClick={handleSubmit}
-              disabled={!startDate || !endDate || workingDays === 0}
+              disabled={!startDate || !endDate || workingDays === 0 || hasDateConflict}
               className="flex-1 bg-navy text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirmer
