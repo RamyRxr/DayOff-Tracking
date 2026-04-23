@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Lock, Loader2, AlertCircle } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { Lock, Loader2, AlertCircle, Check, ChevronDown } from 'lucide-react'
 import { useAdmins, useAdminPin } from '../hooks/useAdmins'
 
 export default function LoginPage({ onLoginSuccess }) {
@@ -7,6 +7,8 @@ export default function LoginPage({ onLoginSuccess }) {
   const { verify, verifying, error } = useAdminPin()
   const [selectedAdminId, setSelectedAdminId] = useState('')
   const [pin, setPin] = useState('')
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -29,6 +31,34 @@ export default function LoginPage({ onLoginSuccess }) {
     setPin(value)
   }
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false)
+      }
+    }
+
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [dropdownOpen])
+
+  const selectedAdmin = admins.find((a) => a.id === parseInt(selectedAdminId))
+
+  const getAdminInitials = (name) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2)
+  }
+
   return (
     <div className="min-h-screen bg-warm-gray-200 flex items-center justify-center p-4">
       {/* Login Card */}
@@ -46,9 +76,9 @@ export default function LoginPage({ onLoginSuccess }) {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Admin Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">
+          {/* Admin Selection - Custom Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <label className="block text-sm font-medium text-[#111827] mb-2">
               Administrateur
             </label>
             {adminsLoading ? (
@@ -56,19 +86,69 @@ export default function LoginPage({ onLoginSuccess }) {
                 <Loader2 className="w-5 h-5 text-navy animate-spin" />
               </div>
             ) : (
-              <select
-                value={selectedAdminId}
-                onChange={(e) => setSelectedAdminId(e.target.value)}
-                required
-                className="w-full px-4 py-3 bg-warm-gray-200 rounded-xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all"
-              >
-                <option value="">Sélectionner un admin</option>
-                {admins.map((admin) => (
-                  <option key={admin.id} value={admin.id}>
-                    {admin.name} - {admin.role}
-                  </option>
-                ))}
-              </select>
+              <>
+                {/* Selected Admin Display / Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="w-full px-4 py-3 bg-warm-gray-200 rounded-xl text-left flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all"
+                >
+                  {selectedAdmin ? (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-warm-gray-200 flex items-center justify-center text-sm font-semibold text-[#374151]">
+                        {getAdminInitials(selectedAdmin.name)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-[#111827]">{selectedAdmin.name}</div>
+                        <div className="text-xs text-[#6B7280]">{selectedAdmin.role}</div>
+                      </div>
+                      <ChevronDown className={`w-5 h-5 text-[#6B7280] transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex-1 text-[#6B7280]">Sélectionner un admin</div>
+                      <ChevronDown className={`w-5 h-5 text-[#6B7280] transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                    </>
+                  )}
+                </button>
+
+                {/* Dropdown Panel */}
+                {dropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white/90 backdrop-blur-xl rounded-xl border border-black/6 shadow-ambient overflow-hidden z-10 animate-in">
+                    <div className="p-2 space-y-1 max-h-64 overflow-y-auto">
+                      {admins.map((admin) => {
+                        const isSelected = selectedAdmin?.id === admin.id
+                        return (
+                          <button
+                            key={admin.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedAdminId(admin.id.toString())
+                              setDropdownOpen(false)
+                            }}
+                            className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-150 ${
+                              isSelected
+                                ? 'bg-white shadow-ambient border-0.5 border-navy'
+                                : 'bg-warm-gray-200 hover:bg-white/50 hover:shadow-sm'
+                            }`}
+                          >
+                            <div className="w-10 h-10 rounded-full bg-warm-gray-200 flex items-center justify-center text-sm font-semibold text-[#374151]">
+                              {getAdminInitials(admin.name)}
+                            </div>
+                            <div className="flex-1 text-left min-w-0">
+                              <div className="font-semibold text-[#111827]">{admin.name}</div>
+                              <div className="text-xs text-[#6B7280]">{admin.role}</div>
+                            </div>
+                            {isSelected && (
+                              <Check className="w-5 h-5 text-navy flex-shrink-0" strokeWidth={2.5} />
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
