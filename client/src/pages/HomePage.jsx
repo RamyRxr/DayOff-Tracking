@@ -200,7 +200,6 @@ export default function HomePage() {
               <EmployeeCard
                 employee={employee}
                 onDetailsClick={() => setSelectedEmployee(employee)}
-                onDayOffClick={() => setDayOffEmployee(employee)}
               />
             </div>
           ))}
