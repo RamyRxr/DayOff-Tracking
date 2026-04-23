@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ShieldAlert, AlertCircle, Unlock, Loader2 } from 'lucide-react'
+import { ShieldAlert, AlertCircle, Unlock, Loader2, Download } from 'lucide-react'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import UnblockModal from '../components/UnblockModal'
 import { useBlocks } from '../hooks/useBlocks'
@@ -78,21 +78,68 @@ export default function BlockedPage() {
     })
   }
 
+  const handleExport = () => {
+    // Generate CSV content
+    const headers = ['Nom', 'Matricule', 'Email', 'Téléphone', 'Département', 'Motif', 'Date de blocage']
+    const rows = mockBlockedEmployees.map(emp => {
+      const email = emp.email || `${emp.name.toLowerCase().split(' ').join('.')}@naftal.dz`
+      const phone = emp.phone || '—'
+      return [
+        emp.name,
+        emp.matricule,
+        email,
+        phone,
+        emp.department,
+        emp.blockedReason,
+        formatDate(emp.blockedAt)
+      ]
+    })
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n')
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    const today = new Date().toISOString().split('T')[0]
+
+    link.setAttribute('href', url)
+    link.setAttribute('download', `employes-bloques-${today}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div>
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-full bg-apple-red/10 flex items-center justify-center">
-            <ShieldAlert className="w-5 h-5 text-apple-red" strokeWidth={2} />
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-full bg-apple-red/10 flex items-center justify-center">
+              <ShieldAlert className="w-5 h-5 text-apple-red" strokeWidth={2} />
+            </div>
+            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+              Employés Bloqués
+            </h1>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-            Employés Bloqués
-          </h1>
+          <p className="text-sm text-gray-600">
+            Liste des employés bloqués pour dépassement de quota
+          </p>
         </div>
-        <p className="text-sm text-gray-600">
-          Liste des employés bloqués pour dépassement de quota
-        </p>
+        {mockBlockedEmployees.length > 0 && (
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm text-navy border border-navy/20 hover:bg-navy/5 transition-all"
+          >
+            <Download className="w-4 h-4" />
+            Exporter les données
+          </button>
+        )}
       </div>
 
       {/* Alert banner */}
@@ -172,26 +219,6 @@ export default function BlockedPage() {
                 </div>
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="bg-warm-gray-200 rounded-lg p-3 text-center">
-                  <div className="text-xs text-gray-600 mb-1">Jours pris</div>
-                  <div className="text-xl font-bold text-gray-900">
-                    {employee.daysUsed}
-                  </div>
-                </div>
-                <div className="bg-apple-red/10 rounded-lg p-3 text-center border border-apple-red/20">
-                  <div className="text-xs text-apple-red mb-1">Restants</div>
-                  <div className="text-xl font-bold text-apple-red">
-                    {employee.daysTotal - employee.daysUsed}
-                  </div>
-                </div>
-                <div className="bg-warm-gray-200 rounded-lg p-3 text-center">
-                  <div className="text-xs text-gray-600 mb-1">Minimum</div>
-                  <div className="text-xl font-bold text-navy">16</div>
-                </div>
-              </div>
-
               {/* Actions */}
               <div className="flex gap-3">
                 <button
@@ -202,7 +229,7 @@ export default function BlockedPage() {
                 </button>
                 <button
                   onClick={(e) => handleUnblockClick(employee, employee.blockData, e)}
-                  className="flex-1 flex items-center justify-center gap-2 bg-apple-green text-white px-4 py-2.5 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200"
+                  className="flex-1 flex items-center justify-center gap-2 border border-status-green/30 text-status-green px-4 py-2.5 rounded-xl font-medium text-sm hover:bg-status-green/5 transition-all duration-200"
                 >
                   <Unlock className="w-4 h-4" strokeWidth={2} />
                   Débloquer
