@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { X, UserPlus, AlertTriangle } from 'lucide-react'
-import AdminPinEntry from './AdminPinEntry'
+import { useState, useEffect } from 'react'
+import { X, UserPlus, RefreshCw, ChevronLeft, Check } from 'lucide-react'
+import { useEmployees } from '../hooks/useEmployees'
 
 const DEPARTMENTS = [
   'Production',
@@ -12,20 +12,55 @@ const DEPARTMENTS = [
 ]
 
 export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
+  const { employees } = useEmployees()
+  const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
+    prenom: '',
+    nom: '',
     matricule: '',
-    name: '',
     department: '',
     position: '',
+    email: '',
+    phone: '',
+    startDate: '',
   })
-  const [showPinEntry, setShowPinEntry] = useState(false)
   const [errors, setErrors] = useState({})
+  const [selectedAdmin, setSelectedAdmin] = useState(null)
+  const [pin, setPin] = useState(['', '', '', ''])
+  const [pinStatus, setPinStatus] = useState('idle')
 
-  if (!isOpen) return null
+  // Generate unique matricule on mount and when user refreshes
+  useEffect(() => {
+    if (isOpen && !formData.matricule) {
+      generateMatricule()
+    }
+  }, [isOpen])
+
+  // Auto-suggest email when prenom and nom change
+  useEffect(() => {
+    if (formData.prenom && formData.nom) {
+      const suggested = `${formData.prenom.toLowerCase()}.${formData.nom.toLowerCase()}@naftal.dz`
+      if (!formData.email || formData.email === '') {
+        setFormData(prev => ({ ...prev, email: suggested }))
+      }
+    }
+  }, [formData.prenom, formData.nom])
+
+  const generateMatricule = () => {
+    let unique = false
+    let newMatricule = ''
+
+    while (!unique) {
+      const randomNum = Math.floor(1000 + Math.random() * 9000)
+      newMatricule = `NAF-${randomNum}`
+      unique = !employees.some(emp => emp.matricule === newMatricule)
+    }
+
+    setFormData(prev => ({ ...prev, matricule: newMatricule }))
+  }
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
-    // Clear error for this field
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: null }))
     }
@@ -34,16 +69,16 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
   const validateForm = () => {
     const newErrors = {}
 
-    if (!formData.matricule.trim()) {
-      newErrors.matricule = 'Matricule requis'
-    } else if (!formData.matricule.match(/^NAF-\d{4}$/)) {
-      newErrors.matricule = 'Format: NAF-XXXX (ex: NAF-4567)'
+    if (!formData.prenom.trim()) {
+      newErrors.prenom = 'Prénom requis'
     }
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Nom requis'
-    } else if (formData.name.trim().split(' ').length < 2) {
-      newErrors.name = 'Prénom et nom requis'
+    if (!formData.nom.trim()) {
+      newErrors.nom = 'Nom requis'
+    }
+
+    if (!formData.matricule.trim()) {
+      newErrors.matricule = 'Matricule requis'
     }
 
     if (!formData.department) {
@@ -54,214 +89,398 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
       newErrors.position = 'Poste requis'
     }
 
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email requis'
+    } else if (!formData.email.includes('@')) {
+      newErrors.email = 'Email doit contenir @'
+    }
+
+    if (!formData.startDate) {
+      newErrors.startDate = 'Date d\'embauche requise'
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = () => {
-    if (!validateForm()) return
-    setShowPinEntry(true)
+  const admins = [
+    { id: 1, name: 'Ahmed Benali', role: 'Responsable RH', initials: 'AB' },
+    { id: 2, name: 'Fatima Meziane', role: 'Directeur Admin', initials: 'FM' },
+  ]
+
+  const handlePinChange = (index, value) => {
+    if (value.length > 1) value = value[value.length - 1]
+    if (value && !/^[0-9]$/.test(value)) return
+
+    const newPin = [...pin]
+    newPin[index] = value
+    setPin(newPin)
+
+    if (value && index < 3) {
+      document.getElementById(`emp-pin-${index + 1}`)?.focus()
+    }
+
+    if (newPin.every(d => d !== '')) {
+      handlePinValidate(newPin.join(''))
+    }
   }
 
-  const handlePinSuccess = () => {
-    // Generate avatar from name initials
-    const names = formData.name.trim().split(' ')
-    const avatar = names.map(n => n[0]).join('').toUpperCase().substring(0, 2)
+  const handlePinValidate = async (pinValue) => {
+    setPinStatus('verifying')
+    await new Promise(resolve => setTimeout(resolve, 800))
+
+    if (pinValue === '1234') {
+      setPinStatus('verified')
+    } else {
+      setPinStatus('error')
+      setTimeout(() => {
+        setPin(['', '', '', ''])
+        setPinStatus('idle')
+        document.getElementById('emp-pin-0')?.focus()
+      }, 1500)
+    }
+  }
+
+  const handleStep1Submit = () => {
+    if (validateForm()) {
+      setStep(2)
+    }
+  }
+
+  const handleFinalSubmit = () => {
+    const names = `${formData.prenom} ${formData.nom}`
+    const avatar = `${formData.prenom[0]}${formData.nom[0]}`.toUpperCase()
 
     onSubmit?.({
-      ...formData,
+      name: names,
+      matricule: formData.matricule,
+      department: formData.department,
+      position: formData.position,
+      email: formData.email,
+      phone: formData.phone || null,
+      startDate: formData.startDate,
       avatar,
       daysTotal: 30,
+      daysUsed: 0,
       status: 'actif',
     })
     handleClose()
   }
 
   const handleClose = () => {
+    setStep(1)
     setFormData({
+      prenom: '',
+      nom: '',
       matricule: '',
-      name: '',
       department: '',
       position: '',
+      email: '',
+      phone: '',
+      startDate: '',
     })
     setErrors({})
-    setShowPinEntry(false)
+    setSelectedAdmin(null)
+    setPin(['', '', '', ''])
+    setPinStatus('idle')
     onClose?.()
   }
 
+  if (!isOpen) return null
+
+  const isStep1Valid = formData.prenom && formData.nom && formData.department &&
+                       formData.position && formData.email && formData.email.includes('@') &&
+                       formData.startDate
+  const isStep2Valid = pinStatus === 'verified'
+
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center animate-fade-in"
-        onClick={handleClose}
-      >
-        {/* Modal */}
-        <div
-          className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-[520px] animate-scale-in"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="bg-navy/10 border-b border-navy/20 px-6 py-4 flex items-center justify-between rounded-t-3xl">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-navy/20 flex items-center justify-center">
-                <UserPlus className="w-5 h-5 text-navy" strokeWidth={2} />
-              </div>
-              <div>
-                <h2 className="font-display text-xl font-bold text-[#111827]">
-                  Ajouter un employé
-                </h2>
-                <p className="text-xs text-[#6B7280] mt-1 font-medium">
-                  Créer un nouveau profil employé
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={handleClose}
-              className="w-8 h-8 rounded-lg hover:bg-black/5 flex items-center justify-center transition-colors"
-            >
-              <X className="w-5 h-5 text-[#6B7280]" />
-            </button>
-          </div>
-
-          {/* Content */}
-          <div className="p-6 space-y-4">
-            {/* Matricule */}
-            <div>
-              <label className="block text-sm font-medium text-[#374151] mb-2">
-                Matricule <span className="text-status-red">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="NAF-4567"
-                value={formData.matricule}
-                onChange={(e) => handleChange('matricule', e.target.value.toUpperCase())}
-                className={`w-full px-4 py-3 rounded-xl border ${
-                  errors.matricule
-                    ? 'border-status-red bg-status-red/5'
-                    : 'border-warm-gray-400 bg-warm-gray-200'
-                } focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all font-mono`}
-              />
-              {errors.matricule && (
-                <p className="text-xs text-status-red mt-1 flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3" />
-                  {errors.matricule}
-                </p>
-              )}
-            </div>
-
-            {/* Name */}
-            <div>
-              <label className="block text-sm font-medium text-[#374151] mb-2">
-                Nom complet <span className="text-status-red">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Prénom Nom"
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-                className={`w-full px-4 py-3 rounded-xl border ${
-                  errors.name
-                    ? 'border-status-red bg-status-red/5'
-                    : 'border-warm-gray-400 bg-warm-gray-200'
-                } focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all`}
-              />
-              {errors.name && (
-                <p className="text-xs text-status-red mt-1 flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3" />
-                  {errors.name}
-                </p>
-              )}
-            </div>
-
-            {/* Department */}
-            <div>
-              <label className="block text-sm font-medium text-[#374151] mb-2">
-                Département <span className="text-status-red">*</span>
-              </label>
-              <select
-                value={formData.department}
-                onChange={(e) => handleChange('department', e.target.value)}
-                className={`w-full px-4 py-3 rounded-xl border ${
-                  errors.department
-                    ? 'border-status-red bg-status-red/5'
-                    : 'border-warm-gray-400 bg-warm-gray-200'
-                } focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all`}
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center">
+      <div className="bg-white rounded-3xl shadow-modal w-[560px] max-h-[90vh] overflow-y-auto animate-slide-up">
+        {/* Header */}
+        <div className="sticky top-0 bg-navy/10 border-b border-navy/20 px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
+          <div className="flex items-center gap-3">
+            {step === 2 && (
+              <button
+                onClick={() => setStep(1)}
+                className="p-1 hover:bg-black/5 rounded-lg transition-colors"
               >
-                <option value="">Sélectionner un département</option>
-                {DEPARTMENTS.map((dept) => (
-                  <option key={dept} value={dept}>
-                    {dept}
-                  </option>
-                ))}
-              </select>
-              {errors.department && (
-                <p className="text-xs text-status-red mt-1 flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3" />
-                  {errors.department}
-                </p>
-              )}
+                <ChevronLeft className="w-5 h-5 text-[#6B7280]" />
+              </button>
+            )}
+            <div className="w-10 h-10 rounded-full bg-navy/20 flex items-center justify-center">
+              <UserPlus className="w-5 h-5 text-navy" strokeWidth={2} />
             </div>
-
-            {/* Position */}
             <div>
-              <label className="block text-sm font-medium text-[#374151] mb-2">
-                Poste <span className="text-status-red">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Ex: Opérateur, Technicien, Chef d'équipe..."
-                value={formData.position}
-                onChange={(e) => handleChange('position', e.target.value)}
-                className={`w-full px-4 py-3 rounded-xl border ${
-                  errors.position
-                    ? 'border-status-red bg-status-red/5'
-                    : 'border-warm-gray-400 bg-warm-gray-200'
-                } focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all`}
-              />
-              {errors.position && (
-                <p className="text-xs text-status-red mt-1 flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3" />
-                  {errors.position}
-                </p>
-              )}
-            </div>
-
-            {/* Info */}
-            <div className="bg-navy/5 border border-navy/10 rounded-xl p-4">
-              <p className="text-xs text-[#374151]">
-                <span className="font-semibold">Par défaut:</span> 30 jours de congé, statut actif
+              <h2 className="font-display text-xl font-bold text-[#111827]">
+                {step === 1 ? 'Nouvel Employé' : 'Autorisation requise'}
+              </h2>
+              <p className="text-xs text-[#6B7280] mt-0.5">
+                Étape {step} sur 2
               </p>
             </div>
           </div>
+          <button
+            onClick={handleClose}
+            className="w-8 h-8 rounded-lg hover:bg-black/5 flex items-center justify-center transition-colors"
+          >
+            <X className="w-5 h-5 text-[#6B7280]" />
+          </button>
+        </div>
 
-          {/* Footer */}
-          <div className="px-6 py-4 border-t border-warm-gray-400 flex items-center justify-end gap-3">
-            <button
-              onClick={handleClose}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium text-[#374151] hover:bg-black/5 transition-colors"
-            >
-              Annuler
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="px-6 py-2.5 rounded-xl text-sm font-medium bg-navy text-white shadow-ambient hover:shadow-modal transition-all duration-200"
-            >
-              Confirmer avec PIN
-            </button>
-          </div>
+        {/* Content */}
+        <div className="p-6 space-y-4 pb-8">
+          {step === 1 ? (
+            <>
+              {/* Prénom */}
+              <div>
+                <label className="block text-sm font-medium text-[#111827] mb-2">
+                  Prénom
+                  <span className="text-status-red ml-1">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.prenom}
+                  onChange={(e) => handleChange('prenom', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
+                    errors.prenom ? 'border-status-red' : 'border-warm-gray-400'
+                  }`}
+                />
+                {errors.prenom && (
+                  <p className="text-xs text-status-red mt-1">{errors.prenom}</p>
+                )}
+              </div>
+
+              {/* Nom */}
+              <div>
+                <label className="block text-sm font-medium text-[#111827] mb-2">
+                  Nom
+                  <span className="text-status-red ml-1">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.nom}
+                  onChange={(e) => handleChange('nom', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
+                    errors.nom ? 'border-status-red' : 'border-warm-gray-400'
+                  }`}
+                />
+                {errors.nom && (
+                  <p className="text-xs text-status-red mt-1">{errors.nom}</p>
+                )}
+              </div>
+
+              {/* Matricule (auto-generated) */}
+              <div>
+                <label className="block text-sm font-medium text-[#111827] mb-2">
+                  Matricule
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={formData.matricule}
+                    readOnly
+                    className="flex-1 px-4 py-3 bg-warm-gray-200 border border-warm-gray-400 rounded-xl font-mono text-navy cursor-not-allowed"
+                  />
+                  <button
+                    onClick={generateMatricule}
+                    className="px-4 py-3 bg-navy/10 hover:bg-navy/20 rounded-xl transition-colors"
+                    title="Générer nouveau matricule"
+                  >
+                    <RefreshCw className="w-5 h-5 text-navy" />
+                  </button>
+                </div>
+                <p className="text-xs text-[#6B7280] mt-1">généré automatiquement</p>
+              </div>
+
+              {/* Département */}
+              <div>
+                <label className="block text-sm font-medium text-[#111827] mb-2">
+                  Département
+                  <span className="text-status-red ml-1">*</span>
+                </label>
+                <select
+                  value={formData.department}
+                  onChange={(e) => handleChange('department', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
+                    errors.department ? 'border-status-red' : 'border-warm-gray-400'
+                  }`}
+                >
+                  <option value="">Sélectionnez un département</option>
+                  {DEPARTMENTS.map(dept => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
+                {errors.department && (
+                  <p className="text-xs text-status-red mt-1">{errors.department}</p>
+                )}
+              </div>
+
+              {/* Poste */}
+              <div>
+                <label className="block text-sm font-medium text-[#111827] mb-2">
+                  Poste
+                  <span className="text-status-red ml-1">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: Technicien, Chef d'équipe..."
+                  value={formData.position}
+                  onChange={(e) => handleChange('position', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
+                    errors.position ? 'border-status-red' : 'border-warm-gray-400'
+                  }`}
+                />
+                {errors.position && (
+                  <p className="text-xs text-status-red mt-1">{errors.position}</p>
+                )}
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-[#111827] mb-2">
+                  Email
+                  <span className="text-status-red ml-1">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleChange('email', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
+                    errors.email ? 'border-status-red' : 'border-warm-gray-400'
+                  }`}
+                />
+                {errors.email && (
+                  <p className="text-xs text-status-red mt-1">{errors.email}</p>
+                )}
+              </div>
+
+              {/* Téléphone */}
+              <div>
+                <label className="block text-sm font-medium text-[#111827] mb-2">
+                  Téléphone
+                  <span className="text-[#6B7280] font-normal ml-1">(optionnel)</span>
+                </label>
+                <input
+                  type="tel"
+                  placeholder="+213 XX XX XX XX"
+                  value={formData.phone}
+                  onChange={(e) => handleChange('phone', e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-warm-gray-400 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20"
+                />
+              </div>
+
+              {/* Date d'embauche */}
+              <div>
+                <label className="block text-sm font-medium text-[#111827] mb-2">
+                  Date d'embauche
+                  <span className="text-status-red ml-1">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={formData.startDate}
+                  onChange={(e) => handleChange('startDate', e.target.value)}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
+                    errors.startDate ? 'border-status-red' : 'border-warm-gray-400'
+                  }`}
+                />
+                {errors.startDate && (
+                  <p className="text-xs text-status-red mt-1">{errors.startDate}</p>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Admin Selector */}
+              <div>
+                <label className="block text-sm font-medium text-[#111827] mb-3">
+                  Administrateur
+                </label>
+                <div className="space-y-2">
+                  {admins.map(admin => (
+                    <button
+                      key={admin.id}
+                      onClick={() => setSelectedAdmin(admin)}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                        selectedAdmin?.id === admin.id
+                          ? 'border-navy bg-navy/5'
+                          : 'border-warm-gray-400 hover:border-navy/40'
+                      }`}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center text-sm font-semibold text-navy">
+                        {admin.initials}
+                      </div>
+                      <div className="flex-1 text-left">
+                        <div className="font-semibold text-[#111827]">{admin.name}</div>
+                        <div className="text-xs text-[#6B7280]">{admin.role}</div>
+                      </div>
+                      {selectedAdmin?.id === admin.id && (
+                        <Check className="w-5 h-5 text-navy" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* PIN Input */}
+              <div>
+                <label className="block text-sm font-medium text-[#111827] mb-3">
+                  Code PIN
+                </label>
+                <div className="flex justify-center gap-3">
+                  {[0, 1, 2, 3].map(index => (
+                    <input
+                      key={index}
+                      id={`emp-pin-${index}`}
+                      type="password"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={1}
+                      value={pin[index]}
+                      onChange={(e) => handlePinChange(index, e.target.value)}
+                      disabled={pinStatus === 'verifying' || pinStatus === 'verified'}
+                      className={`w-14 h-14 text-center text-xl font-semibold rounded-xl border-2 transition-all shadow-inner focus:outline-none ${
+                        pinStatus === 'error'
+                          ? 'border-status-red bg-status-red/5'
+                          : pinStatus === 'verified'
+                          ? 'border-status-green bg-status-green/5'
+                          : pin[index]
+                          ? 'border-navy bg-warm-gray-200'
+                          : 'border-transparent bg-warm-gray-200 focus:border-navy'
+                      }`}
+                    />
+                  ))}
+                </div>
+                {pinStatus === 'verifying' && (
+                  <p className="text-xs text-navy text-center mt-2">Vérification...</p>
+                )}
+                {pinStatus === 'error' && (
+                  <p className="text-xs text-status-red text-center mt-2">Code incorrect</p>
+                )}
+                {pinStatus === 'verified' && (
+                  <p className="text-xs text-status-green text-center mt-2">✓ Code correct</p>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="sticky bottom-0 bg-white border-t border-black/6 px-6 py-4 flex gap-3 rounded-b-3xl">
+          <button
+            onClick={step === 1 ? handleClose : () => setStep(1)}
+            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all"
+          >
+            {step === 1 ? 'Annuler' : '← Retour'}
+          </button>
+          <button
+            onClick={step === 1 ? handleStep1Submit : handleFinalSubmit}
+            disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
+            className="flex-1 bg-navy text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {step === 1 ? 'Suivant →' : 'Créer l\'employé'}
+          </button>
         </div>
       </div>
-
-      {/* PIN Entry */}
-      {showPinEntry && (
-        <AdminPinEntry
-          isOpen={showPinEntry}
-          onClose={() => setShowPinEntry(false)}
-          onSuccess={handlePinSuccess}
-          actionLabel="Ajouter l'employé"
-        />
-      )}
-    </>
+    </div>
   )
 }
