@@ -79,7 +79,7 @@ export default function HomePage() {
       </div>
 
       {/* Section label */}
-      <h2 className="text-xs uppercase tracking-wider text-[#6B7280] mb-4 mt-8">
+      <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-semibold mb-4 mt-8 animate-fade-up" style={{ animationDelay: '0.4s' }}>
         Activité récente
       </h2>
 
@@ -104,9 +104,9 @@ export default function HomePage() {
       {/* Floating FAB */}
       <button
         onClick={() => setShowAddEmployee(true)}
-        className="fixed bottom-8 right-8 w-[52px] h-[52px] bg-navy rounded-full flex items-center justify-center text-white shadow-modal hover:shadow-ambient hover:scale-105 transition-all duration-200"
+        className="fixed bottom-8 right-8 w-14 h-14 bg-navy rounded-2xl flex items-center justify-center text-white shadow-modal hover:bg-navy-dark hover:scale-110 hover:rotate-90 active:scale-95 transition-all duration-300 group z-50"
       >
-        <Plus className="w-6 h-6" strokeWidth={2} />
+        <Plus className="w-6 h-6 group-hover:w-7 group-hover:h-7 transition-all duration-300" strokeWidth={2.5} />
       </button>
 
       {/* Employee Detail Panel */}

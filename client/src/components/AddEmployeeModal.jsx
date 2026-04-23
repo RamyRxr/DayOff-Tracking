@@ -93,12 +93,12 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center"
+        className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center animate-fade-in"
         onClick={handleClose}
       >
         {/* Modal */}
         <div
-          className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-[520px]"
+          className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-[520px] animate-scale-in"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -108,10 +108,10 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 <UserPlus className="w-5 h-5 text-navy" strokeWidth={2} />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-[#111827]">
+                <h2 className="font-display text-xl font-bold text-[#111827]">
                   Ajouter un employé
                 </h2>
-                <p className="text-xs text-[#6B7280] mt-0.5">
+                <p className="text-xs text-[#6B7280] mt-1 font-medium">
                   Créer un nouveau profil employé
                 </p>
               </div>
