@@ -6,10 +6,12 @@ import { useDaysOff } from '../hooks/useDaysOff'
 import { useBlocks } from '../hooks/useBlocks'
 import AddDayOffModal from './AddDayOffModal'
 import BlockEmployeeModal from './BlockEmployeeModal'
+import UnblockModal from './UnblockModal'
 
 export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdate }) {
   const [showAddDayOff, setShowAddDayOff] = useState(false)
   const [showBlock, setShowBlock] = useState(false)
+  const [showUnblock, setShowUnblock] = useState(false)
 
   // Fetch day-off records for this employee
   const { daysOff, addDayOff } = useDaysOff({ employeeId: employee?.id })
@@ -47,30 +49,26 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     }
   }
 
-  const handleUnblock = async () => {
+  const handleUnblockSubmit = async (unblockData) => {
     try {
-      // Find active block for this employee
-      const activeBlock = blocks.find(
-        (b) => b.employeeId === employee.id && b.isActive
-      )
-
-      if (!activeBlock) {
-        alert('Aucun blocage actif trouvé pour cet employé')
-        return
-      }
-
-      // For now, using mock admin data (will be replaced with PIN entry)
-      await unblock(activeBlock.id, {
+      await unblock(unblockData.blockId, {
         adminId: 1,
-        pin: '1234'
+        pin: '1234',
+        reason: unblockData.reason,
+        description: unblockData.description,
       })
-
+      setShowUnblock(false)
       if (onUpdate) onUpdate()
       alert('✅ Employé débloqué avec succès')
     } catch (error) {
       alert(`Erreur: ${error.message}`)
     }
   }
+
+  // Get active block for this employee
+  const activeBlock = blocks.find(
+    (b) => b.employeeId === employee?.id && b.isActive
+  )
 
   const progressPercent = (employee.daysUsed / employee.daysTotal) * 100
   const daysRemaining = employee.daysTotal - employee.daysUsed
@@ -328,7 +326,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             )}
             {employee.status === 'bloqué' && (
               <button
-                onClick={handleUnblock}
+                onClick={() => setShowUnblock(true)}
                 className="px-4 py-3 border border-status-green/20 text-status-green rounded-xl font-medium text-sm hover:bg-status-green/5 transition-all duration-200"
               >
                 Débloquer
@@ -352,6 +350,13 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
         isOpen={showBlock}
         onClose={() => setShowBlock(false)}
         onSubmit={handleBlockSubmit}
+      />
+      <UnblockModal
+        employee={employee}
+        activeBlock={activeBlock}
+        isOpen={showUnblock}
+        onClose={() => setShowUnblock(false)}
+        onSubmit={handleUnblockSubmit}
       />
     </>
   )
