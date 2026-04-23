@@ -296,6 +296,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               </button>
             )}
           </div>
+            </div>
           </div>
         </div>
       </div>
