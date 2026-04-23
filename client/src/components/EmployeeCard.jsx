@@ -1,26 +1,22 @@
-import { useState } from 'react'
-
 export default function EmployeeCard({ employee, onDetailsClick, onDayOffClick }) {
-  const [isHovered, setIsHovered] = useState(false)
-
   const statusConfig = {
     actif: {
       label: 'Actif',
-      dotColor: 'bg-apple-green',
-      bgColor: 'bg-apple-green/10',
-      textColor: 'text-apple-green',
+      dotColor: 'bg-status-green',
+      bgColor: 'bg-status-green/10',
+      textColor: 'text-status-green',
     },
     risque: {
       label: 'À risque',
-      dotColor: 'bg-apple-amber',
-      bgColor: 'bg-apple-amber/10',
-      textColor: 'text-apple-amber',
+      dotColor: 'bg-status-amber',
+      bgColor: 'bg-status-amber/10',
+      textColor: 'text-status-amber',
     },
     bloqué: {
       label: 'Bloqué',
-      dotColor: 'bg-apple-red',
-      bgColor: 'bg-apple-red/10',
-      textColor: 'text-apple-red',
+      dotColor: 'bg-status-red',
+      bgColor: 'bg-status-red/10',
+      textColor: 'text-status-red',
     },
   }
 
@@ -29,26 +25,25 @@ export default function EmployeeCard({ employee, onDetailsClick, onDayOffClick }
 
   return (
     <div
-      className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 shadow-ambient hover:shadow-modal transition-all duration-200 cursor-pointer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 shadow-ambient hover:shadow-modal hover:scale-[1.01] transition-all duration-200 cursor-pointer animate-fade-up"
+      onClick={() => onDetailsClick?.()}
     >
       <div className="flex items-center gap-4">
         {/* Avatar */}
-        <div className="w-9 h-9 rounded-full bg-warm-gray-400 flex items-center justify-center text-sm font-semibold text-gray-700 flex-shrink-0">
+        <div className="w-9 h-9 rounded-full bg-warm-gray-200 flex items-center justify-center text-sm font-semibold text-[#374151] flex-shrink-0">
           {employee.avatar}
         </div>
 
         {/* Name + Matricule + Department */}
         <div className="flex-1 min-w-0">
-          <div className="text-[15px] font-semibold text-gray-900 truncate">
+          <div className="text-[15px] font-semibold text-[#111827] truncate">
             {employee.name}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs font-mono text-gray-500">
+            <span className="text-xs font-mono text-[#6B7280]">
               {employee.matricule}
             </span>
-            <span className="px-2 py-0.5 bg-warm-gray-300 text-gray-700 text-[11px] rounded-md">
+            <span className="px-2 py-0.5 bg-warm-gray-300 text-[#374151] text-[11px] rounded-md">
               {employee.department}
             </span>
           </div>
@@ -56,7 +51,7 @@ export default function EmployeeCard({ employee, onDetailsClick, onDayOffClick }
 
         {/* Days used + Progress bar */}
         <div className="flex-shrink-0">
-          <div className="text-xs text-gray-600 mb-1">
+          <div className="text-xs text-[#6B7280] mb-1">
             {employee.daysUsed} / {employee.daysTotal} jours
           </div>
           <div className="w-[100px] h-1 bg-warm-gray-300 rounded-full overflow-hidden">
@@ -77,18 +72,14 @@ export default function EmployeeCard({ employee, onDetailsClick, onDayOffClick }
           </span>
         </div>
 
-        {/* Action buttons (visible on hover) */}
-        <div
-          className={`flex items-center gap-2 transition-opacity duration-200 ${
-            isHovered ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
+        {/* Action buttons (always visible) */}
+        <div className="flex items-center gap-2">
           <button
             onClick={(e) => {
               e.stopPropagation()
               onDetailsClick?.()
             }}
-            className="text-xs font-medium text-gray-600 hover:text-navy transition-colors px-2 py-1"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium text-navy border border-navy/20 hover:bg-navy hover:text-white hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
           >
             Détails
           </button>
@@ -97,7 +88,7 @@ export default function EmployeeCard({ employee, onDetailsClick, onDayOffClick }
               e.stopPropagation()
               onDayOffClick?.()
             }}
-            className="text-xs font-medium text-gray-600 hover:text-navy transition-colors px-2 py-1"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-navy text-white hover:bg-navy-dark hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
           >
             + Congé
           </button>

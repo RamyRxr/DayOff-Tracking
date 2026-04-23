@@ -108,9 +108,9 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
   }
 
   const statusConfig = {
-    actif: { label: 'Actif', color: 'text-apple-green', bg: 'bg-apple-green/10' },
-    risque: { label: 'À risque', color: 'text-apple-amber', bg: 'bg-apple-amber/10' },
-    bloqué: { label: 'Bloqué', color: 'text-apple-red', bg: 'bg-apple-red/10' },
+    actif: { label: 'Actif', color: 'text-status-green', bg: 'bg-status-green/10' },
+    risque: { label: 'À risque', color: 'text-status-amber', bg: 'bg-status-amber/10' },
+    bloqué: { label: 'Bloqué', color: 'text-status-red', bg: 'bg-status-red/10' },
   }
 
   const status = statusConfig[employee.status] || statusConfig.actif
@@ -119,45 +119,49 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity"
+        className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 transition-opacity animate-fade-in flex items-center justify-center p-6"
         onClick={onClose}
-      />
+      >
+        {/* Centered Modal */}
+        <div
+          className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-in"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Scrollable Content */}
+          <div className="overflow-y-auto max-h-[90vh]">
+            {/* Header */}
+            <div className="sticky top-0 bg-white/90 backdrop-blur-xl border-b border-black/6 px-8 py-5 flex items-center justify-between rounded-t-3xl z-10">
+              <h2 className="font-display text-2xl font-bold text-[#111827]">
+                Détails de l'employé
+              </h2>
+              <button
+                onClick={onClose}
+                className="w-10 h-10 rounded-xl hover:bg-black/5 active:scale-95 flex items-center justify-center transition-all duration-200"
+              >
+                <X className="w-6 h-6 text-[#6B7280]" />
+              </button>
+            </div>
 
-      {/* Side panel */}
-      <div className="fixed right-0 top-0 bottom-0 w-[480px] bg-white/90 backdrop-blur-2xl shadow-modal z-50 overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-black/6 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Détails de l'employé
-          </h2>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-black/5 flex items-center justify-center transition-colors"
-          >
-            <X className="w-5 h-5 text-gray-600" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6 space-y-6">
+            {/* Content */}
+            <div className="p-8 space-y-6">
           {/* Employee info card */}
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-ambient">
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-full bg-warm-gray-400 flex items-center justify-center text-xl font-semibold text-gray-700 flex-shrink-0">
+              <div className="w-16 h-16 rounded-full bg-warm-gray-200 flex items-center justify-center text-xl font-semibold text-[#374151] flex-shrink-0">
                 {employee.avatar}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-semibold text-gray-900">
+                <h3 className="text-xl font-semibold text-[#111827]">
                   {employee.name}
                 </h3>
-                <p className="text-sm font-mono text-gray-500 mt-1">
+                <p className="text-sm font-mono text-[#6B7280] mt-1">
                   {employee.matricule}
                 </p>
                 <div className="flex items-center gap-2 mt-3">
-                  <span className="px-3 py-1 bg-warm-gray-300 text-gray-700 text-xs rounded-lg">
+                  <span className="px-3 py-1 bg-warm-gray-300 text-[#374151] text-xs rounded-lg">
                     {employee.department}
                   </span>
-                  <span className="px-3 py-1 bg-warm-gray-300 text-gray-700 text-xs rounded-lg">
+                  <span className="px-3 py-1 bg-warm-gray-300 text-[#374151] text-xs rounded-lg">
                     {employee.position}
                   </span>
                 </div>
@@ -174,32 +178,32 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-[#111827]">
                 {employee.daysUsed}
               </div>
-              <div className="text-xs text-gray-600 mt-1">Jours pris</div>
+              <div className="text-xs text-[#6B7280] mt-1">Jours pris</div>
             </div>
             <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-              <div className="text-2xl font-bold text-apple-green">
+              <div className="text-2xl font-bold text-status-green">
                 {daysRemaining}
               </div>
-              <div className="text-xs text-gray-600 mt-1">Jours restants</div>
+              <div className="text-xs text-[#6B7280] mt-1">Jours restants</div>
             </div>
             <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-[#111827]">
                 {employee.daysTotal}
               </div>
-              <div className="text-xs text-gray-600 mt-1">Total annuel</div>
+              <div className="text-xs text-[#6B7280] mt-1">Total annuel</div>
             </div>
           </div>
 
           {/* Progress bar */}
           <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
             <div className="flex items-baseline justify-between mb-2">
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-[#111827]">
                 Utilisation des congés
               </span>
-              <span className="text-xs text-gray-600">
+              <span className="text-xs text-[#6B7280]">
                 {Math.round(progressPercent)}%
               </span>
             </div>
@@ -213,10 +217,10 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
 
           {/* Split Calendar */}
           <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-            <h4 className="text-sm font-semibold text-gray-900 mb-3">
+            <h4 className="text-sm font-semibold text-[#111827] mb-3">
               Période actuelle
             </h4>
-            <div className="text-xs text-gray-600 mb-4">
+            <div className="text-xs text-[#6B7280] mb-4">
               20 {periodStart.toLocaleDateString('fr-DZ', { month: 'long' })} —{' '}
               19 {periodEnd.toLocaleDateString('fr-DZ', { month: 'long' })}
             </div>
@@ -227,7 +231,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
                 <div
                   key={i}
-                  className="text-center text-[10px] font-medium text-gray-500 pb-1"
+                  className="text-center text-[10px] font-medium text-[#6B7280] pb-1"
                 >
                   {day}
                 </div>
@@ -241,8 +245,8 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                     day.isDayOff
                       ? 'bg-navy text-white font-semibold'
                       : day.isWeekend
-                      ? 'bg-warm-gray-300 text-gray-500'
-                      : 'bg-warm-gray-200 text-gray-700 hover:bg-warm-gray-300'
+                      ? 'bg-warm-gray-300 text-[#6B7280]'
+                      : 'bg-warm-gray-200 text-[#374151] hover:bg-warm-gray-300'
                   }`}
                 >
                   {day.day}
@@ -254,15 +258,15 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             <div className="flex items-center gap-4 mt-4 pt-3 border-t border-black/6">
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded bg-navy" />
-                <span className="text-[10px] text-gray-600">Congé</span>
+                <span className="text-[10px] text-[#6B7280]">Congé</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded bg-warm-gray-300" />
-                <span className="text-[10px] text-gray-600">Weekend</span>
+                <span className="text-[10px] text-[#6B7280]">Weekend</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded bg-warm-gray-200" />
-                <span className="text-[10px] text-gray-600">Travail</span>
+                <span className="text-[10px] text-[#6B7280]">Travail</span>
               </div>
             </div>
           </div>
@@ -278,7 +282,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             {employee.status !== 'bloqué' && (
               <button
                 onClick={() => setShowBlock(true)}
-                className="px-4 py-3 border border-apple-red/20 text-apple-red rounded-xl font-medium text-sm hover:bg-apple-red/5 transition-all duration-200"
+                className="px-4 py-3 border border-status-red/20 text-status-red rounded-xl font-medium text-sm hover:bg-status-red/5 transition-all duration-200"
               >
                 Bloquer
               </button>
@@ -286,11 +290,12 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             {employee.status === 'bloqué' && (
               <button
                 onClick={handleUnblock}
-                className="px-4 py-3 border border-apple-green/20 text-apple-green rounded-xl font-medium text-sm hover:bg-apple-green/5 transition-all duration-200"
+                className="px-4 py-3 border border-status-green/20 text-status-green rounded-xl font-medium text-sm hover:bg-status-green/5 transition-all duration-200"
               >
                 Débloquer
               </button>
             )}
+          </div>
           </div>
         </div>
       </div>

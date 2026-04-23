@@ -108,10 +108,10 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 <UserPlus className="w-5 h-5 text-navy" strokeWidth={2} />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-[#111827]">
                   Ajouter un employé
                 </h2>
-                <p className="text-xs text-gray-600 mt-0.5">
+                <p className="text-xs text-[#6B7280] mt-0.5">
                   Créer un nouveau profil employé
                 </p>
               </div>
@@ -120,7 +120,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
               onClick={handleClose}
               className="w-8 h-8 rounded-lg hover:bg-black/5 flex items-center justify-center transition-colors"
             >
-              <X className="w-5 h-5 text-gray-600" />
+              <X className="w-5 h-5 text-[#6B7280]" />
             </button>
           </div>
 
@@ -128,8 +128,8 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
           <div className="p-6 space-y-4">
             {/* Matricule */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Matricule <span className="text-apple-red">*</span>
+              <label className="block text-sm font-medium text-[#374151] mb-2">
+                Matricule <span className="text-status-red">*</span>
               </label>
               <input
                 type="text"
@@ -138,12 +138,12 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 onChange={(e) => handleChange('matricule', e.target.value.toUpperCase())}
                 className={`w-full px-4 py-3 rounded-xl border ${
                   errors.matricule
-                    ? 'border-apple-red bg-apple-red/5'
+                    ? 'border-status-red bg-status-red/5'
                     : 'border-warm-gray-400 bg-warm-gray-200'
                 } focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all font-mono`}
               />
               {errors.matricule && (
-                <p className="text-xs text-apple-red mt-1 flex items-center gap-1">
+                <p className="text-xs text-status-red mt-1 flex items-center gap-1">
                   <AlertTriangle className="w-3 h-3" />
                   {errors.matricule}
                 </p>
@@ -152,8 +152,8 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
 
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nom complet <span className="text-apple-red">*</span>
+              <label className="block text-sm font-medium text-[#374151] mb-2">
+                Nom complet <span className="text-status-red">*</span>
               </label>
               <input
                 type="text"
@@ -162,12 +162,12 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 onChange={(e) => handleChange('name', e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border ${
                   errors.name
-                    ? 'border-apple-red bg-apple-red/5'
+                    ? 'border-status-red bg-status-red/5'
                     : 'border-warm-gray-400 bg-warm-gray-200'
                 } focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all`}
               />
               {errors.name && (
-                <p className="text-xs text-apple-red mt-1 flex items-center gap-1">
+                <p className="text-xs text-status-red mt-1 flex items-center gap-1">
                   <AlertTriangle className="w-3 h-3" />
                   {errors.name}
                 </p>
@@ -176,15 +176,15 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
 
             {/* Department */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Département <span className="text-apple-red">*</span>
+              <label className="block text-sm font-medium text-[#374151] mb-2">
+                Département <span className="text-status-red">*</span>
               </label>
               <select
                 value={formData.department}
                 onChange={(e) => handleChange('department', e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border ${
                   errors.department
-                    ? 'border-apple-red bg-apple-red/5'
+                    ? 'border-status-red bg-status-red/5'
                     : 'border-warm-gray-400 bg-warm-gray-200'
                 } focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all`}
               >
@@ -196,7 +196,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 ))}
               </select>
               {errors.department && (
-                <p className="text-xs text-apple-red mt-1 flex items-center gap-1">
+                <p className="text-xs text-status-red mt-1 flex items-center gap-1">
                   <AlertTriangle className="w-3 h-3" />
                   {errors.department}
                 </p>
@@ -205,8 +205,8 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
 
             {/* Position */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Poste <span className="text-apple-red">*</span>
+              <label className="block text-sm font-medium text-[#374151] mb-2">
+                Poste <span className="text-status-red">*</span>
               </label>
               <input
                 type="text"
@@ -215,12 +215,12 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 onChange={(e) => handleChange('position', e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border ${
                   errors.position
-                    ? 'border-apple-red bg-apple-red/5'
+                    ? 'border-status-red bg-status-red/5'
                     : 'border-warm-gray-400 bg-warm-gray-200'
                 } focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all`}
               />
               {errors.position && (
-                <p className="text-xs text-apple-red mt-1 flex items-center gap-1">
+                <p className="text-xs text-status-red mt-1 flex items-center gap-1">
                   <AlertTriangle className="w-3 h-3" />
                   {errors.position}
                 </p>
@@ -229,7 +229,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
 
             {/* Info */}
             <div className="bg-navy/5 border border-navy/10 rounded-xl p-4">
-              <p className="text-xs text-gray-700">
+              <p className="text-xs text-[#374151]">
                 <span className="font-semibold">Par défaut:</span> 30 jours de congé, statut actif
               </p>
             </div>
@@ -239,7 +239,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
           <div className="px-6 py-4 border-t border-warm-gray-400 flex items-center justify-end gap-3">
             <button
               onClick={handleClose}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-black/5 transition-colors"
+              className="px-4 py-2.5 rounded-xl text-sm font-medium text-[#374151] hover:bg-black/5 transition-colors"
             >
               Annuler
             </button>
