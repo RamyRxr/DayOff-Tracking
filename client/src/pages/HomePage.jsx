@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Plus, Loader2, AlertCircle } from 'lucide-react'
 import EmployeeCard from '../components/EmployeeCard'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
@@ -6,10 +7,14 @@ import AddEmployeeModal from '../components/AddEmployeeModal'
 import { useEmployees } from '../hooks/useEmployees'
 
 export default function HomePage() {
+  const location = useLocation()
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [showAddEmployee, setShowAddEmployee] = useState(false)
   const [activeFilter, setActiveFilter] = useState(null)
   const { employees, loading, error, refetch, addEmployee } = useEmployees()
+
+  const isHomePage = location.pathname === '/'
+  const isAnyModalOpen = !!selectedEmployee || showAddEmployee
 
   // Calculate stats from employees data
   const stats = {
@@ -152,13 +157,17 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Floating FAB */}
-      <button
-        onClick={() => setShowAddEmployee(true)}
-        className="fixed bottom-8 right-8 w-14 h-14 bg-navy rounded-2xl flex items-center justify-center text-white shadow-modal hover:bg-navy-dark hover:scale-110 hover:rotate-90 active:scale-95 transition-all duration-300 group z-50"
-      >
-        <Plus className="w-6 h-6 group-hover:w-7 group-hover:h-7 transition-all duration-300" strokeWidth={2.5} />
-      </button>
+      {/* Floating FAB - Only show on home page when no modals are open */}
+      {isHomePage && (
+        <button
+          onClick={() => setShowAddEmployee(true)}
+          className={`fixed bottom-8 right-8 w-14 h-14 bg-navy rounded-2xl flex items-center justify-center text-white shadow-modal hover:bg-navy-dark hover:scale-110 hover:rotate-90 active:scale-95 transition-all duration-300 group z-50 ${
+            isAnyModalOpen ? 'opacity-0 pointer-events-none' : ''
+          }`}
+        >
+          <Plus className="w-6 h-6 group-hover:w-7 group-hover:h-7 transition-all duration-300" strokeWidth={2.5} />
+        </button>
+      )}
 
       {/* Employee Detail Panel */}
       <EmployeeDetailPanel
