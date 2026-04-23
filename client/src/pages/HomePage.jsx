@@ -106,45 +106,73 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Stat cards row - Interactive filters */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div style={{ animationDelay: '0s' }} className="animate-fade-up">
-          <StatCard
-            number={stats.total}
-            label="Employés"
-            isActive={activeFilter === null}
-            isFilterActive={activeFilter !== null}
+      {/* Animated tab pills - Interactive filters */}
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-3 shadow-ambient mb-6 animate-fade-up">
+        <div className="relative flex items-center justify-between gap-2">
+          {/* Sliding background indicator */}
+          <div
+            className="absolute h-full bg-white shadow-md rounded-xl transition-all duration-250 ease-out"
+            style={{
+              width: '24%',
+              left: activeFilter === null
+                ? '0.5%'
+                : activeFilter === 'actif'
+                ? '25.5%'
+                : activeFilter === 'risque'
+                ? '50.5%'
+                : '75.5%',
+              transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          />
+
+          {/* Tabs */}
+          <button
             onClick={() => setActiveFilter(null)}
-          />
-        </div>
-        <div style={{ animationDelay: '0.1s' }} className="animate-fade-up">
-          <StatCard
-            number={stats.actif}
-            label="Actifs"
-            isActive={activeFilter === 'actif'}
-            isFilterActive={activeFilter !== null}
+            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center transition-all duration-200 ${
+              activeFilter === null
+                ? 'text-gray-900 scale-[1.03]'
+                : 'text-gray-500 hover:bg-gray-100'
+            }`}
+          >
+            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-[11px] uppercase tracking-wider mt-0.5">Employés</div>
+          </button>
+
+          <button
             onClick={() => setActiveFilter('actif')}
-          />
-        </div>
-        <div style={{ animationDelay: '0.2s' }} className="animate-fade-up">
-          <StatCard
-            number={stats.risque}
-            label="À risque"
-            dot="amber"
-            isActive={activeFilter === 'risque'}
-            isFilterActive={activeFilter !== null}
+            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center transition-all duration-200 ${
+              activeFilter === 'actif'
+                ? 'text-gray-900 scale-[1.03]'
+                : 'text-gray-500 hover:bg-gray-100'
+            }`}
+          >
+            <div className="text-2xl font-bold">{stats.actif}</div>
+            <div className="text-[11px] uppercase tracking-wider mt-0.5">Actifs</div>
+          </button>
+
+          <button
             onClick={() => setActiveFilter('risque')}
-          />
-        </div>
-        <div style={{ animationDelay: '0.3s' }} className="animate-fade-up">
-          <StatCard
-            number={stats.bloqué}
-            label="Bloqués"
-            dot="red"
-            isActive={activeFilter === 'bloqué'}
-            isFilterActive={activeFilter !== null}
+            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center transition-all duration-200 ${
+              activeFilter === 'risque'
+                ? 'text-gray-900 scale-[1.03]'
+                : 'text-gray-500 hover:bg-gray-100'
+            }`}
+          >
+            <div className="text-2xl font-bold">{stats.risque}</div>
+            <div className="text-[11px] uppercase tracking-wider mt-0.5">À risque</div>
+          </button>
+
+          <button
             onClick={() => setActiveFilter('bloqué')}
-          />
+            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center transition-all duration-200 ${
+              activeFilter === 'bloqué'
+                ? 'text-gray-900 scale-[1.03]'
+                : 'text-gray-500 hover:bg-gray-100'
+            }`}
+          >
+            <div className="text-2xl font-bold">{stats.bloqué}</div>
+            <div className="text-[11px] uppercase tracking-wider mt-0.5">Bloqués</div>
+          </button>
         </div>
       </div>
 
@@ -214,34 +242,5 @@ export default function HomePage() {
         onSubmit={handleAddDayOffSubmit}
       />
     </div>
-  )
-}
-
-function StatCard({ number, label, dot, isActive, isFilterActive, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-ambient hover:shadow-modal transition-all duration-200 group cursor-pointer text-left w-full ${
-        isActive
-          ? 'scale-[1.02] shadow-modal border-b-2 border-navy'
-          : isFilterActive
-          ? 'opacity-70'
-          : ''
-      }`}
-    >
-      <div className="flex items-baseline gap-2">
-        <div className={`font-display text-5xl font-bold tabular-nums transition-colors duration-300 ${
-          isActive ? 'text-navy' : 'text-[#111827] group-hover:text-navy'
-        }`}>{number}</div>
-        {dot && (
-          <div
-            className={`w-2 h-2 rounded-full ${
-              dot === 'amber' ? 'bg-status-amber' : 'bg-status-red'
-            } ${isActive ? 'scale-125' : 'group-hover:scale-125'} transition-transform duration-300`}
-          />
-        )}
-      </div>
-      <div className="text-sm text-[#6B7280] mt-3 font-medium">{label}</div>
-    </button>
   )
 }
