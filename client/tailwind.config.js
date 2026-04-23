@@ -4,31 +4,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Apple-style warm grays
+        // Design system colors - Linear/Vercel style
         'warm-gray': {
-          50: '#FAFAFA',
+          50: '#FAFAFA', // Main background
           100: '#F8F8F8',
-          200: '#F2F2F7', // Main background
+          200: '#F2F2F7', // Card tints
           300: '#E5E5EA',
           400: '#D1D1D6',
           500: 'rgba(118,118,128,0.12)',
           600: 'rgba(118,118,128,0.18)',
         },
-        // NAFTAL deep navy
-        'navy': {
-          DEFAULT: '#1B3A6B',
-          50: 'rgba(27,58,107,0.05)',
-          100: 'rgba(27,58,107,0.1)',
-          200: 'rgba(27,58,107,0.2)',
-          dark: '#0F2140',
+        // Primary accent - refined navy
+        'navy': '#1A2F4F',
+        'navy-dark': '#0F1F35',
+        'navy-light': '#2C4A6F',
+        // Text colors
+        'gray-text': {
+          DEFAULT: '#374151',
+          dark: '#111827',
+          light: '#6B7280',
         },
-        // Apple system colors
-        'apple-green': '#34C759',
-        'apple-amber': '#FF9F0A',
-        'apple-red': '#FF3B30',
+        // Status colors (used sparingly - dots/borders only)
+        'status-green': '#34C759',
+        'status-amber': '#FF9F0A',
+        'status-red': '#C0392B',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Work Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Outfit', 'system-ui', '-apple-system', 'sans-serif'],
       },
       boxShadow: {
         // Layered ambient glow — signature shadow
@@ -53,6 +56,30 @@ export default {
       },
       borderWidth: {
         '0.5': '0.5px',
+      },
+      animation: {
+        'fade-up': 'fadeUp 0.6s ease-out',
+        'fade-in': 'fadeIn 0.4s ease-out',
+        'scale-in': 'scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+      },
+      keyframes: {
+        fadeUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(100%)' },
+          '100%': { transform: 'translateY(0)' },
+        },
       },
     },
   },
