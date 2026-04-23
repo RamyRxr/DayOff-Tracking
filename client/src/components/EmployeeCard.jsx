@@ -72,25 +72,16 @@ export default function EmployeeCard({ employee, onDetailsClick, onDayOffClick }
           </span>
         </div>
 
-        {/* Action buttons (hidden by default, appear on hover with delay) */}
-        <div className="flex items-center gap-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-150 delay-100 group-hover:delay-100">
+        {/* Always-visible Détails button */}
+        <div className="flex items-center">
           <button
             onClick={(e) => {
               e.stopPropagation()
               onDetailsClick?.()
             }}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium text-navy border border-navy/20 hover:bg-navy hover:text-white hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#6B7280] border border-[#E5E7EB] hover:bg-[#F9FAFB] hover:border-[#D1D5DB] transition-all duration-150"
           >
             Détails
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              onDayOffClick?.()
-            }}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-navy text-white hover:bg-navy-dark hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
-          >
-            + Congé
           </button>
         </div>
       </div>
