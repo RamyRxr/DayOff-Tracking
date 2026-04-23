@@ -40,7 +40,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
       >
         {/* Modal */}
         <div
-          className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-[480px] animate-scale-in"
+          className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-[480px] animate-slide-up"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
