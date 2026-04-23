@@ -8,6 +8,7 @@ import { useEmployees } from '../hooks/useEmployees'
 export default function HomePage() {
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [showAddEmployee, setShowAddEmployee] = useState(false)
+  const [activeFilter, setActiveFilter] = useState(null)
   const { employees, loading, error, refetch, addEmployee } = useEmployees()
 
   // Calculate stats from employees data
@@ -16,6 +17,23 @@ export default function HomePage() {
     actif: employees.filter((e) => e.status === 'actif').length,
     risque: employees.filter((e) => e.status === 'risque').length,
     bloqué: employees.filter((e) => e.status === 'bloqué').length,
+  }
+
+  // Filter employees based on active filter
+  const filteredEmployees = activeFilter
+    ? employees.filter((e) => e.status === activeFilter)
+    : employees
+
+  // Get filter label for display
+  const getFilterLabel = () => {
+    if (!activeFilter) return null
+    const count = filteredEmployees.length
+    const labels = {
+      actif: 'actifs',
+      risque: 'à risque',
+      bloqué: 'bloqués',
+    }
+    return `Affichage : ${count} employé${count > 1 ? 's' : ''} ${labels[activeFilter]}`
   }
 
   const handleAddEmployeeSubmit = async (employeeData) => {
@@ -62,21 +80,54 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Stat cards row */}
+      {/* Stat cards row - Interactive filters */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         <div style={{ animationDelay: '0s' }} className="animate-fade-up">
-          <StatCard number={stats.total} label="Employés" />
+          <StatCard
+            number={stats.total}
+            label="Employés"
+            isActive={activeFilter === null}
+            isFilterActive={activeFilter !== null}
+            onClick={() => setActiveFilter(null)}
+          />
         </div>
         <div style={{ animationDelay: '0.1s' }} className="animate-fade-up">
-          <StatCard number={stats.actif} label="Actifs" />
+          <StatCard
+            number={stats.actif}
+            label="Actifs"
+            isActive={activeFilter === 'actif'}
+            isFilterActive={activeFilter !== null}
+            onClick={() => setActiveFilter('actif')}
+          />
         </div>
         <div style={{ animationDelay: '0.2s' }} className="animate-fade-up">
-          <StatCard number={stats.risque} label="À risque" dot="amber" />
+          <StatCard
+            number={stats.risque}
+            label="À risque"
+            dot="amber"
+            isActive={activeFilter === 'risque'}
+            isFilterActive={activeFilter !== null}
+            onClick={() => setActiveFilter('risque')}
+          />
         </div>
         <div style={{ animationDelay: '0.3s' }} className="animate-fade-up">
-          <StatCard number={stats.bloqué} label="Bloqués" dot="red" />
+          <StatCard
+            number={stats.bloqué}
+            label="Bloqués"
+            dot="red"
+            isActive={activeFilter === 'bloqué'}
+            isFilterActive={activeFilter !== null}
+            onClick={() => setActiveFilter('bloqué')}
+          />
         </div>
       </div>
+
+      {/* Filter label */}
+      {getFilterLabel() && (
+        <div className="text-sm text-[#6B7280] font-medium mb-4">
+          {getFilterLabel()}
+        </div>
+      )}
 
       {/* Section label */}
       <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-semibold mb-4 mt-8 animate-fade-up" style={{ animationDelay: '0.4s' }}>
@@ -84,13 +135,13 @@ export default function HomePage() {
       </h2>
 
       {/* Employee list */}
-      {employees.length === 0 ? (
+      {filteredEmployees.length === 0 ? (
         <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-12 text-center shadow-ambient">
           <p className="text-[#6B7280]">Aucun employé trouvé</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {employees.slice(0, 5).map((employee, index) => (
+          {filteredEmployees.slice(0, 5).map((employee, index) => (
             <div key={employee.id} style={{ animationDelay: `${index * 0.1}s` }}>
               <EmployeeCard
                 employee={employee}
@@ -127,20 +178,31 @@ export default function HomePage() {
   )
 }
 
-function StatCard({ number, label, dot }) {
+function StatCard({ number, label, dot, isActive, isFilterActive, onClick }) {
   return (
-    <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-ambient hover:shadow-modal hover:scale-[1.02] transition-all duration-300 group cursor-default">
+    <button
+      onClick={onClick}
+      className={`bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-ambient hover:shadow-modal transition-all duration-200 group cursor-pointer text-left w-full ${
+        isActive
+          ? 'scale-[1.02] shadow-modal border-b-2 border-navy'
+          : isFilterActive
+          ? 'opacity-70'
+          : ''
+      }`}
+    >
       <div className="flex items-baseline gap-2">
-        <div className="font-display text-5xl font-bold text-[#111827] tabular-nums group-hover:text-navy transition-colors duration-300">{number}</div>
+        <div className={`font-display text-5xl font-bold tabular-nums transition-colors duration-300 ${
+          isActive ? 'text-navy' : 'text-[#111827] group-hover:text-navy'
+        }`}>{number}</div>
         {dot && (
           <div
             className={`w-2 h-2 rounded-full ${
               dot === 'amber' ? 'bg-status-amber' : 'bg-status-red'
-            } group-hover:scale-125 transition-transform duration-300`}
+            } ${isActive ? 'scale-125' : 'group-hover:scale-125'} transition-transform duration-300`}
           />
         )}
       </div>
       <div className="text-sm text-[#6B7280] mt-3 font-medium">{label}</div>
-    </div>
+    </button>
   )
 }
