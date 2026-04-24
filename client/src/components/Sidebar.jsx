@@ -1,15 +1,17 @@
 import { NavLink } from 'react-router-dom'
 import { Home, Users, ShieldAlert, Calendar, LogOut, Moon, Sun } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useDarkMode } from '../hooks/useDarkMode'
 
 const navItems = [
-  { to: '/', label: 'Accueil', icon: Home },
-  { to: '/employees', label: 'Employés', icon: Users },
-  { to: '/blocked', label: 'Bloqués', icon: ShieldAlert },
-  { to: '/calendar', label: 'Calendrier', icon: Calendar },
+  { to: '/', labelKey: 'accueil', icon: Home },
+  { to: '/employees', labelKey: 'employes', icon: Users },
+  { to: '/blocked', labelKey: 'bloques', icon: ShieldAlert },
+  { to: '/calendar', labelKey: 'calendrier', icon: Calendar },
 ]
 
 export default function Sidebar({ currentAdmin, onLogout }) {
+  const { t } = useTranslation()
   const { isDark, toggle } = useDarkMode()
 
   return (
@@ -56,7 +58,7 @@ export default function Sidebar({ currentAdmin, onLogout }) {
               {({ isActive }) => (
                 <>
                   <Icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.5} />
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </>
               )}
             </NavLink>
