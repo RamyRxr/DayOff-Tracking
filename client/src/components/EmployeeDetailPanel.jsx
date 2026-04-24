@@ -310,7 +310,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)'
             }}>
               {/* Day-of-week headers */}
-              <div className="grid grid-cols-7 gap-1 mb-2 pb-2" style={{
+              <div className="grid grid-cols-7 gap-0.5 mb-2 pb-2" style={{
                 borderBottom: '0.5px solid rgba(0,0,0,0.06)'
               }}>
                 {[
@@ -334,7 +334,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               </div>
 
               {/* Day cells */}
-              <div className="grid grid-cols-7 gap-1">
+              <div className="grid grid-cols-7 gap-0.5">
                 {periodDays.map((dayData, i) => {
                   // Only 3 colors: day-off (red gradient), normal (white-gray), weekend (gray)
                   const isDayOff = dayData.isDayOff
@@ -412,7 +412,12 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
           <div className="flex gap-3">
             <button
               onClick={() => setShowAddDayOff(true)}
-              className="flex-1 bg-navy text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200"
+              disabled={employee.status === 'bloqué'}
+              className={`flex-1 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
+                employee.status === 'bloqué'
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-navy text-white shadow-ambient hover:shadow-modal'
+              }`}
             >
               + Ajouter un congé
             </button>
