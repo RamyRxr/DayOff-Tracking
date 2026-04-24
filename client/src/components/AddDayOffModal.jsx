@@ -264,7 +264,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                 </div>
 
                 {/* Calendar grid */}
-                <div className="grid grid-cols-7 gap-0.5 mb-3">
+                <div className="grid grid-cols-7 gap-0 mb-3">
                   {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
                     <div key={i} className="h-8 flex items-center justify-center text-xs font-medium text-[#6B7280]">
                       {day}
@@ -280,12 +280,25 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                     const isInRange = startDate && endDate && day > startDate && day < endDate
                     const isCurrentMonth = isSameMonth(day, currentMonth)
 
+                    // Check if this row starts the current month (for separator line)
+                    const prevDay = i > 0 ? calendarDays[i - 1] : null
+                    const isPrevDayDifferentMonth = prevDay && !isSameMonth(prevDay, currentMonth) && isCurrentMonth
+                    const isFirstOfRow = i % 7 === 0
+                    const shouldShowMonthSeparator = isPrevDayDifferentMonth && isFirstOfRow
+
                     // Only 3 colors: day-off (red gradient), normal (white-gray), weekend (gray)
                     let cellStyle = {}
                     let textClass = 'text-xs transition-all'
 
                     if (!isCurrentMonth) {
                       textClass += ' opacity-30'
+                    }
+
+                    // Add month separator border
+                    if (shouldShowMonthSeparator) {
+                      cellStyle.borderTop = '2px solid rgba(0,0,0,0.1)'
+                      cellStyle.marginTop = '4px'
+                      cellStyle.paddingTop = '4px'
                     }
 
                     if (isStart || isEnd || isExisting) {
