@@ -85,9 +85,11 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center">
-      <div className="bg-white rounded-3xl shadow-modal w-full max-w-md max-h-[80vh] overflow-y-auto animate-slide-up">
+      <div className="bg-white rounded-3xl shadow-modal w-full max-w-md max-h-[88vh] flex flex-col animate-slide-up">
         {/* Header */}
-        <div className="sticky top-0 bg-status-green/10 border-b border-status-green/20 px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
+        <div className="flex-shrink-0 bg-status-green/10 px-6 py-4 flex items-center justify-between rounded-t-3xl" style={{
+          borderBottom: '0.5px solid rgba(0,0,0,0.06)'
+        }}>
           <div className="flex items-center gap-3">
             {step === 2 && (
               <button
@@ -118,7 +120,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6 pb-8">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6" style={{ paddingBottom: '24px' }}>
           {/* Employee info */}
           <div className="bg-warm-gray-200 rounded-xl p-4">
             <div className="flex items-center gap-3">
@@ -290,7 +292,9 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-white border-t border-black/6 px-6 py-4 flex gap-3 rounded-b-3xl">
+        <div className="flex-shrink-0 bg-white px-6 py-4 flex gap-3 rounded-b-3xl" style={{
+          borderTop: '0.5px solid rgba(0,0,0,0.06)'
+        }}>
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all duration-200"
