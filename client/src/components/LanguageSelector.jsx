@@ -29,19 +29,21 @@ export default function LanguageSelector() {
     }
   }, [isOpen])
 
-  const handleLanguageChange = (code) => {
-    i18n.changeLanguage(code)
-    localStorage.setItem('lang', code)
-
-    // Set document direction and lang attribute
-    if (code === 'ar') {
+  // Update document direction when language changes
+  useEffect(() => {
+    const currentLang = i18n.language
+    if (currentLang === 'ar') {
       document.documentElement.dir = 'rtl'
       document.documentElement.lang = 'ar'
     } else {
       document.documentElement.dir = 'ltr'
-      document.documentElement.lang = code
+      document.documentElement.lang = currentLang
     }
+  }, [i18n.language])
 
+  const handleLanguageChange = (code) => {
+    i18n.changeLanguage(code)
+    localStorage.setItem('lang', code)
     setIsOpen(false)
   }
 
