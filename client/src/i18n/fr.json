@@ -91,11 +91,19 @@
   "creerEmploye": "Créer l'employé",
   "verification": "Vérification...",
   "seDeconnecter": "Se déconnecter",
+  "adminRH": "Admin RH",
   "genererMatricule": "Générer nouveau matricule",
   "exPoste": "Ex: Technicien, Chef d'équipe...",
   "suivantFleche": "Suivant →",
   "retourFleche": "← Retour",
   "datesEtMotif": "Dates et motif",
   "autorisationRequise": "Autorisation requise",
-  "confirmerConge": "Confirmer le congé"
+  "confirmerConge": "Confirmer le congé",
+  "estARisque": "est à risque",
+  "joursRestants": "jours restants",
+  "bloqueMessage": "a été bloqué ce mois",
+  "aujourdhui": "Aujourd'hui",
+  "periode": "Période",
+  "avr": "Avr",
+  "mai": "Mai"
 }

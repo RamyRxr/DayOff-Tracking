@@ -85,7 +85,7 @@ export default function Sidebar({ currentAdmin, onLogout }) {
               {currentAdmin?.name || 'Admin'}
             </div>
             <div className="text-xs text-[#6B7280] dark:text-gray-400">
-              {currentAdmin?.role || 'Admin RH'}
+              {currentAdmin?.role || t('adminRH')}
             </div>
           </div>
 
@@ -93,7 +93,7 @@ export default function Sidebar({ currentAdmin, onLogout }) {
           <button
             onClick={onLogout}
             className="p-1.5 hover:bg-[#C0392B]/10 dark:hover:bg-red-900/20 rounded-lg transition-colors group"
-            title="Se déconnecter"
+            title={t('seDeconnecter')}
           >
             <LogOut className="w-4 h-4 text-[#6B7280] dark:text-gray-400 group-hover:text-[#C0392B] dark:group-hover:text-red-400" strokeWidth={1.5} />
           </button>
