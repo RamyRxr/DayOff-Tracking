@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
+import LanguageSelector from './LanguageSelector'
 import { useEmployees } from '../hooks/useEmployees'
 
 export default function Layout({ currentAdmin, onLogout }) {
@@ -163,6 +164,9 @@ export default function Layout({ currentAdmin, onLogout }) {
               </div>
             )}
           </div>
+
+          {/* Language Selector */}
+          <LanguageSelector />
         </header>
 
         {/* Page content */}

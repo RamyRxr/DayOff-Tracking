@@ -1,0 +1,86 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "error": "Error"
+  },
+  "nav": {
+    "accueil": "Home",
+    "employes": "Employees",
+    "bloques": "Blocked",
+    "calendrier": "Calendar"
+  },
+  "home": {
+    "activiteRecente": "Recent Activity",
+    "totalEmployes": "Employees",
+    "actifs": "Active",
+    "aRisque": "At Risk",
+    "bloques": "Blocked"
+  },
+  "employee": {
+    "details": "Details",
+    "ajouterConge": "Add Leave",
+    "nouvelEmploye": "New Employee",
+    "nomPrenom": "Full Name",
+    "prenom": "First Name",
+    "nom": "Last Name",
+    "matricule": "ID Number",
+    "departement": "Department",
+    "poste": "Position",
+    "email": "Email",
+    "telephone": "Phone",
+    "dateEmbauche": "Hire Date",
+    "joursConge": "Days Off",
+    "joursTravailles": "Days Worked",
+    "joursDisponibles": "Days Available"
+  },
+  "dayoff": {
+    "ajouterConge": "Add Leave",
+    "typeConge": "Leave Type",
+    "dateDebut": "Start Date",
+    "dateFin": "End Date",
+    "justificatif": "Supporting Document",
+    "joursOuvrables": "working days",
+    "joursCalendaires": "calendar days",
+    "sandwichDetection": "Sandwich Detection",
+    "congeAnnuel": "Annual Leave",
+    "congeMaladie": "Sick Leave",
+    "congeSansSolde": "Unpaid Leave",
+    "autre": "Other"
+  },
+  "block": {
+    "bloquerEmploye": "Block Employee",
+    "debloquerEmploye": "Unblock Employee",
+    "motifBlocage": "Block Reason",
+    "motifDeblocage": "Unblock Reason",
+    "descriptionOptionnelle": "Description",
+    "confirmerBlocage": "Confirm Block",
+    "confirmerDeblocage": "Confirm Unblock",
+    "absencesNonJustifiees": "Unjustified Absences",
+    "depassementQuota": "Quota Exceeded",
+    "nonRespectProcedures": "Procedure Violation",
+    "erreurAdministrative": "Administrative Error",
+    "justificationAcceptee": "Justification Accepted",
+    "decisionHierarchique": "Management Decision"
+  },
+  "status": {
+    "actif": "Active",
+    "aRisque": "At Risk",
+    "bloque": "Blocked"
+  },
+  "auth": {
+    "selectionnerAdmin": "Administrator",
+    "codePIN": "PIN Code",
+    "codePIN4": "4-digit PIN Code",
+    "verificationEnCours": "Verifying...",
+    "adminVerifie": "Code Correct",
+    "pinIncorrect": "Incorrect Code"
+  }
+}
