@@ -24,7 +24,8 @@ export function useDaysOff(filters = {}) {
 
   useEffect(() => {
     fetchDaysOff()
-  }, [JSON.stringify(filters)])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.employeeId])
 
   const refetch = () => {
     fetchDaysOff()

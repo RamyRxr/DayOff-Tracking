@@ -35,6 +35,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
     if (isOpen && !formData.matricule) {
       generateMatricule()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   // Auto-suggest email when prenom and nom change
@@ -45,6 +46,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
         setFormData(prev => ({ ...prev, email: suggested }))
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.prenom, formData.nom])
 
   const generateMatricule = () => {

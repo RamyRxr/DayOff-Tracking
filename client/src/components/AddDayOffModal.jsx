@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { X, Calendar, Upload, AlertTriangle, ChevronLeft, ChevronRight, Check } from 'lucide-react'
+import { X, Upload, AlertTriangle, ChevronLeft, ChevronRight, Check } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, addMonths, subMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useDaysOff } from '../hooks/useDaysOff'
@@ -349,9 +349,10 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                         disabled={isWeekend || isPast || isExisting}
                         className={`rounded-lg ${textClass}`}
                         style={{
-                          width: '36px',
-                          height: '36px',
-                          fontSize: '13px',
+                          width: '48px',
+                          height: '48px',
+                          fontSize: '15px',
+                          fontWeight: '500',
                           ...cellStyle
                         }}
                       >

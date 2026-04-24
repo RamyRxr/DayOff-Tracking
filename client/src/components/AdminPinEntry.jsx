@@ -22,6 +22,7 @@ export default function AdminPinEntry({ isOpen, onClose, onSuccess, actionLabel 
       // Auto-validate when all 4 digits entered
       handleValidate()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pinDigits])
 
   const handleValidate = async () => {
