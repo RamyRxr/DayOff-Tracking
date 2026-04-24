@@ -310,7 +310,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)'
             }}>
               {/* Day-of-week headers */}
-              <div className="grid grid-cols-7 gap-0.5 mb-2 pb-2" style={{
+              <div className="grid grid-cols-7 gap-0 mb-2 pb-2" style={{
                 borderBottom: '0.5px solid rgba(0,0,0,0.06)'
               }}>
                 {[
@@ -334,14 +334,27 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               </div>
 
               {/* Day cells */}
-              <div className="grid grid-cols-7 gap-0.5">
+              <div className="grid grid-cols-7 gap-0">
                 {periodDays.map((dayData, i) => {
                   // Only 3 colors: day-off (red gradient), normal (white-gray), weekend (gray)
                   const isDayOff = dayData.isDayOff
                   const isWeekend = dayData.isWeekend
 
+                  // Check if this row starts a new month (for separator line)
+                  const prevDay = i > 0 ? periodDays[i - 1] : null
+                  const isNewMonth = prevDay && dayData.date.getMonth() !== prevDay.date.getMonth()
+                  const isFirstOfRow = i % 7 === 0
+                  const shouldShowMonthSeparator = isNewMonth && isFirstOfRow
+
                   let cellStyle = {}
                   let textClass = ''
+
+                  // Add month separator border
+                  if (shouldShowMonthSeparator) {
+                    cellStyle.borderTop = '2px solid rgba(0,0,0,0.1)'
+                    cellStyle.marginTop = '4px'
+                    cellStyle.paddingTop = '4px'
+                  }
 
                   if (isDayOff) {
                     // Day-off: red gradient with inner shadow
