@@ -2,14 +2,16 @@ import { useState } from 'react'
 import { Search, Filter, Plus, ChevronDown, Loader2 } from 'lucide-react'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import AddDayOffModal from '../components/AddDayOffModal'
+import AddEmployeeModal from '../components/AddEmployeeModal'
 import { useEmployees } from '../hooks/useEmployees'
 
 export default function EmployeesPage() {
-  const { employees, loading, error } = useEmployees()
+  const { employees, loading, error, refetch } = useEmployees()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('tous')
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [showAddDayOff, setShowAddDayOff] = useState(false)
+  const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false)
   const [sortField, setSortField] = useState('name')
   const [sortDirection, setSortDirection] = useState('asc')
 
@@ -112,7 +114,7 @@ export default function EmployeesPage() {
           </p>
         </div>
         <button
-          onClick={() => {}}
+          onClick={() => setShowAddEmployeeModal(true)}
           className="flex items-center gap-2 bg-navy text-white px-4 py-2.5 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200"
         >
           <Plus className="w-4 h-4" strokeWidth={2} />
@@ -323,6 +325,17 @@ export default function EmployeesPage() {
           console.log('Add day off:', data)
         }}
       />
+
+      {/* Add Employee Modal */}
+      {showAddEmployeeModal && (
+        <AddEmployeeModal
+          onClose={() => setShowAddEmployeeModal(false)}
+          onSuccess={() => {
+            setShowAddEmployeeModal(false)
+            refetch()
+          }}
+        />
+      )}
     </div>
   )
 }
