@@ -305,13 +305,15 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               </div>
             </div>
 
-            {/* Calendar grid with inner shadow */}
-            <div className="rounded-xl p-2" style={{
-              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)'
+            {/* Calendar grid - seamless professional layout */}
+            <div className="rounded-xl overflow-hidden" style={{
+              boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
+              background: '#FFFFFF'
             }}>
               {/* Day-of-week headers */}
-              <div className="grid grid-cols-7 gap-0 mb-2 pb-2" style={{
-                borderBottom: '0.5px solid rgba(0,0,0,0.06)'
+              <div className="grid grid-cols-7" style={{
+                borderBottom: '1px solid rgba(0,0,0,0.08)',
+                background: '#FAFAFA'
               }}>
                 {[
                   { label: 'LU', isWeekend: false },
@@ -324,71 +326,72 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                 ].map((day, i) => (
                   <div
                     key={i}
-                    className={`text-[10px] uppercase font-medium text-center ${
-                      day.isWeekend ? 'text-gray-300' : 'text-gray-400'
+                    className={`text-[10px] uppercase font-semibold text-center py-2 ${
+                      day.isWeekend ? 'text-gray-400' : 'text-gray-600'
                     }`}
+                    style={{
+                      letterSpacing: '0.5px',
+                      borderRight: i < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none'
+                    }}
                   >
                     {day.label}
                   </div>
                 ))}
               </div>
 
-              {/* Day cells */}
-              <div className="grid grid-cols-7 gap-0">
+              {/* Day cells - seamless grid */}
+              <div className="grid grid-cols-7">
                 {periodDays.map((dayData, i) => {
                   // Only 3 colors: day-off (red gradient), normal (white-gray), weekend (gray)
                   const isDayOff = dayData.isDayOff
                   const isWeekend = dayData.isWeekend
 
-                  // Check if this row starts a new month (for separator line)
+                  // Grid positioning
+                  const col = i % 7
+                  const isLastCol = col === 6
+                  const isLastRow = i >= periodDays.length - 7
+
+                  // Month separator
                   const prevDay = i > 0 ? periodDays[i - 1] : null
                   const isNewMonth = prevDay && dayData.date.getMonth() !== prevDay.date.getMonth()
-                  const isFirstOfRow = i % 7 === 0
+                  const isFirstOfRow = col === 0
                   const shouldShowMonthSeparator = isNewMonth && isFirstOfRow
 
-                  let cellStyle = {}
-                  let textClass = ''
+                  let cellStyle = {
+                    width: '48px',
+                    height: '48px',
+                    borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                    borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                  }
+                  let textClass = 'flex items-center justify-center transition-all duration-150'
 
-                  // Add month separator border
+                  // Month separator
                   if (shouldShowMonthSeparator) {
-                    cellStyle.borderTop = '2px solid rgba(0,0,0,0.1)'
-                    cellStyle.marginTop = '4px'
-                    cellStyle.paddingTop = '4px'
+                    cellStyle.borderTop = '2px solid rgba(0,0,0,0.15)'
                   }
 
                   if (isDayOff) {
-                    // Day-off: red gradient with inner shadow
-                    cellStyle = {
-                      background: 'linear-gradient(135deg, #FF3B30, #C0392B)',
-                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
-                    }
-                    textClass = 'text-white font-semibold'
+                    // Day-off: vibrant red gradient
+                    cellStyle.background = 'linear-gradient(135deg, #FF3B30 0%, #C0392B 100%)'
+                    cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 2px rgba(0,0,0,0.2)'
+                    textClass += ' text-white font-bold'
                   } else if (isWeekend) {
-                    // Weekend: gray with inner shadow
-                    cellStyle = {
-                      background: '#E5E5EA',
-                      boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
-                    }
-                    textClass = 'text-[#8E8E93]'
+                    // Weekend: soft gray
+                    cellStyle.background = '#F5F5F7'
+                    textClass += ' text-gray-400 font-medium'
                   } else {
-                    // Normal: white-gray with border and inner shadow
-                    cellStyle = {
-                      background: '#FAFAFA',
-                      border: '1px solid rgba(0,0,0,0.05)',
-                      boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
-                    }
-                    textClass = 'text-gray-700'
+                    // Normal workday: clean white
+                    cellStyle.background = '#FFFFFF'
+                    textClass += ' text-gray-800 font-medium hover:bg-gray-50'
                   }
 
                   return (
                     <div
                       key={i}
-                      className={`rounded-lg flex items-center justify-center transition-colors duration-100 ${textClass}`}
+                      className={textClass}
                       style={{
-                        width: '48px',
-                        height: '48px',
                         fontSize: '15px',
-                        fontWeight: '500',
+                        fontVariantNumeric: 'tabular-nums',
                         ...cellStyle
                       }}
                     >

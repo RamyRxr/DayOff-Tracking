@@ -1,4 +1,4 @@
-export default function EmployeeCard({ employee, onDetailsClick, onDayOffClick }) {
+export default function EmployeeCard({ employee, onDetailsClick }) {
   const statusConfig = {
     actif: {
       label: 'Actif',

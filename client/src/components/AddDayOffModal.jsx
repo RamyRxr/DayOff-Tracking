@@ -263,103 +263,110 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                   </button>
                 </div>
 
-                {/* Calendar grid */}
-                <div className="grid grid-cols-7 gap-0 mb-3">
-                  {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
-                    <div key={i} className="h-8 flex items-center justify-center text-xs font-medium text-[#6B7280]">
-                      {day}
-                    </div>
-                  ))}
-                  {calendarDays.map((day, i) => {
-                    const dayStr = day.toISOString().split('T')[0]
-                    const isWeekend = day.getDay() === 5 || day.getDay() === 6
-                    const isPast = day < new Date(new Date().setHours(0, 0, 0, 0))
-                    const isExisting = existingDates.has(dayStr)
-                    const isStart = startDate && day.toDateString() === startDate.toDateString()
-                    const isEnd = endDate && day.toDateString() === endDate.toDateString()
-                    const isInRange = startDate && endDate && day > startDate && day < endDate
-                    const isCurrentMonth = isSameMonth(day, currentMonth)
-
-                    // Check if this row starts the current month (for separator line)
-                    const prevDay = i > 0 ? calendarDays[i - 1] : null
-                    const isPrevDayDifferentMonth = prevDay && !isSameMonth(prevDay, currentMonth) && isCurrentMonth
-                    const isFirstOfRow = i % 7 === 0
-                    const shouldShowMonthSeparator = isPrevDayDifferentMonth && isFirstOfRow
-
-                    // Only 3 colors: day-off (red gradient), normal (white-gray), weekend (gray)
-                    let cellStyle = {}
-                    let textClass = 'text-xs transition-all'
-
-                    if (!isCurrentMonth) {
-                      textClass += ' opacity-30'
-                    }
-
-                    // Add month separator border
-                    if (shouldShowMonthSeparator) {
-                      cellStyle.borderTop = '2px solid rgba(0,0,0,0.1)'
-                      cellStyle.marginTop = '4px'
-                      cellStyle.paddingTop = '4px'
-                    }
-
-                    if (isStart || isEnd || isExisting) {
-                      // Selected or existing day-off: red gradient
-                      cellStyle = {
-                        background: 'linear-gradient(135deg, #FF3B30, #C0392B)',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
-                      }
-                      textClass += ' text-white font-semibold'
-                      if (isExisting) textClass += ' cursor-not-allowed'
-                    } else if (isInRange) {
-                      // In range: lighter red with border
-                      cellStyle = {
-                        background: '#FFE5E5',
-                        border: '1px solid #FF3B30',
-                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
-                      }
-                      textClass += ' text-[#C0392B] font-medium'
-                    } else if (isWeekend) {
-                      // Weekend: gray
-                      cellStyle = {
-                        background: '#E5E5EA',
-                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
-                      }
-                      textClass += ' text-[#8E8E93] cursor-not-allowed'
-                    } else if (isPast) {
-                      // Past: white-gray but disabled
-                      cellStyle = {
-                        background: '#FAFAFA',
-                        border: '1px solid rgba(0,0,0,0.05)',
-                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
-                      }
-                      textClass += ' text-gray-300 cursor-not-allowed'
-                    } else {
-                      // Normal selectable: white-gray with hover
-                      cellStyle = {
-                        background: '#FAFAFA',
-                        border: '1px solid rgba(0,0,0,0.05)',
-                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
-                      }
-                      textClass += ' text-gray-700 hover:border-[#FF3B30] hover:bg-red-50'
-                    }
-
-                    return (
-                      <button
+                {/* Calendar grid - seamless professional */}
+                <div className="rounded-xl overflow-hidden mb-3" style={{
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
+                  background: '#FFFFFF'
+                }}>
+                  {/* Day headers */}
+                  <div className="grid grid-cols-7" style={{
+                    borderBottom: '1px solid rgba(0,0,0,0.08)',
+                    background: '#FAFAFA'
+                  }}>
+                    {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
+                      <div
                         key={i}
-                        onClick={() => handleDayClick(day)}
-                        disabled={isWeekend || isPast || isExisting}
-                        className={`rounded-lg ${textClass}`}
+                        className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 uppercase"
                         style={{
-                          width: '48px',
-                          height: '48px',
-                          fontSize: '15px',
-                          fontWeight: '500',
-                          ...cellStyle
+                          letterSpacing: '0.5px',
+                          borderRight: i < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none'
                         }}
                       >
-                        {format(day, 'd')}
-                      </button>
-                    )
-                  })}
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Day cells grid */}
+                  <div className="grid grid-cols-7">
+                    {calendarDays.map((day, i) => {
+                      const dayStr = day.toISOString().split('T')[0]
+                      const isWeekend = day.getDay() === 5 || day.getDay() === 6
+                      const isPast = day < new Date(new Date().setHours(0, 0, 0, 0))
+                      const isExisting = existingDates.has(dayStr)
+                      const isStart = startDate && day.toDateString() === startDate.toDateString()
+                      const isEnd = endDate && day.toDateString() === endDate.toDateString()
+                      const isInRange = startDate && endDate && day > startDate && day < endDate
+                      const isCurrentMonth = isSameMonth(day, currentMonth)
+
+                      // Grid positioning
+                      const col = i % 7
+                      const isLastCol = col === 6
+                      const isLastRow = i >= calendarDays.length - 7
+
+                      // Month separator
+                      const prevDay = i > 0 ? calendarDays[i - 1] : null
+                      const isPrevDayDifferentMonth = prevDay && !isSameMonth(prevDay, currentMonth) && isCurrentMonth
+                      const isFirstOfRow = col === 0
+                      const shouldShowMonthSeparator = isPrevDayDifferentMonth && isFirstOfRow
+
+                      let cellStyle = {
+                        width: '48px',
+                        height: '48px',
+                        borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                        borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                      }
+                      let textClass = 'flex items-center justify-center transition-all duration-150'
+
+                      if (!isCurrentMonth) {
+                        textClass += ' opacity-40'
+                      }
+
+                      if (shouldShowMonthSeparator) {
+                        cellStyle.borderTop = '2px solid rgba(0,0,0,0.15)'
+                      }
+
+                      if (isStart || isEnd || isExisting) {
+                        // Selected/existing: vibrant red
+                        cellStyle.background = 'linear-gradient(135deg, #FF3B30 0%, #C0392B 100%)'
+                        cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 2px rgba(0,0,0,0.2)'
+                        textClass += ' text-white font-bold'
+                        if (isExisting) textClass += ' cursor-not-allowed'
+                      } else if (isInRange) {
+                        // In range: light red
+                        cellStyle.background = '#FFE5E5'
+                        textClass += ' text-[#C0392B] font-semibold'
+                      } else if (isWeekend) {
+                        // Weekend: soft gray
+                        cellStyle.background = '#F5F5F7'
+                        textClass += ' text-gray-400 font-medium cursor-not-allowed'
+                      } else if (isPast) {
+                        // Past: white but disabled
+                        cellStyle.background = '#FFFFFF'
+                        textClass += ' text-gray-300 font-medium cursor-not-allowed'
+                      } else {
+                        // Selectable: white with hover
+                        cellStyle.background = '#FFFFFF'
+                        textClass += ' text-gray-800 font-medium hover:bg-blue-50'
+                      }
+
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => handleDayClick(day)}
+                          disabled={isWeekend || isPast || isExisting}
+                          className={textClass}
+                          style={{
+                            fontSize: '15px',
+                            fontVariantNumeric: 'tabular-nums',
+                            ...cellStyle
+                          }}
+                        >
+                          {format(day, 'd')}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
 
                 {/* Summary chip */}
