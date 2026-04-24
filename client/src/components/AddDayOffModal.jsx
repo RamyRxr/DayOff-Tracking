@@ -279,20 +279,67 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                     const isInRange = startDate && endDate && day > startDate && day < endDate
                     const isCurrentMonth = isSameMonth(day, currentMonth)
 
+                    // Only 3 colors: day-off (red gradient), normal (white-gray), weekend (gray)
+                    let cellStyle = {}
+                    let textClass = 'text-xs transition-all'
+
+                    if (!isCurrentMonth) {
+                      textClass += ' opacity-30'
+                    }
+
+                    if (isStart || isEnd || isExisting) {
+                      // Selected or existing day-off: red gradient
+                      cellStyle = {
+                        background: 'linear-gradient(135deg, #FF3B30, #C0392B)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                      }
+                      textClass += ' text-white font-semibold'
+                      if (isExisting) textClass += ' cursor-not-allowed'
+                    } else if (isInRange) {
+                      // In range: lighter red with border
+                      cellStyle = {
+                        background: '#FFE5E5',
+                        border: '1px solid #FF3B30',
+                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
+                      }
+                      textClass += ' text-[#C0392B] font-medium'
+                    } else if (isWeekend) {
+                      // Weekend: gray
+                      cellStyle = {
+                        background: '#E5E5EA',
+                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
+                      }
+                      textClass += ' text-[#8E8E93] cursor-not-allowed'
+                    } else if (isPast) {
+                      // Past: white-gray but disabled
+                      cellStyle = {
+                        background: '#FAFAFA',
+                        border: '1px solid rgba(0,0,0,0.05)',
+                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
+                      }
+                      textClass += ' text-gray-300 cursor-not-allowed'
+                    } else {
+                      // Normal selectable: white-gray with hover
+                      cellStyle = {
+                        background: '#FAFAFA',
+                        border: '1px solid rgba(0,0,0,0.05)',
+                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
+                      }
+                      textClass += ' text-gray-700 hover:border-[#FF3B30] hover:bg-red-50'
+                    }
+
                     return (
                       <button
                         key={i}
                         onClick={() => handleDayClick(day)}
                         disabled={isWeekend || isPast || isExisting}
-                        className={`h-9 w-9 rounded-lg text-xs transition-all ${
-                          !isCurrentMonth ? 'opacity-30' :
-                          isStart || isEnd ? 'bg-navy text-white font-semibold' :
-                          isInRange ? 'bg-navy/10' :
-                          isExisting ? 'bg-status-amber/20 cursor-not-allowed' :
-                          isWeekend ? 'bg-warm-gray-300 text-[#6B7280] cursor-not-allowed' :
-                          isPast ? 'text-gray-300 cursor-not-allowed' :
-                          'bg-warm-gray-200 hover:bg-navy/10'
-                        }`}
+                        className={`rounded-lg ${textClass}`}
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          fontSize: '13px',
+                          ...cellStyle
+                        }}
                       >
                         {format(day, 'd')}
                       </button>

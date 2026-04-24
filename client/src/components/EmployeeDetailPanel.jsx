@@ -336,23 +336,47 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               {/* Day cells */}
               <div className="grid grid-cols-7 gap-1">
                 {periodDays.map((dayData, i) => {
-                  const today = new Date()
-                  const isToday = dayData.date.toDateString() === today.toDateString()
-                  const isPast = dayData.date < today && !isToday
-                  const isBlocked = employee.status === 'bloqué' && !isPast
+                  // Only 3 colors: day-off (red gradient), normal (white-gray), weekend (gray)
+                  const isDayOff = dayData.isDayOff
+                  const isWeekend = dayData.isWeekend
+
+                  let cellStyle = {}
+                  let textClass = ''
+
+                  if (isDayOff) {
+                    // Day-off: red gradient with inner shadow
+                    cellStyle = {
+                      background: 'linear-gradient(135deg, #FF3B30, #C0392B)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                    }
+                    textClass = 'text-white font-semibold'
+                  } else if (isWeekend) {
+                    // Weekend: gray with inner shadow
+                    cellStyle = {
+                      background: '#E5E5EA',
+                      boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
+                    }
+                    textClass = 'text-[#8E8E93]'
+                  } else {
+                    // Normal: white-gray with border and inner shadow
+                    cellStyle = {
+                      background: '#FAFAFA',
+                      border: '1px solid rgba(0,0,0,0.05)',
+                      boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
+                    }
+                    textClass = 'text-gray-700'
+                  }
 
                   return (
                     <div
                       key={i}
-                      className={`
-                        w-8 h-8 rounded-lg flex items-center justify-center text-xs transition-colors duration-100
-                        ${isToday ? 'bg-blue-50 text-blue-700 font-semibold ring-1 ring-blue-200' :
-                          isBlocked ? 'bg-red-50 text-red-600 ring-1 ring-red-200/50' :
-                          dayData.isDayOff ? 'bg-amber-50 text-amber-700 font-medium ring-1 ring-amber-200/50' :
-                          dayData.isWeekend ? 'text-gray-400 bg-transparent' :
-                          isPast ? 'text-gray-300 cursor-not-allowed' :
-                          'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}
-                      `}
+                      className={`rounded-lg flex items-center justify-center transition-colors duration-100 ${textClass}`}
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        fontSize: '13px',
+                        ...cellStyle
+                      }}
                     >
                       {dayData.day}
                     </div>
