@@ -91,11 +91,19 @@
   "creerEmploye": "إنشاء موظف",
   "verification": "جارٍ التحقق...",
   "seDeconnecter": "تسجيل الخروج",
+  "adminRH": "مدير الموارد البشرية",
   "genererMatricule": "إنشاء رقم وظيفي جديد",
   "exPoste": "مثال: فني، رئيس فريق...",
   "suivantFleche": "التالي ←",
   "retourFleche": "→ رجوع",
   "datesEtMotif": "التواريخ والسبب",
   "autorisationRequise": "التفويض مطلوب",
-  "confirmerConge": "تأكيد الإجازة"
+  "confirmerConge": "تأكيد الإجازة",
+  "estARisque": "في خطر",
+  "joursRestants": "أيام متبقية",
+  "bloqueMessage": "تم حجبه هذا الشهر",
+  "aujourdhui": "اليوم",
+  "periode": "الفترة",
+  "avr": "أبريل",
+  "mai": "مايو"
 }

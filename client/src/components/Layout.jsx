@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Sidebar from './Sidebar'
 import LanguageSelector from './LanguageSelector'
 import { useEmployees } from '../hooks/useEmployees'
 
 export default function Layout({ currentAdmin, onLogout }) {
+  const { t } = useTranslation()
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [readNotifications, setReadNotifications] = useState(new Set())
   const notifRef = useRef(null)
@@ -20,9 +22,9 @@ export default function Layout({ currentAdmin, onLogout }) {
       matricule: emp.matricule,
       message:
         emp.status === 'risque'
-          ? `⚠ ${emp.name} est à risque — ${emp.daysTotal - emp.daysUsed} jours restants`
-          : `🚫 ${emp.name} a été bloqué ce mois`,
-      timestamp: 'Aujourd\'hui',
+          ? `⚠ ${emp.name} ${t('estARisque')} — ${emp.daysTotal - emp.daysUsed} ${t('joursRestants')}`
+          : `🚫 ${emp.name} ${t('bloqueMessage')}`,
+      timestamp: t('aujourdhui'),
     }))
 
   const unreadCount = notifications.filter(n => !readNotifications.has(n.id)).length
@@ -66,7 +68,7 @@ export default function Layout({ currentAdmin, onLogout }) {
         {/* Top bar - 56px, frosted glass */}
         <header className="h-14 bg-white/75 dark:bg-[#1C1C1E]/80 backdrop-blur-xl border-b-0.5 border-black/6 dark:border-white/[0.06] flex items-center px-8 justify-between sticky top-0 z-30">
           <div className="text-sm font-semibold text-[#374151] dark:text-white tracking-tight">
-            Période · 20 Avr → 19 Mai 2026
+            {t('periode')} · 20 {t('avr')} → 19 {t('mai')} 2026
           </div>
 
           {/* Period progress bar - 6px height per spec */}
@@ -97,13 +99,13 @@ export default function Layout({ currentAdmin, onLogout }) {
               <div className="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-[#2C2C2E] rounded-2xl shadow-ambient border border-black/6 dark:border-white/[0.08] overflow-hidden animate-in">
                 {/* Header */}
                 <div className="px-4 py-3 border-b border-black/6 dark:border-white/[0.06] flex items-center justify-between">
-                  <h3 className="font-semibold text-[#111827] dark:text-white">Notifications</h3>
+                  <h3 className="font-semibold text-[#111827] dark:text-white">{t('notifications')}</h3>
                   {unreadCount > 0 && (
                     <button
                       onClick={handleMarkAllRead}
                       className="text-xs text-navy dark:text-blue-400 hover:underline font-medium"
                     >
-                      Tout marquer lu
+                      {t('toutMarquerLu')}
                     </button>
                   )}
                 </div>
@@ -112,7 +114,7 @@ export default function Layout({ currentAdmin, onLogout }) {
                 <div className="max-h-96 overflow-y-auto">
                   {notifications.length === 0 ? (
                     <div className="py-12 text-center">
-                      <p className="text-[#6B7280] text-sm">Aucune notification</p>
+                      <p className="text-[#6B7280] text-sm">{t('aucuneNotification')}</p>
                     </div>
                   ) : (
                     notifications.map((notif) => {

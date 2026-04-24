@@ -91,11 +91,19 @@
   "creerEmploye": "Create employee",
   "verification": "Verifying...",
   "seDeconnecter": "Log out",
+  "adminRH": "HR Admin",
   "genererMatricule": "Generate new ID",
   "exPoste": "E.g., Technician, Team leader...",
   "suivantFleche": "Next →",
   "retourFleche": "← Back",
   "datesEtMotif": "Dates and reason",
   "autorisationRequise": "Authorization required",
-  "confirmerConge": "Confirm day off"
+  "confirmerConge": "Confirm day off",
+  "estARisque": "is at risk",
+  "joursRestants": "days remaining",
+  "bloqueMessage": "has been blocked this month",
+  "aujourdhui": "Today",
+  "periode": "Period",
+  "avr": "Apr",
+  "mai": "May"
 }
