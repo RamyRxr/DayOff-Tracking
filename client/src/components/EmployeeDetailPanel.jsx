@@ -1,4 +1,4 @@
-import { X, Mail, Phone, Calendar as CalendarIcon } from 'lucide-react'
+import { X, Mail, Phone, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -265,58 +265,100 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             </div>
           </div>
 
-          {/* Split Calendar */}
-          <div className="bg-white/80 backdrop-blur-xl rounded-xl p-3 shadow-ambient">
-            <h4 className="text-[11px] uppercase tracking-wider font-semibold text-[#6B7280] mb-2">
-              Période actuelle
-            </h4>
-            <div className="text-[10px] text-[#6B7280] mb-3">
-              20 {periodStart.toLocaleDateString('fr-DZ', { month: 'long' })} —{' '}
-              19 {periodEnd.toLocaleDateString('fr-DZ', { month: 'long' })}
+          {/* Calendar */}
+          <div className="bg-white rounded-2xl p-4" style={{
+            boxShadow: '0 0 0 1px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.06)'
+          }}>
+            {/* Month header */}
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-[13px] font-semibold text-gray-800 uppercase tracking-wide">
+                {periodStart.toLocaleDateString('fr-DZ', { month: 'long', year: 'numeric' })}
+              </h4>
+              <div className="flex gap-1">
+                <button className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
+                  <ChevronLeft className="w-4 h-4 text-gray-600" />
+                </button>
+                <button className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
+                  <ChevronRight className="w-4 h-4 text-gray-600" />
+                </button>
+              </div>
             </div>
 
-            {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-0.5">
-              {/* Day headers */}
-              {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
-                <div
-                  key={i}
-                  className="h-5 flex items-center justify-center text-[10px] font-medium text-[#6B7280]"
-                >
-                  {day}
-                </div>
-              ))}
+            {/* Calendar grid with inner shadow */}
+            <div className="rounded-xl p-2" style={{
+              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)'
+            }}>
+              {/* Day-of-week headers */}
+              <div className="grid grid-cols-7 gap-1 mb-2 pb-2" style={{
+                borderBottom: '0.5px solid rgba(0,0,0,0.06)'
+              }}>
+                {[
+                  { label: 'LU', isWeekend: false },
+                  { label: 'MA', isWeekend: false },
+                  { label: 'ME', isWeekend: false },
+                  { label: 'JE', isWeekend: false },
+                  { label: 'VE', isWeekend: true },
+                  { label: 'SA', isWeekend: true },
+                  { label: 'DI', isWeekend: false }
+                ].map((day, i) => (
+                  <div
+                    key={i}
+                    className={`text-[10px] uppercase font-medium text-center ${
+                      day.isWeekend ? 'text-gray-300' : 'text-gray-400'
+                    }`}
+                  >
+                    {day.label}
+                  </div>
+                ))}
+              </div>
 
-              {/* Days */}
-              {periodDays.map((day, i) => (
-                <div
-                  key={i}
-                  className={`w-7 h-7 flex items-center justify-center text-[11px] rounded-md transition-all ${
-                    day.isDayOff
-                      ? 'bg-navy text-white font-semibold'
-                      : day.isWeekend
-                      ? 'bg-warm-gray-300 text-[#6B7280]'
-                      : 'bg-warm-gray-200 text-[#374151] hover:bg-warm-gray-300'
-                  }`}
-                >
-                  {day.day}
-                </div>
-              ))}
+              {/* Day cells */}
+              <div className="grid grid-cols-7 gap-1">
+                {periodDays.map((dayData, i) => {
+                  const today = new Date()
+                  const isToday = dayData.date.toDateString() === today.toDateString()
+                  const isPast = dayData.date < today && !isToday
+                  const isBlocked = employee.status === 'bloqué' && !isPast
+
+                  return (
+                    <div
+                      key={i}
+                      className={`
+                        w-8 h-8 rounded-lg flex items-center justify-center text-xs transition-colors duration-100
+                        ${isToday ? 'bg-blue-50 text-blue-700 font-semibold ring-1 ring-blue-200' :
+                          isBlocked ? 'bg-red-50 text-red-600 ring-1 ring-red-200/50' :
+                          dayData.isDayOff ? 'bg-amber-50 text-amber-700 font-medium ring-1 ring-amber-200/50' :
+                          dayData.isWeekend ? 'text-gray-400 bg-transparent' :
+                          isPast ? 'text-gray-300 cursor-not-allowed' :
+                          'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}
+                      `}
+                    >
+                      {dayData.day}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-3 mt-3 pt-2 border-t border-black/6">
+            <div className="flex items-center justify-center gap-3 mt-4 pt-3" style={{
+              borderTop: '0.5px solid rgba(0,0,0,0.06)'
+            }}>
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded bg-navy" />
-                <span className="text-[10px] text-[#6B7280]">Congé</span>
+                <div className="w-2 h-2 rounded-full bg-amber-500" />
+                <span className="text-[10px] text-gray-500">Congé</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded bg-warm-gray-300" />
-                <span className="text-[10px] text-[#6B7280]">Weekend</span>
+                <div className="w-2 h-2 rounded-full bg-gray-400" />
+                <span className="text-[10px] text-gray-500">Week-end</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded bg-warm-gray-200" />
-                <span className="text-[10px] text-[#6B7280]">Travail</span>
+                <div className="w-2 h-2 rounded-full bg-red-500" />
+                <span className="text-[10px] text-gray-500">Bloqué</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-blue-500" />
+                <span className="text-[10px] text-gray-500">Aujourd'hui</span>
               </div>
             </div>
           </div>
