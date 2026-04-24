@@ -264,9 +264,9 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                 </div>
 
                 {/* Calendar grid */}
-                <div className="grid grid-cols-7 gap-1 mb-3">
-                  {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(day => (
-                    <div key={day} className="h-8 flex items-center justify-center text-xs font-medium text-[#6B7280]">
+                <div className="grid grid-cols-7 gap-0.5 mb-3">
+                  {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
+                    <div key={i} className="h-8 flex items-center justify-center text-xs font-medium text-[#6B7280]">
                       {day}
                     </div>
                   ))}
