@@ -270,27 +270,15 @@ export default function EmployeesPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedEmployee(employee)
-                        }}
-                        className="text-xs font-medium text-[#6B7280] hover:text-navy transition-colors px-2 py-1"
-                      >
-                        Détails
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedEmployee(employee)
-                          setShowAddDayOff(true)
-                        }}
-                        className="text-xs font-medium text-navy hover:text-navy/80 transition-colors px-2 py-1"
-                      >
-                        + Congé
-                      </button>
-                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedEmployee(employee)
+                      }}
+                      className="text-xs font-medium text-gray-600 hover:bg-gray-100 transition-all px-3 py-1.5 rounded-lg"
+                    >
+                      Détails
+                    </button>
                   </td>
                 </tr>
               )
