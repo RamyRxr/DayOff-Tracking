@@ -239,29 +239,50 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-              <div className="text-2xl font-bold text-[#111827]">
+          {/* Stats - Compact chips */}
+          <div className="flex gap-2">
+            <div
+              className="flex-1 bg-white border border-black/[0.06] rounded-xl px-4 py-3 flex flex-col gap-0.5"
+              style={{
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.04)'
+              }}
+            >
+              <div className="text-xl font-bold text-gray-900">
                 {totalDayOffDays}
               </div>
-              <div className="text-xs text-[#6B7280] mt-1">Jours de congé</div>
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+                Jours de congé
+              </div>
             </div>
-            <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-              <div className="text-2xl font-bold text-[#111827]">
+            <div
+              className="flex-1 bg-white border border-black/[0.06] rounded-xl px-4 py-3 flex flex-col gap-0.5"
+              style={{
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.04)'
+              }}
+            >
+              <div className="text-xl font-bold text-gray-900">
                 {workingDaysElapsed}
               </div>
-              <div className="text-xs text-[#6B7280] mt-1">Jours travaillés</div>
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+                Jours travaillés
+              </div>
             </div>
-            <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-              <div className={`text-2xl font-bold ${
-                daysAvailable <= 0 ? 'text-status-red' :
-                daysAvailable <= 4 ? 'text-status-amber' :
-                'text-[#111827]'
+            <div
+              className="flex-1 bg-white border border-black/[0.06] rounded-xl px-4 py-3 flex flex-col gap-0.5"
+              style={{
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.04)'
+              }}
+            >
+              <div className={`text-xl font-bold ${
+                daysAvailable <= 0 ? 'text-red-600' :
+                daysAvailable <= 4 ? 'text-amber-600' :
+                'text-gray-900'
               }`}>
                 {daysAvailable}
               </div>
-              <div className="text-xs text-[#6B7280] mt-1">Jours disponibles</div>
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+                Jours disponibles
+              </div>
             </div>
           </div>
 
