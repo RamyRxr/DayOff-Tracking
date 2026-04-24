@@ -1,0 +1,86 @@
+{
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "back": "رجوع",
+    "next": "التالي",
+    "close": "إغلاق",
+    "search": "بحث",
+    "filter": "تصفية",
+    "loading": "جاري التحميل...",
+    "error": "خطأ"
+  },
+  "nav": {
+    "accueil": "الرئيسية",
+    "employes": "الموظفون",
+    "bloques": "محظور",
+    "calendrier": "التقويم"
+  },
+  "home": {
+    "activiteRecente": "النشاط الأخير",
+    "totalEmployes": "الموظفون",
+    "actifs": "نشط",
+    "aRisque": "في خطر",
+    "bloques": "محظور"
+  },
+  "employee": {
+    "details": "التفاصيل",
+    "ajouterConge": "إضافة إجازة",
+    "nouvelEmploye": "موظف جديد",
+    "nomPrenom": "الاسم الكامل",
+    "prenom": "الاسم الأول",
+    "nom": "اللقب",
+    "matricule": "رقم التعريف",
+    "departement": "القسم",
+    "poste": "المنصب",
+    "email": "البريد الإلكتروني",
+    "telephone": "الهاتف",
+    "dateEmbauche": "تاريخ التوظيف",
+    "joursConge": "أيام الإجازة",
+    "joursTravailles": "أيام العمل",
+    "joursDisponibles": "الأيام المتاحة"
+  },
+  "dayoff": {
+    "ajouterConge": "إضافة إجازة",
+    "typeConge": "نوع الإجازة",
+    "dateDebut": "تاريخ البداية",
+    "dateFin": "تاريخ النهاية",
+    "justificatif": "وثيقة داعمة",
+    "joursOuvrables": "أيام العمل",
+    "joursCalendaries": "أيام التقويم",
+    "sandwichDetection": "كشف الساندويتش",
+    "congeAnnuel": "إجازة سنوية",
+    "congeMaladie": "إجازة مرضية",
+    "congeSansSolde": "إجازة بدون راتب",
+    "autre": "أخرى"
+  },
+  "block": {
+    "bloquerEmploye": "حظر الموظف",
+    "debloquerEmploye": "إلغاء حظر الموظف",
+    "motifBlocage": "سبب الحظر",
+    "motifDeblocage": "سبب إلغاء الحظر",
+    "descriptionOptionnelle": "الوصف",
+    "confirmerBlocage": "تأكيد الحظر",
+    "confirmerDeblocage": "تأكيد إلغاء الحظر",
+    "absencesNonJustifiees": "غيابات غير مبررة",
+    "depassementQuota": "تجاوز الحصة",
+    "nonRespectProcedures": "عدم احترام الإجراءات",
+    "erreurAdministrative": "خطأ إداري",
+    "justificationAcceptee": "تبرير مقبول",
+    "decisionHierarchique": "قرار إداري"
+  },
+  "status": {
+    "actif": "نشط",
+    "aRisque": "في خطر",
+    "bloque": "محظور"
+  },
+  "auth": {
+    "selectionnerAdmin": "المسؤول",
+    "codePIN": "رمز PIN",
+    "codePIN4": "رمز PIN من 4 أرقام",
+    "verificationEnCours": "جاري التحقق...",
+    "adminVerifie": "الرمز صحيح",
+    "pinIncorrect": "رمز خاطئ"
+  }
+}
