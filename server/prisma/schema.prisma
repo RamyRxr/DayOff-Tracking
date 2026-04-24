@@ -8,74 +8,62 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Employee {
-  id          Int       @id @default(autoincrement())
-  matricule   String    @unique
-  name        String
-  department  String
-  position    String
-  avatar      String?
-  status      String    @default("actif") // actif, risque, bloqué
-  daysTotal   Int       @default(30)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  daysOff     DayOff[]
-  blocks      Block[]
-
-  @@map("employees")
+  id         String   @id @default(uuid())
+  matricule  String   @unique
+  firstName  String
+  lastName   String
+  email      String   @unique
+  phone      String?
+  department String
+  position   String
+  status     String   @default("actif")
+  hireDate   DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  daysOff    DayOff[]
+  blocks     Block[]
 }
 
 model Admin {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   name      String
-  email     String   @unique
-  role      String   // "RH Sénior", "RH", "Admin"
-  pinHash   String   // bcrypt hashed 4-digit PIN
+  role      String
+  pinHash   String
   createdAt DateTime @default(now())
-
   blocks    Block[]  @relation("BlockedBy")
   unblocks  Block[]  @relation("UnblockedBy")
-
-  @@map("admins")
 }
 
 model DayOff {
-  id            Int       @id @default(autoincrement())
-  employeeId    Int
+  id            String   @id @default(uuid())
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   startDate     DateTime
   endDate       DateTime
-  workingDays   Int       // Calculated working days (excluding weekends)
-  calendarDays  Int       // Total calendar days
-  isSandwich    Boolean   @default(false) // True if calendar days > working days
+  type          String
   reason        String?
-  justification String?   // File path for uploaded document
-  createdAt     DateTime  @default(now())
-
-  employee      Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-
-  @@map("days_off")
+  justification String?
+  createdAt     DateTime @default(now())
 }
 
 model Block {
-  id            Int       @id @default(autoincrement())
-  employeeId    Int
-  reason        String
-  daysUsed      Int       // Days used at time of blocking
-  daysRemaining Int       // Days remaining at time of blocking
-  blockedById   Int
-  blockedAt     DateTime  @default(now())
-  unblockedById Int?
-  unblockedAt   DateTime?
-  isActive      Boolean   @default(true)
-
-  employee      Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  blockedBy     Admin     @relation("BlockedBy", fields: [blockedById], references: [id])
-  unblockedBy   Admin?    @relation("UnblockedBy", fields: [unblockedById], references: [id])
-
-  @@map("blocks")
+  id                 String    @id @default(uuid())
+  employeeId         String
+  employee           Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  adminId            String
+  admin              Admin     @relation("BlockedBy", fields: [adminId], references: [id])
+  reason             String
+  description        String?
+  isActive           Boolean   @default(true)
+  unblockReason      String?
+  unblockDescription String?
+  unblockedById      String?
+  unblockedBy        Admin?    @relation("UnblockedBy", fields: [unblockedById], references: [id])
+  unblockedAt        DateTime?
+  createdAt          DateTime  @default(now())
 }

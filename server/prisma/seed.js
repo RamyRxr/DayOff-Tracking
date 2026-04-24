@@ -1,23 +1,7 @@
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+const { PrismaClient } = require('@prisma/client')
+const bcrypt = require('bcryptjs')
 
 const prisma = new PrismaClient()
-
-// Realistic Algerian names
-const algerianNames = [
-  'Ahmed Benali', 'Fatima Zerrouki', 'Karim Boudiaf', 'Leila Hamidi', 'Rachid Meziane',
-  'Amina Boucher', 'Yacine Larbi', 'Nabil Khelifi', 'Sarah Boukhari', 'Omar Bendjelloul',
-  'Hocine Brahim', 'Samia Kaddour', 'Mehdi Taleb', 'Nassima Ouali', 'Sofiane Hamdani',
-  'Karima Belaidi', 'Fares Mansouri', 'Naima Hadj', 'Salim Cherif', 'Hafida Mokrani',
-  'Abdelkader Zidane', 'Djamila Benabdallah', 'Mourad Belkacem', 'Zineb Bouarab', 'Tarek Bouras',
-  'Malika Touati', 'Kamel Ghoul', 'Souad Benali', 'Redouane Ferhat', 'Wassila Amara',
-  'Noureddine Kaci', 'Yamina Sahli', 'Bachir Slimani', 'Farida Benmoussa', 'Hicham Rahmani',
-  'Sabrina Medjdoub', 'Mustapha Aouni', 'Houria Boumediene', 'Larbi Berkani', 'Soraya Hamdi',
-  'Boualem Chergui', 'Nabila Mekki', 'Farid Derradji', 'Latifa Rezki', 'Azzedine Boukhari',
-  'Khadija Saadi', 'Hamza Messaoudi', 'Selma Touil', 'Karim Brahimi', 'Zahra Benamara',
-  'Mokhtar Zenati', 'Meriem Charef', 'Said Benabdellah', 'Imene Bencheikh', 'Rabah Mebarki',
-  'Amel Badaoui', 'Djamel Allaoui', 'Fadila Meziane', 'Slimane Oukaci', 'Wafa Zouaoui'
-]
 
 const departments = [
   'Production',
@@ -28,186 +12,249 @@ const departments = [
   'Sécurité'
 ]
 
-const positions = {
-  Production: ['Opérateur', 'Chef d\'Équipe', 'Superviseur', 'Technicien', 'Ingénieur Production'],
-  Logistique: ['Agent Logistique', 'Coordinateur', 'Responsable Transport', 'Magasinier', 'Chef de Quai'],
-  Administration: ['Assistant RH', 'Comptable', 'Contrôleur de Gestion', 'Secrétaire', 'Chef de Service'],
-  Maintenance: ['Technicien', 'Électricien', 'Mécanicien', 'Chef d\'Atelier', 'Ingénieur Maintenance'],
-  Qualité: ['Contrôleur Qualité', 'Auditeur', 'Responsable QSE', 'Technicien Labo', 'Inspecteur'],
-  Sécurité: ['Agent de Sécurité', 'Chef de Sécurité', 'Coordinateur HSE', 'Pompier', 'Responsable Sûreté']
+const positionsByDepartment = {
+  Production: ['Opérateur', 'Chef d\'équipe', 'Technicien process', 'Superviseur ligne'],
+  Logistique: ['Agent logistique', 'Magasinier', 'Coordinateur transport', 'Chef de quai'],
+  Administration: ['Assistant RH', 'Comptable', 'Contrôleur de gestion', 'Secrétaire'],
+  Maintenance: ['Technicien maintenance', 'Électricien', 'Mécanicien', 'Chef d\'atelier'],
+  Qualité: ['Contrôleur qualité', 'Auditeur interne', 'Technicien labo', 'Responsable QHSE'],
+  Sécurité: ['Agent de sécurité', 'Coordinateur HSE', 'Chef sécurité site', 'Pompier industriel'],
 }
 
-function getRandomElement(array) {
+const dayOffTypes = ['Congé annuel', 'Congé maladie', 'Congé sans solde', 'Autre']
+
+const firstNames = [
+  'Yacine', 'Samira', 'Karim', 'Nassima', 'Sofiane', 'Leila', 'Mehdi', 'Amel', 'Rachid', 'Meriem',
+  'Nabil', 'Sabrina', 'Fares', 'Khadidja', 'Hocine', 'Fatima', 'Aymen', 'Imene', 'Hamza', 'Souad',
+  'Redouane', 'Wafa', 'Djamel', 'Zineb', 'Mustapha', 'Selma', 'Azzedine', 'Lamia', 'Rabah', 'Houria',
+]
+
+const lastNames = [
+  'Benali', 'Boudiaf', 'Touati', 'Hamdani', 'Meziane', 'Khelifi', 'Belaidi', 'Mokhtari', 'Saadi', 'Rahmani',
+  'Kaci', 'Mansouri', 'Benkhelil', 'Cherif', 'Oukaci', 'Bendjelloul', 'Boukhari', 'Ferhat', 'Slimani', 'Amara',
+  'Mebarki', 'Haddad', 'Benkaddour', 'Zenati', 'Brahimi', 'Larbi', 'Taleb', 'Ghouli', 'Sahli', 'Rezki',
+]
+
+function randomFrom(array) {
   return array[Math.floor(Math.random() * array.length)]
 }
 
-function generateMatricule() {
-  return `NAF-${2500 + Math.floor(Math.random() * 1500)}`
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-function getInitials(name) {
-  return name.split(' ').map(n => n[0]).join('').toUpperCase()
+function normalizeForEmail(value) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toLowerCase()
+}
+
+function randomHireDate() {
+  const start = new Date(2015, 0, 1).getTime()
+  const end = new Date(2022, 11, 31).getTime()
+  return new Date(randomInt(start, end))
+}
+
+function randomPhone() {
+  return `+213 ${randomInt(50, 79)} ${randomInt(10, 99)} ${randomInt(10, 99)} ${randomInt(10, 99)}`
+}
+
+function getCurrentWorkPeriodForSeed() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth()
+
+  const start = new Date(year, month - 1, 20)
+  const end = new Date(year, month, 19)
+  start.setHours(0, 0, 0, 0)
+  end.setHours(23, 59, 59, 999)
+  return { start, end }
+}
+
+function buildNonOverlappingRanges(periodStart, periodEnd, wantedCount) {
+  const ranges = []
+  const occupied = new Set()
+  const dayMs = 24 * 60 * 60 * 1000
+  const totalDays = Math.floor((periodEnd - periodStart) / dayMs) + 1
+  let attempts = 0
+
+  while (ranges.length < wantedCount && attempts < 1200) {
+    attempts += 1
+    const duration = randomInt(1, 2)
+    const startOffset = randomInt(0, Math.max(0, totalDays - duration))
+    const indexes = []
+
+    for (let i = 0; i < duration; i += 1) {
+      indexes.push(startOffset + i)
+    }
+
+    const conflict = indexes.some((idx) => occupied.has(idx))
+    if (conflict) continue
+
+    indexes.forEach((idx) => occupied.add(idx))
+    const startDate = new Date(periodStart)
+    startDate.setDate(periodStart.getDate() + startOffset)
+    const endDate = new Date(startDate)
+    endDate.setDate(startDate.getDate() + duration - 1)
+    ranges.push({ startDate, endDate })
+  }
+
+  // Fallback to guarantee at least wantedCount single-day ranges when possible.
+  if (ranges.length < wantedCount) {
+    for (let idx = 0; idx < totalDays && ranges.length < wantedCount; idx += 1) {
+      if (occupied.has(idx)) continue
+      occupied.add(idx)
+      const date = new Date(periodStart)
+      date.setDate(periodStart.getDate() + idx)
+      ranges.push({ startDate: date, endDate: new Date(date) })
+    }
+  }
+
+  return ranges.slice(0, wantedCount)
 }
 
 async function main() {
-  console.log('🌱 Starting seed...')
+  console.log('🌱 Seeding PostgreSQL data...')
 
-  // Clear existing data
+  // Clear existing data (respect FK order)
   await prisma.block.deleteMany()
   await prisma.dayOff.deleteMany()
   await prisma.employee.deleteMany()
   await prisma.admin.deleteMany()
 
-  console.log('✅ Cleared existing data')
+  console.log('✅ Existing data cleared')
 
-  // Create admins with hashed PINs
+  // 1) Create required admins with hashed PINs.
   const admins = await Promise.all([
     prisma.admin.create({
       data: {
         name: 'Mohammed Saïd',
-        email: 'mohammed.said@naftal.dz',
-        role: 'RH Sénior',
-        pinHash: await bcrypt.hash('1234', 10), // Default PIN: 1234
+        role: 'Directeur RH',
+        pinHash: await bcrypt.hash('1234', 10),
       },
     }),
     prisma.admin.create({
       data: {
         name: 'Fatima Zohra',
-        email: 'fatima.zohra@naftal.dz',
-        role: 'RH',
-        pinHash: await bcrypt.hash('5678', 10), // PIN: 5678
+        role: 'RH Sénior',
+        pinHash: await bcrypt.hash('5678', 10),
       },
     }),
     prisma.admin.create({
       data: {
         name: 'Ahmed Bachir',
-        email: 'ahmed.bachir@naftal.dz',
-        role: 'Admin',
-        pinHash: await bcrypt.hash('9999', 10), // PIN: 9999
+        role: 'RH Junior',
+        pinHash: await bcrypt.hash('9999', 10),
       },
     }),
   ])
 
-  console.log(`✅ Created ${admins.length} admins`)
+  console.log(`✅ ${admins.length} admins created`)
 
-  // Create 60 employees with varied status
-  const employeeData = []
-  const usedNames = new Set()
-
-  for (let i = 0; i < 60; i++) {
-    let name
-    do {
-      name = algerianNames[i % algerianNames.length]
-      if (i >= algerianNames.length) {
-        name = name.replace(/^(\w+)/, `$1 ${String.fromCharCode(65 + Math.floor(i / algerianNames.length))}`)
-      }
-    } while (usedNames.has(name))
-
-    usedNames.add(name)
-
-    const department = departments[i % departments.length]
-    const position = getRandomElement(positions[department])
-
-    // Status distribution: 70% actif, 20% risque, 10% bloqué
-    let status
-    const rand = Math.random()
-    if (rand < 0.70) status = 'actif'
-    else if (rand < 0.90) status = 'risque'
-    else status = 'bloqué'
-
-    employeeData.push({
-      matricule: generateMatricule(),
-      name,
-      department,
-      position,
-      avatar: getInitials(name),
-      status,
-      daysTotal: 30,
-    })
+  // 2) Create 60 employees (10 per department), 8 with status "bloque".
+  const blockedSlots = new Set()
+  while (blockedSlots.size < 8) {
+    blockedSlots.add(randomInt(0, 59))
   }
 
-  const employees = await Promise.all(
-    employeeData.map(data => prisma.employee.create({ data }))
-  )
+  const createdEmployees = []
+  const usedEmails = new Set()
+  let globalIndex = 0
 
-  console.log(`✅ Created ${employees.length} employees`)
+  for (const department of departments) {
+    for (let localIdx = 0; localIdx < 10; localIdx += 1) {
+      const firstName = firstNames[globalIndex % firstNames.length]
+      const baseLastIndex = (globalIndex * 3) % lastNames.length
+      let lastName = lastNames[baseLastIndex]
+      let email = `${normalizeForEmail(firstName)}.${normalizeForEmail(lastName)}@naftal.dz`
+      let attempt = 1
 
-  // Create realistic day-off records (varied usage across employees)
-  const daysOffData = []
+      while (usedEmails.has(email) && attempt < lastNames.length) {
+        lastName = lastNames[(baseLastIndex + attempt) % lastNames.length]
+        email = `${normalizeForEmail(firstName)}.${normalizeForEmail(lastName)}@naftal.dz`
+        attempt += 1
+      }
 
-  for (let i = 0; i < employees.length; i++) {
-    const employee = employees[i]
+      usedEmails.add(email)
+      const matricule = `NAF-${String(1001 + globalIndex).padStart(4, '0')}`
+      const position = randomFrom(positionsByDepartment[department])
+      const status = blockedSlots.has(globalIndex) ? 'bloque' : 'actif'
 
-    // Generate random number of day-off periods (0-5 periods per employee)
-    const numPeriods = Math.floor(Math.random() * 6)
-
-    for (let j = 0; j < numPeriods; j++) {
-      // Random date in past 60 days
-      const daysAgo = Math.floor(Math.random() * 60)
-      const startDate = new Date(2026, 2, 20) // March 20, 2026
-      startDate.setDate(startDate.getDate() + daysAgo)
-
-      // Random duration 1-7 working days
-      const workingDays = Math.floor(Math.random() * 7) + 1
-      const endDate = new Date(startDate)
-      endDate.setDate(endDate.getDate() + workingDays - 1)
-
-      const calendarDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1
-      const isSandwich = calendarDays > workingDays
-
-      daysOffData.push({
-        employeeId: employee.id,
-        startDate,
-        endDate,
-        workingDays,
-        calendarDays,
-        isSandwich,
-        reason: isSandwich ? 'Congé avec sandwich' : 'Congé ordinaire',
+      const employee = await prisma.employee.create({
+        data: {
+          matricule,
+          firstName,
+          lastName,
+          email,
+          phone: randomPhone(),
+          department,
+          position,
+          status,
+          hireDate: randomHireDate(),
+        },
       })
+
+      createdEmployees.push(employee)
+      globalIndex += 1
     }
   }
 
-  const daysOff = await Promise.all(
-    daysOffData.map(data => prisma.dayOff.create({ data }))
-  )
+  console.log(`✅ ${createdEmployees.length} employees created`)
 
-  console.log(`✅ Created ${daysOff.length} day-off records`)
+  // 3) Create day-off records for each employee (3 to 12 records), no overlaps.
+  const { start: periodStart, end: periodEnd } = getCurrentWorkPeriodForSeed()
+  const allDayOffRecords = []
 
-  // Create block records for employees with status = 'bloqué'
-  const blockedEmployees = employees.filter(e => e.status === 'bloqué')
-  const blocks = await Promise.all(
-    blockedEmployees.map(employee => {
-      // Calculate days used from day-off records
-      const employeeDaysOff = daysOffData.filter(d => d.employeeId === employee.id)
-      const daysUsed = employeeDaysOff.reduce((sum, d) => sum + d.workingDays, 0)
-      const daysRemaining = 30 - daysUsed
+  for (const employee of createdEmployees) {
+    const wantedCount = randomInt(3, 12)
+    const ranges = buildNonOverlappingRanges(periodStart, periodEnd, wantedCount)
 
-      return prisma.block.create({
+    for (const range of ranges) {
+      const type = randomFrom(dayOffTypes)
+      const dayOff = await prisma.dayOff.create({
         data: {
           employeeId: employee.id,
-          reason: `Jours ouvrables insuffisants - ${daysRemaining} jours restants sur 30`,
-          daysUsed,
-          daysRemaining,
-          blockedById: admins[0].id,
-          blockedAt: new Date(2026, 3, 15 + Math.floor(Math.random() * 10)),
-          isActive: true,
+          startDate: range.startDate,
+          endDate: range.endDate,
+          type,
+          reason: type === 'Autre' ? 'Besoin personnel' : `${type} validé`,
+          justification: null,
         },
       })
+      allDayOffRecords.push(dayOff)
+    }
+  }
+
+  console.log(`✅ ${allDayOffRecords.length} day-off records created`)
+
+  // 4) Create one active block for each blocked employee.
+  const blockedEmployees = createdEmployees.filter((employee) => employee.status === 'bloque')
+  const blockReasons = ['Absences non justifiées', 'Dépassement du quota de congés']
+  const blocks = []
+
+  for (const employee of blockedEmployees) {
+    const block = await prisma.block.create({
+      data: {
+        employeeId: employee.id,
+        adminId: randomFrom(admins).id,
+        reason: randomFrom(blockReasons),
+        description: 'Blocage manuel actif',
+        isActive: true,
+      },
     })
-  )
+    blocks.push(block)
+  }
 
-  console.log(`✅ Created ${blocks.length} block records`)
+  console.log(`✅ ${blocks.length} active block records created`)
 
-  // Summary
-  console.log('\n📊 Seed Summary:')
-  console.log(`   Admins: ${admins.length}`)
-  console.log(`   Employees: ${employees.length}`)
-  console.log(`   - Actifs: ${employees.filter(e => e.status === 'actif').length}`)
-  console.log(`   - À risque: ${employees.filter(e => e.status === 'risque').length}`)
-  console.log(`   - Bloqués: ${employees.filter(e => e.status === 'bloqué').length}`)
-  console.log(`   Day-off records: ${daysOff.length}`)
-  console.log(`   Active blocks: ${blocks.length}`)
-  console.log('\n🎉 Seed completed successfully!')
+  console.log('\n📊 Seed summary')
+  console.log(`- Admins: ${admins.length}`)
+  console.log(`- Employees: ${createdEmployees.length}`)
+  console.log(`- DayOff records: ${allDayOffRecords.length}`)
+  console.log(`- Blocks (active): ${blocks.length}`)
+  console.log('\n🎉 Seed completed successfully')
 }
 
 main()
