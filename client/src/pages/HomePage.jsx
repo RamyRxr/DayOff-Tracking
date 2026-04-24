@@ -6,6 +6,7 @@ import EmployeeCard from '../components/EmployeeCard'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import AddEmployeeModal from '../components/AddEmployeeModal'
 import AddDayOffModal from '../components/AddDayOffModal'
+import HomeAddDayOffModal from '../components/HomeAddDayOffModal'
 import { useEmployees } from '../hooks/useEmployees'
 import { useDaysOff } from '../hooks/useDaysOff'
 
@@ -14,13 +15,14 @@ export default function HomePage() {
   const location = useLocation()
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [showAddEmployee, setShowAddEmployee] = useState(false)
+  const [showHomeAddDayOff, setShowHomeAddDayOff] = useState(false)
   const [dayOffEmployee, setDayOffEmployee] = useState(null)
   const [activeFilter, setActiveFilter] = useState(null)
   const { employees, loading, error, refetch, addEmployee } = useEmployees()
   const { addDayOff } = useDaysOff({ employeeId: dayOffEmployee?.id })
 
   const isHomePage = location.pathname === '/'
-  const isAnyModalOpen = !!selectedEmployee || showAddEmployee || !!dayOffEmployee
+  const isAnyModalOpen = !!selectedEmployee || showAddEmployee || showHomeAddDayOff || !!dayOffEmployee
 
   // Calculate stats from employees data
   const stats = {
@@ -72,6 +74,12 @@ export default function HomePage() {
     } catch (error) {
       alert(`Erreur: ${error.message}`)
     }
+  }
+
+  const handleHomeAddDayOffSuccess = () => {
+    setShowHomeAddDayOff(false)
+    refetch()
+    alert('✅ Congé ajouté avec succès')
   }
 
   // Loading state
@@ -338,7 +346,7 @@ export default function HomePage() {
       {/* Floating FAB - Only show on home page when no modals are open */}
       {isHomePage && (
         <button
-          onClick={() => setShowAddEmployee(true)}
+          onClick={() => setShowHomeAddDayOff(true)}
           className={`fixed bottom-8 right-8 w-14 h-14 bg-navy rounded-2xl flex items-center justify-center text-white shadow-modal hover:bg-navy-dark hover:scale-110 hover:rotate-90 active:scale-95 transition-all duration-300 group z-50 ${
             isAnyModalOpen ? 'opacity-0 pointer-events-none' : ''
           }`}
@@ -368,6 +376,13 @@ export default function HomePage() {
         isOpen={!!dayOffEmployee}
         onClose={() => setDayOffEmployee(null)}
         onSubmit={handleAddDayOffSubmit}
+      />
+
+      {/* Home Add Day Off Modal (FAB button) */}
+      <HomeAddDayOffModal
+        isOpen={showHomeAddDayOff}
+        onClose={() => setShowHomeAddDayOff(false)}
+        onSuccess={handleHomeAddDayOffSuccess}
       />
     </div>
   )
