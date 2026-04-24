@@ -109,68 +109,119 @@ export default function HomePage() {
       {/* Animated tab pills - Interactive filters */}
       <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-3 shadow-ambient mb-6 animate-fade-up">
         <div className="relative flex items-center justify-between gap-2">
-          {/* Sliding background indicator */}
-          <div
-            className="absolute h-full bg-white shadow-md rounded-xl transition-all duration-250 ease-out"
-            style={{
-              width: '24%',
-              left: activeFilter === null
-                ? '0.5%'
-                : activeFilter === 'actif'
-                ? '25.5%'
-                : activeFilter === 'risque'
-                ? '50.5%'
-                : '75.5%',
-              transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-          />
-
-          {/* Tabs */}
+          {/* Employés pill */}
           <button
             onClick={() => setActiveFilter(null)}
-            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center transition-all duration-200 ${
+            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === null
-                ? 'text-gray-900 scale-[1.03]'
-                : 'text-gray-500 hover:bg-gray-100'
+                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
+                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
             }`}
+            style={{
+              boxShadow: activeFilter === null
+                ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
+                : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
+            }}
+            onMouseEnter={(e) => {
+              if (activeFilter !== null) {
+                e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeFilter !== null) {
+                e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+              }
+            }}
           >
-            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-[22px] font-bold">{stats.total}</div>
             <div className="text-[11px] uppercase tracking-wider mt-0.5">Employés</div>
           </button>
 
+          {/* Actifs pill */}
           <button
             onClick={() => setActiveFilter('actif')}
-            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center transition-all duration-200 ${
+            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'actif'
-                ? 'text-gray-900 scale-[1.03]'
-                : 'text-gray-500 hover:bg-gray-100'
+                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
+                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
             }`}
+            style={{
+              boxShadow: activeFilter === 'actif'
+                ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
+                : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
+            }}
+            onMouseEnter={(e) => {
+              if (activeFilter !== 'actif') {
+                e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeFilter !== 'actif') {
+                e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+              }
+            }}
           >
-            <div className="text-2xl font-bold">{stats.actif}</div>
+            <div className="text-[22px] font-bold">{stats.actif}</div>
             <div className="text-[11px] uppercase tracking-wider mt-0.5">Actifs</div>
           </button>
 
+          {/* À risque pill */}
           <button
             onClick={() => setActiveFilter('risque')}
-            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center transition-all duration-200 ${
+            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'risque'
-                ? 'text-gray-900 scale-[1.03]'
-                : 'text-gray-500 hover:bg-gray-100'
+                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
+                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
             }`}
+            style={{
+              boxShadow: activeFilter === 'risque'
+                ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
+                : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
+            }}
+            onMouseEnter={(e) => {
+              if (activeFilter !== 'risque') {
+                e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeFilter !== 'risque') {
+                e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+              }
+            }}
           >
-            <div className="text-2xl font-bold">{stats.risque}</div>
+            <div className={`text-[22px] font-bold ${activeFilter === 'risque' ? 'text-amber-600' : ''}`}>
+              {stats.risque}
+            </div>
             <div className="text-[11px] uppercase tracking-wider mt-0.5">À risque</div>
           </button>
 
+          {/* Bloqués pill */}
           <button
             onClick={() => setActiveFilter('bloqué')}
-            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center transition-all duration-200 ${
+            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'bloqué'
-                ? 'text-gray-900 scale-[1.03]'
-                : 'text-gray-500 hover:bg-gray-100'
+                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
+                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
             }`}
+            style={{
+              boxShadow: activeFilter === 'bloqué'
+                ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
+                : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
+            }}
+            onMouseEnter={(e) => {
+              if (activeFilter !== 'bloqué') {
+                e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeFilter !== 'bloqué') {
+                e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+              }
+            }}
           >
-            <div className="text-2xl font-bold">{stats.bloqué}</div>
+            <div className={`text-[22px] font-bold ${activeFilter === 'bloqué' ? 'text-red-600' : ''}`}>
+              {stats.bloqué}
+            </div>
             <div className="text-[11px] uppercase tracking-wider mt-0.5">Bloqués</div>
           </button>
         </div>
