@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Plus, Loader2, AlertCircle } from 'lucide-react'
 import EmployeeCard from '../components/EmployeeCard'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
@@ -9,6 +10,7 @@ import { useEmployees } from '../hooks/useEmployees'
 import { useDaysOff } from '../hooks/useDaysOff'
 
 export default function HomePage() {
+  const { t } = useTranslation()
   const location = useLocation()
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [showAddEmployee, setShowAddEmployee] = useState(false)
@@ -134,7 +136,7 @@ export default function HomePage() {
             }}
           >
             <div className="text-[22px] font-bold">{stats.total}</div>
-            <div className="text-[11px] uppercase tracking-wider mt-0.5">Employés</div>
+            <div className="text-[11px] uppercase tracking-wider mt-0.5">{t('totalEmployes')}</div>
           </button>
 
           {/* Actifs pill */}
@@ -162,7 +164,7 @@ export default function HomePage() {
             }}
           >
             <div className="text-[22px] font-bold">{stats.actif}</div>
-            <div className="text-[11px] uppercase tracking-wider mt-0.5">Actifs</div>
+            <div className="text-[11px] uppercase tracking-wider mt-0.5">{t('actifs')}</div>
           </button>
 
           {/* À risque pill */}
@@ -192,7 +194,7 @@ export default function HomePage() {
             <div className={`text-[22px] font-bold ${activeFilter === 'risque' ? 'text-amber-600' : ''}`}>
               {stats.risque}
             </div>
-            <div className="text-[11px] uppercase tracking-wider mt-0.5">À risque</div>
+            <div className="text-[11px] uppercase tracking-wider mt-0.5">{t('aRisque')}</div>
           </button>
 
           {/* Bloqués pill */}
@@ -222,7 +224,7 @@ export default function HomePage() {
             <div className={`text-[22px] font-bold ${activeFilter === 'bloqué' ? 'text-red-600' : ''}`}>
               {stats.bloqué}
             </div>
-            <div className="text-[11px] uppercase tracking-wider mt-0.5">Bloqués</div>
+            <div className="text-[11px] uppercase tracking-wider mt-0.5">{t('bloques')}</div>
           </button>
         </div>
       </div>
@@ -236,7 +238,7 @@ export default function HomePage() {
 
       {/* Section label */}
       <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-semibold mb-4 mt-8">
-        Activité récente
+        {t('activiteRecente')}
       </h2>
 
       {/* Employee table */}
@@ -322,7 +324,7 @@ export default function HomePage() {
                         }}
                         className="text-xs font-medium text-[#6B7280] hover:text-navy transition-colors px-2 py-1"
                       >
-                        Détails
+                        {t('details')}
                       </button>
                     </td>
                   </tr>
