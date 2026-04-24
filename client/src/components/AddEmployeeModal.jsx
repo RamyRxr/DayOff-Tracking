@@ -243,10 +243,13 @@ export default function AddEmployeeModal({
   const isStep2Valid = !!selectedAdmin && pinStatus === "verified";
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center">
-      <div className="bg-white rounded-3xl shadow-modal w-[560px] max-h-[90vh] overflow-y-auto animate-slide-up">
-        {/* Header */}
-        <div className="sticky top-0 bg-navy/10 border-b border-navy/20 px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div
+        className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col h-[92vh] sm:max-h-[88vh] overflow-hidden"
+        style={{ boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)' }}
+      >
+        {/* STICKY HEADER */}
+        <div className="flex-shrink-0 bg-navy/10 border-b border-gray-100 px-5 pt-5 pb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {step === 2 && (
               <button
@@ -276,8 +279,8 @@ export default function AddEmployeeModal({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-4 pb-8">
+        {/* SCROLLABLE BODY */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-5 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
           {step === 1 ? (
             <>
               {/* Prénom */}
@@ -564,10 +567,13 @@ export default function AddEmployeeModal({
               )}
             </>
           )}
+
+          {/* Extra padding at bottom so last field not hidden */}
+          <div className="h-6" />
         </div>
 
-        {/* Footer */}
-        <div className="sticky bottom-0 bg-white border-t border-black/6 px-6 py-4 flex gap-3 rounded-b-3xl">
+        {/* STICKY FOOTER */}
+        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3">
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all"

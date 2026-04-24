@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { X, ShieldAlert, AlertTriangle, ChevronLeft, Check } from 'lucide-react'
 import CustomSelect from './CustomSelect'
 
@@ -9,8 +9,22 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
   const [selectedAdmin, setSelectedAdmin] = useState(null)
   const [pin, setPin] = useState(['', '', '', ''])
   const [pinStatus, setPinStatus] = useState('idle')
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false)
+  const sentinelRef = useRef(null)
 
   if (!isOpen || !employee) return null
+
+  // IntersectionObserver for footer visibility
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setHasScrolledToBottom(true)
+      },
+      { threshold: 0.1 }
+    )
+    if (sentinelRef.current) observer.observe(sentinelRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   const handleClose = () => {
     setStep(1)
@@ -86,12 +100,13 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
   const isStep2Valid = pinStatus === 'verified'
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center">
-      <div className="bg-white rounded-3xl shadow-modal w-[480px] max-h-[88vh] flex flex-col animate-slide-up">
-        {/* Header */}
-        <div className="flex-shrink-0 bg-status-red/10 px-6 py-4 flex items-center justify-between rounded-t-3xl" style={{
-          borderBottom: '0.5px solid rgba(0,0,0,0.06)'
-        }}>
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div
+        className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col h-[92vh] sm:max-h-[88vh] overflow-hidden"
+        style={{ boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)' }}
+      >
+        {/* STICKY HEADER */}
+        <div className="flex-shrink-0 bg-status-red/10 px-5 pt-5 pb-4 border-b border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {step === 2 && (
               <button
@@ -121,8 +136,8 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
           </button>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6" style={{ paddingBottom: '24px' }}>
+        {/* SCROLLABLE BODY */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-5 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
           {/* Employee info */}
           <div className="bg-warm-gray-200 rounded-xl p-4">
             <div className="flex items-center gap-3">
@@ -297,12 +312,17 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
               </div>
             </>
           )}
+
+          {/* Sentinel for IntersectionObserver */}
+          <div ref={sentinelRef} className="h-px" />
         </div>
 
-        {/* Footer */}
-        <div className="flex-shrink-0 bg-white px-6 py-4 flex gap-3 rounded-b-3xl" style={{
-          borderTop: '0.5px solid rgba(0,0,0,0.06)'
-        }}>
+        {/* STICKY FOOTER with IntersectionObserver animation */}
+        <div className={`flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3 transition-all duration-300 ${
+          hasScrolledToBottom
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}>
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all duration-200"

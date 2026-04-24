@@ -172,13 +172,12 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
       >
         {/* Centered Modal */}
         <div
-          className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-in"
+          className="bg-white rounded-2xl w-full max-w-4xl flex flex-col h-[92vh] max-h-[88vh] overflow-hidden animate-scale-in"
+          style={{ boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)' }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Scrollable Content */}
-          <div className="overflow-y-auto max-h-[90vh]">
-            {/* Header */}
-            <div className="sticky top-0 bg-white/90 backdrop-blur-xl border-b border-black/6 px-8 py-5 flex items-center justify-between rounded-t-3xl z-10">
+          {/* STICKY HEADER */}
+          <div className="flex-shrink-0 bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between">
               <h2 className="font-display text-2xl font-bold text-[#111827]">
                 Détails de l'employé
               </h2>
@@ -190,8 +189,8 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               </button>
             </div>
 
-            {/* Content */}
-            <div className="p-8 space-y-6">
+          {/* SCROLLABLE BODY */}
+          <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-6 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
           {/* Employee info card */}
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-ambient">
             <div className="flex items-start gap-4">
@@ -430,8 +429,12 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex gap-3">
+          {/* Extra padding at bottom */}
+          <div className="h-6" />
+        </div>
+
+        {/* STICKY FOOTER - Action buttons */}
+        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-8 py-5 flex gap-3">
             <button
               onClick={() => setShowAddDayOff(true)}
               disabled={employee.status === 'bloqué'}
@@ -459,11 +462,9 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                 Débloquer
               </button>
             )}
-          </div>
-            </div>
-          </div>
         </div>
       </div>
+    </div>
 
       {/* Modals */}
       <AddDayOffModal
