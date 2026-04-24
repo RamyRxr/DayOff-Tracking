@@ -1,160 +1,186 @@
-import { useState, useEffect } from 'react'
-import { X, UserPlus, RefreshCw, ChevronLeft, Check } from 'lucide-react'
-import { useEmployees } from '../hooks/useEmployees'
-import CustomSelect from './CustomSelect'
+import { useState } from "react";
+import { X, UserPlus, RefreshCw, ChevronLeft, Check } from "lucide-react";
+import { useEmployees } from "../hooks/useEmployees";
+import { useAdmins, useAdminPin } from "../hooks/useAdmins";
+import CustomSelect from "./CustomSelect";
 
 const DEPARTMENTS = [
-  'Production',
-  'Logistique',
-  'Administration',
-  'Maintenance',
-  'Qualité',
-  'Sécurité',
-]
+  "Production",
+  "Logistique",
+  "Administration",
+  "Maintenance",
+  "Qualité",
+  "Sécurité",
+];
 
-export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
-  const { employees } = useEmployees()
-  const [step, setStep] = useState(1)
-  const [formData, setFormData] = useState({
-    prenom: '',
-    nom: '',
-    matricule: '',
-    department: '',
-    position: '',
-    email: '',
-    phone: '',
-    startDate: '',
-  })
-  const [errors, setErrors] = useState({})
-  const [selectedAdmin, setSelectedAdmin] = useState(null)
-  const [pin, setPin] = useState(['', '', '', ''])
-  const [pinStatus, setPinStatus] = useState('idle')
+export default function AddEmployeeModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  onSuccess,
+}) {
+  const isVisible = typeof isOpen === "boolean" ? isOpen : true;
+  const { employees, addEmployee } = useEmployees();
+  const { admins } = useAdmins();
+  const { verify, verifying } = useAdminPin();
 
-  // Generate unique matricule on mount and when user refreshes
-  useEffect(() => {
-    if (isOpen && !formData.matricule) {
-      generateMatricule()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen])
-
-  // Auto-suggest email when prenom and nom change
-  useEffect(() => {
-    if (formData.prenom && formData.nom) {
-      const suggested = `${formData.prenom.toLowerCase()}.${formData.nom.toLowerCase()}@naftal.dz`
-      if (!formData.email || formData.email === '') {
-        setFormData(prev => ({ ...prev, email: suggested }))
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.prenom, formData.nom])
-
-  const generateMatricule = () => {
-    let unique = false
-    let newMatricule = ''
+  function buildMatricule() {
+    let unique = false;
+    let newMatricule = "";
 
     while (!unique) {
-      const randomNum = Math.floor(1000 + Math.random() * 9000)
-      newMatricule = `NAF-${randomNum}`
-      unique = !employees.some(emp => emp.matricule === newMatricule)
+      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      newMatricule = `NAF-${randomNum}`;
+      unique = !employees.some((emp) => emp.matricule === newMatricule);
     }
 
-    setFormData(prev => ({ ...prev, matricule: newMatricule }))
+    return newMatricule;
+  }
+
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    prenom: "",
+    nom: "",
+    matricule: "",
+    department: "",
+    position: "",
+    email: "",
+    phone: "",
+    startDate: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [pin, setPin] = useState(["", "", "", ""]);
+  const [pinStatus, setPinStatus] = useState("idle");
+  const [submissionError, setSubmissionError] = useState("");
+  const [isEmailDirty, setIsEmailDirty] = useState(false);
+
+  function generateMatricule() {
+    setFormData((prev) => ({ ...prev, matricule: buildMatricule() }));
   }
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value };
+
+      if ((field === "prenom" || field === "nom") && !isEmailDirty) {
+        const prenom = field === "prenom" ? value : next.prenom;
+        const nom = field === "nom" ? value : next.nom;
+        if (prenom && nom) {
+          next.email = `${prenom.toLowerCase()}.${nom.toLowerCase()}@naftal.dz`;
+        }
+      }
+
+      return next;
+    });
+
+    if (field === "email") {
+      setIsEmailDirty(value.trim().length > 0);
+    }
+
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: null }))
+      setErrors((prev) => ({ ...prev, [field]: null }));
     }
-  }
+  };
 
-  const validateForm = () => {
-    const newErrors = {}
+  const validateForm = (data = formData) => {
+    const newErrors = {};
 
-    if (!formData.prenom.trim()) {
-      newErrors.prenom = 'Prénom requis'
-    }
-
-    if (!formData.nom.trim()) {
-      newErrors.nom = 'Nom requis'
+    if (!data.prenom.trim()) {
+      newErrors.prenom = "Prénom requis";
     }
 
-    if (!formData.matricule.trim()) {
-      newErrors.matricule = 'Matricule requis'
+    if (!data.nom.trim()) {
+      newErrors.nom = "Nom requis";
     }
 
-    if (!formData.department) {
-      newErrors.department = 'Département requis'
+    if (!data.matricule.trim()) {
+      newErrors.matricule = "Matricule requis";
     }
 
-    if (!formData.position.trim()) {
-      newErrors.position = 'Poste requis'
+    if (!data.department) {
+      newErrors.department = "Département requis";
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email requis'
-    } else if (!formData.email.includes('@')) {
-      newErrors.email = 'Email doit contenir @'
+    if (!data.position.trim()) {
+      newErrors.position = "Poste requis";
     }
 
-    if (!formData.startDate) {
-      newErrors.startDate = 'Date d\'embauche requise'
+    if (!data.email.trim()) {
+      newErrors.email = "Email requis";
+    } else if (!data.email.includes("@")) {
+      newErrors.email = "Email doit contenir @";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    if (!data.startDate) {
+      newErrors.startDate = "Date d'embauche requise";
+    }
 
-  const admins = [
-    { id: 1, name: 'Ahmed Benali', role: 'Responsable RH', initials: 'AB' },
-    { id: 2, name: 'Fatima Meziane', role: 'Directeur Admin', initials: 'FM' },
-  ]
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handlePinChange = (index, value) => {
-    if (value.length > 1) value = value[value.length - 1]
-    if (value && !/^[0-9]$/.test(value)) return
+    if (!selectedAdmin || pinStatus === "verified" || verifying) return;
 
-    const newPin = [...pin]
-    newPin[index] = value
-    setPin(newPin)
+    if (value.length > 1) value = value[value.length - 1];
+    if (value && !/^[0-9]$/.test(value)) return;
+
+    const newPin = [...pin];
+    newPin[index] = value;
+    setPin(newPin);
 
     if (value && index < 3) {
-      document.getElementById(`emp-pin-${index + 1}`)?.focus()
+      document.getElementById(`emp-pin-${index + 1}`)?.focus();
     }
 
-    if (newPin.every(d => d !== '')) {
-      handlePinValidate(newPin.join(''))
+    if (newPin.every((d) => d !== "")) {
+      handlePinValidate(newPin.join(""));
     }
-  }
+  };
 
   const handlePinValidate = async (pinValue) => {
-    setPinStatus('verifying')
-    await new Promise(resolve => setTimeout(resolve, 800))
-
-    if (pinValue === '1234') {
-      setPinStatus('verified')
-    } else {
-      setPinStatus('error')
-      setTimeout(() => {
-        setPin(['', '', '', ''])
-        setPinStatus('idle')
-        document.getElementById('emp-pin-0')?.focus()
-      }, 1500)
+    if (!selectedAdmin) {
+      setPinStatus("error");
+      return;
     }
-  }
+
+    setPinStatus("verifying");
+
+    try {
+      await verify(selectedAdmin.id, pinValue);
+      setPinStatus("verified");
+    } catch {
+      setPinStatus("error");
+      setTimeout(() => {
+        setPin(["", "", "", ""]);
+        setPinStatus("idle");
+        document.getElementById("emp-pin-0")?.focus();
+      }, 1500);
+    }
+  };
 
   const handleStep1Submit = () => {
-    if (validateForm()) {
-      setStep(2)
+    const nextData = formData.matricule
+      ? formData
+      : { ...formData, matricule: buildMatricule() };
+
+    if (!formData.matricule) {
+      setFormData(nextData);
     }
-  }
 
-  const handleFinalSubmit = () => {
-    const names = `${formData.prenom} ${formData.nom}`
-    const avatar = `${formData.prenom[0]}${formData.nom[0]}`.toUpperCase()
+    if (validateForm(nextData)) {
+      setStep(2);
+    }
+  };
 
-    onSubmit?.({
+  const handleFinalSubmit = async () => {
+    setSubmissionError("");
+
+    const names = `${formData.prenom} ${formData.nom}`;
+    const avatar = `${formData.prenom[0]}${formData.nom[0]}`.toUpperCase();
+
+    const payload = {
       name: names,
       matricule: formData.matricule,
       department: formData.department,
@@ -165,36 +191,54 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
       avatar,
       daysTotal: 30,
       daysUsed: 0,
-      status: 'actif',
-    })
-    handleClose()
-  }
+      status: "actif",
+      authorizedBy: selectedAdmin?.id || null,
+    };
+
+    try {
+      if (onSubmit) {
+        await onSubmit(payload);
+      } else {
+        await addEmployee(payload);
+      }
+      onSuccess?.(payload);
+      handleClose();
+    } catch (error) {
+      setSubmissionError(error?.message || "Échec de la création de l'employé");
+    }
+  };
 
   const handleClose = () => {
-    setStep(1)
+    setStep(1);
     setFormData({
-      prenom: '',
-      nom: '',
-      matricule: '',
-      department: '',
-      position: '',
-      email: '',
-      phone: '',
-      startDate: '',
-    })
-    setErrors({})
-    setSelectedAdmin(null)
-    setPin(['', '', '', ''])
-    setPinStatus('idle')
-    onClose?.()
-  }
+      prenom: "",
+      nom: "",
+      matricule: "",
+      department: "",
+      position: "",
+      email: "",
+      phone: "",
+      startDate: "",
+    });
+    setErrors({});
+    setSelectedAdmin(null);
+    setPin(["", "", "", ""]);
+    setPinStatus("idle");
+    setIsEmailDirty(false);
+    onClose?.();
+  };
 
-  if (!isOpen) return null
+  if (!isVisible) return null;
 
-  const isStep1Valid = formData.prenom && formData.nom && formData.department &&
-                       formData.position && formData.email && formData.email.includes('@') &&
-                       formData.startDate
-  const isStep2Valid = pinStatus === 'verified'
+  const isStep1Valid =
+    formData.prenom &&
+    formData.nom &&
+    formData.department &&
+    formData.position &&
+    formData.email &&
+    formData.email.includes("@") &&
+    formData.startDate;
+  const isStep2Valid = !!selectedAdmin && pinStatus === "verified";
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 flex items-center justify-center">
@@ -215,7 +259,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
             </div>
             <div>
               <h2 className="font-display text-xl font-bold text-[#111827]">
-                {step === 1 ? 'Nouvel Employé' : 'Autorisation requise'}
+                {step === 1 ? "Nouvel Employé" : "Autorisation requise"}
               </h2>
               <p className="text-xs text-[#6B7280] mt-0.5">
                 Étape {step} sur 2
@@ -243,13 +287,15 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 <input
                   type="text"
                   value={formData.prenom}
-                  onChange={(e) => handleChange('prenom', e.target.value)}
+                  onChange={(e) => handleChange("prenom", e.target.value)}
                   className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
-                    errors.prenom ? 'border-status-red' : 'border-warm-gray-400'
+                    errors.prenom ? "border-status-red" : "border-warm-gray-400"
                   }`}
                 />
                 {errors.prenom && (
-                  <p className="text-xs text-status-red mt-1">{errors.prenom}</p>
+                  <p className="text-xs text-status-red mt-1">
+                    {errors.prenom}
+                  </p>
                 )}
               </div>
 
@@ -262,9 +308,9 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 <input
                   type="text"
                   value={formData.nom}
-                  onChange={(e) => handleChange('nom', e.target.value)}
+                  onChange={(e) => handleChange("nom", e.target.value)}
                   className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
-                    errors.nom ? 'border-status-red' : 'border-warm-gray-400'
+                    errors.nom ? "border-status-red" : "border-warm-gray-400"
                   }`}
                 />
                 {errors.nom && (
@@ -292,7 +338,9 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                     <RefreshCw className="w-5 h-5 text-navy" />
                   </button>
                 </div>
-                <p className="text-xs text-[#6B7280] mt-1">généré automatiquement</p>
+                <p className="text-xs text-[#6B7280] mt-1">
+                  généré automatiquement
+                </p>
               </div>
 
               {/* Département */}
@@ -301,12 +349,17 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                   label="Département"
                   required
                   value={formData.department}
-                  onChange={(value) => handleChange('department', value)}
+                  onChange={(value) => handleChange("department", value)}
                   placeholder="Sélectionnez un département"
-                  options={DEPARTMENTS.map(dept => ({ value: dept, label: dept }))}
+                  options={DEPARTMENTS.map((dept) => ({
+                    value: dept,
+                    label: dept,
+                  }))}
                 />
                 {errors.department && (
-                  <p className="text-xs text-status-red mt-1">{errors.department}</p>
+                  <p className="text-xs text-status-red mt-1">
+                    {errors.department}
+                  </p>
                 )}
               </div>
 
@@ -320,13 +373,17 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                   type="text"
                   placeholder="Ex: Technicien, Chef d'équipe..."
                   value={formData.position}
-                  onChange={(e) => handleChange('position', e.target.value)}
+                  onChange={(e) => handleChange("position", e.target.value)}
                   className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
-                    errors.position ? 'border-status-red' : 'border-warm-gray-400'
+                    errors.position
+                      ? "border-status-red"
+                      : "border-warm-gray-400"
                   }`}
                 />
                 {errors.position && (
-                  <p className="text-xs text-status-red mt-1">{errors.position}</p>
+                  <p className="text-xs text-status-red mt-1">
+                    {errors.position}
+                  </p>
                 )}
               </div>
 
@@ -339,9 +396,9 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
+                  onChange={(e) => handleChange("email", e.target.value)}
                   className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
-                    errors.email ? 'border-status-red' : 'border-warm-gray-400'
+                    errors.email ? "border-status-red" : "border-warm-gray-400"
                   }`}
                 />
                 {errors.email && (
@@ -353,13 +410,15 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
               <div>
                 <label className="block text-sm font-medium text-[#111827] mb-2">
                   Téléphone
-                  <span className="text-[#6B7280] font-normal ml-1">(optionnel)</span>
+                  <span className="text-[#6B7280] font-normal ml-1">
+                    (optionnel)
+                  </span>
                 </label>
                 <input
                   type="tel"
                   placeholder="+213 XX XX XX XX"
                   value={formData.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
+                  onChange={(e) => handleChange("phone", e.target.value)}
                   className="w-full px-4 py-3 bg-white border border-warm-gray-400 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20"
                 />
               </div>
@@ -373,13 +432,17 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                 <input
                   type="date"
                   value={formData.startDate}
-                  onChange={(e) => handleChange('startDate', e.target.value)}
+                  onChange={(e) => handleChange("startDate", e.target.value)}
                   className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
-                    errors.startDate ? 'border-status-red' : 'border-warm-gray-400'
+                    errors.startDate
+                      ? "border-status-red"
+                      : "border-warm-gray-400"
                   }`}
                 />
                 {errors.startDate && (
-                  <p className="text-xs text-status-red mt-1">{errors.startDate}</p>
+                  <p className="text-xs text-status-red mt-1">
+                    {errors.startDate}
+                  </p>
                 )}
               </div>
             </>
@@ -391,28 +454,48 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                   Administrateur
                 </label>
                 <div className="space-y-2">
-                  {admins.map(admin => (
+                  {admins.map((admin) => (
                     <button
                       key={admin.id}
-                      onClick={() => setSelectedAdmin(admin)}
+                      onClick={() => {
+                        if (selectedAdmin?.id === admin.id) return;
+                        setSelectedAdmin(admin);
+                        setPin(["", "", "", ""]);
+                        setPinStatus("idle");
+                      }}
                       className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
                         selectedAdmin?.id === admin.id
-                          ? 'border-navy bg-navy/5'
-                          : 'border-warm-gray-400 hover:border-navy/40'
+                          ? "border-navy bg-navy/5"
+                          : "border-warm-gray-400 hover:border-navy/40"
                       }`}
                     >
                       <div className="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center text-sm font-semibold text-navy">
-                        {admin.initials}
+                        {admin.name
+                          .split(" ")
+                          .filter(Boolean)
+                          .map((part) => part[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()}
                       </div>
                       <div className="flex-1 text-left">
-                        <div className="font-semibold text-[#111827]">{admin.name}</div>
-                        <div className="text-xs text-[#6B7280]">{admin.role}</div>
+                        <div className="font-semibold text-[#111827]">
+                          {admin.name}
+                        </div>
+                        <div className="text-xs text-[#6B7280]">
+                          {admin.role}
+                        </div>
                       </div>
                       {selectedAdmin?.id === admin.id && (
                         <Check className="w-5 h-5 text-navy" />
                       )}
                     </button>
                   ))}
+                  {admins.length === 0 && (
+                    <p className="text-xs text-[#6B7280]">
+                      Aucun administrateur disponible
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -422,7 +505,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                   Code PIN
                 </label>
                 <div className="flex justify-center gap-3">
-                  {[0, 1, 2, 3].map(index => (
+                  {[0, 1, 2, 3].map((index) => (
                     <input
                       key={index}
                       id={`emp-pin-${index}`}
@@ -432,29 +515,51 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
                       maxLength={1}
                       value={pin[index]}
                       onChange={(e) => handlePinChange(index, e.target.value)}
-                      disabled={pinStatus === 'verifying' || pinStatus === 'verified'}
+                      disabled={
+                        !selectedAdmin ||
+                        pinStatus === "verifying" ||
+                        pinStatus === "verified" ||
+                        verifying
+                      }
                       className={`w-14 h-14 text-center text-xl font-semibold rounded-xl border-2 transition-all shadow-inner focus:outline-none ${
-                        pinStatus === 'error'
-                          ? 'border-status-red bg-status-red/5'
-                          : pinStatus === 'verified'
-                          ? 'border-status-green bg-status-green/5'
-                          : pin[index]
-                          ? 'border-navy bg-warm-gray-200'
-                          : 'border-transparent bg-warm-gray-200 focus:border-navy'
+                        pinStatus === "error"
+                          ? "border-status-red bg-status-red/5"
+                          : pinStatus === "verified"
+                            ? "border-status-green bg-status-green/5"
+                            : pin[index]
+                              ? "border-navy bg-warm-gray-200"
+                              : "border-transparent bg-warm-gray-200 focus:border-navy"
                       }`}
                     />
                   ))}
                 </div>
-                {pinStatus === 'verifying' && (
-                  <p className="text-xs text-navy text-center mt-2">Vérification...</p>
+                {!selectedAdmin && (
+                  <p className="text-xs text-[#6B7280] text-center mt-2">
+                    Sélectionnez un administrateur d'abord
+                  </p>
                 )}
-                {pinStatus === 'error' && (
-                  <p className="text-xs text-status-red text-center mt-2">Code incorrect</p>
+                {pinStatus === "verifying" && (
+                  <p className="text-xs text-navy text-center mt-2">
+                    Vérification...
+                  </p>
                 )}
-                {pinStatus === 'verified' && (
-                  <p className="text-xs text-status-green text-center mt-2">✓ Code correct</p>
+                {pinStatus === "error" && (
+                  <p className="text-xs text-status-red text-center mt-2">
+                    Code incorrect
+                  </p>
+                )}
+                {pinStatus === "verified" && (
+                  <p className="text-xs text-status-green text-center mt-2">
+                    ✓ Code correct
+                  </p>
                 )}
               </div>
+
+              {submissionError && (
+                <p className="text-xs text-status-red text-center">
+                  {submissionError}
+                </p>
+              )}
             </>
           )}
         </div>
@@ -465,17 +570,17 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
             onClick={step === 1 ? handleClose : () => setStep(1)}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all"
           >
-            {step === 1 ? 'Annuler' : '← Retour'}
+            {step === 1 ? "Annuler" : "← Retour"}
           </button>
           <button
             onClick={step === 1 ? handleStep1Submit : handleFinalSubmit}
             disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
             className="flex-1 bg-navy text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {step === 1 ? 'Suivant →' : 'Créer l\'employé'}
+            {step === 1 ? "Suivant →" : "Créer l'employé"}
           </button>
         </div>
       </div>
     </div>
-  )
+  );
 }
