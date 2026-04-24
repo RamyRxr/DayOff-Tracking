@@ -318,15 +318,10 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                       const isToday = isSameDay(day, today)
 
                       let cellStyle = {
-                        width: '36px',
-                        height: '36px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
                         borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
                         borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
                       }
-                      let textClass = 'transition-all duration-150 rounded-lg'
+                      let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
 
                       if (!isCurrentMonth) {
                         textClass += ' opacity-40'
