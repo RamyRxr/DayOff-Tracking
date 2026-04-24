@@ -1,144 +1,186 @@
-import { useState, useEffect, useRef } from 'react'
-import { Lock, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
+import { useState, useEffect, useRef } from "react";
+import { Lock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { useAdmins, useAdminPin } from "../hooks/useAdmins";
 
 /**
  * AdminPinEntry Component
  * 5 states: idle, entering, validating, success, error
  */
-export default function AdminPinEntry({ isOpen, onClose, onSuccess, actionLabel }) {
-  const [pinDigits, setPinDigits] = useState(['', '', '', ''])
-  const [status, setStatus] = useState('idle') // idle | entering | validating | success | error
-  const inputRefs = useRef([null, null, null, null])
+export default function AdminPinEntry({
+  isOpen,
+  onClose,
+  onSuccess,
+  actionLabel,
+}) {
+  const { admins, loading: adminsLoading, error: adminsError } = useAdmins();
+  const { verify, verifying, reset } = useAdminPin();
+
+  const [selectedAdminId, setSelectedAdminId] = useState(null);
+  const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
+  const [status, setStatus] = useState("idle"); // idle | entering | validating | success | error
+  const [localError, setLocalError] = useState("");
+  const inputRefs = useRef([null, null, null, null]);
 
   useEffect(() => {
     if (isOpen && inputRefs.current[0]) {
-      inputRefs.current[0].focus()
+      inputRefs.current[0].focus();
     }
-  }, [isOpen])
+  }, [isOpen]);
 
-  useEffect(() => {
-    const pin = pinDigits.join('')
-    if (pin.length === 4 && pinDigits.every(d => d !== '')) {
-      // Auto-validate when all 4 digits entered
-      handleValidate()
+  function handleClose() {
+    setSelectedAdminId(null);
+    setPinDigits(["", "", "", ""]);
+    setStatus("idle");
+    setLocalError("");
+    reset();
+    onClose?.();
+  }
+
+  async function handleValidate(pinValue = pinDigits.join("")) {
+    if (!selectedAdminId) {
+      setLocalError("Sélectionnez un administrateur");
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pinDigits])
 
-  const handleValidate = async () => {
-    setStatus('validating')
+    setStatus("validating");
+    setLocalError("");
 
-    // Simulate API call to validate PIN
-    await new Promise((resolve) => setTimeout(resolve, 800))
-
-    const pin = pinDigits.join('')
-    // Mock validation: accept "1234" as correct PIN
-    if (pin === '1234') {
-      setStatus('success')
+    try {
+      const verifiedAdmin = await verify(selectedAdminId, pinValue);
+      setStatus("success");
       setTimeout(() => {
-        onSuccess?.()
-        handleClose()
-      }, 1000)
-    } else {
-      setStatus('error')
+        onSuccess?.(verifiedAdmin);
+        handleClose();
+      }, 1000);
+    } catch {
+      setStatus("error");
       setTimeout(() => {
-        setPinDigits(['', '', '', ''])
-        setStatus('idle')
-        inputRefs.current[0]?.focus()
-      }, 1500)
+        setPinDigits(["", "", "", ""]);
+        setStatus("idle");
+        inputRefs.current[0]?.focus();
+      }, 1500);
     }
   }
 
-  const handleClose = () => {
-    setPinDigits(['', '', '', ''])
-    setStatus('idle')
-    onClose?.()
-  }
+  const handleAdminSelect = (adminId) => {
+    if (status === "validating" || status === "success") return;
+
+    setSelectedAdminId(adminId);
+    setPinDigits(["", "", "", ""]);
+    setStatus("idle");
+    setLocalError("");
+    reset();
+
+    setTimeout(() => {
+      inputRefs.current[0]?.focus();
+    }, 0);
+  };
 
   const handleDigitChange = (index, value) => {
+    if (
+      !selectedAdminId ||
+      status === "validating" ||
+      status === "success" ||
+      verifying
+    ) {
+      return;
+    }
+
     // Only allow single digit
     if (value.length > 1) {
-      value = value[value.length - 1]
+      value = value[value.length - 1];
     }
 
     // Only allow digits
     if (value && !/^[0-9]$/.test(value)) {
-      return
+      return;
     }
 
-    const newDigits = [...pinDigits]
-    newDigits[index] = value
+    const newDigits = [...pinDigits];
+    newDigits[index] = value;
 
-    setPinDigits(newDigits)
+    setPinDigits(newDigits);
 
-    if (status === 'idle' && value) setStatus('entering')
-    if (status === 'error') setStatus('idle')
+    if (status === "idle" && value) setStatus("entering");
+    if (status === "error") setStatus("idle");
 
     // Auto-advance to next input
     if (value && index < 3) {
-      inputRefs.current[index + 1]?.focus()
+      inputRefs.current[index + 1]?.focus();
     }
-  }
+
+    if (newDigits.every((digit) => digit !== "")) {
+      handleValidate(newDigits.join(""));
+    }
+  };
 
   const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !pinDigits[index] && index > 0) {
+    if (e.key === "Backspace" && !pinDigits[index] && index > 0) {
       // Move to previous input on backspace if current is empty
-      inputRefs.current[index - 1]?.focus()
-    } else if (e.key === 'Escape') {
-      handleClose()
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "Escape") {
+      handleClose();
     }
-  }
+  };
 
   const handlePaste = (e) => {
-    e.preventDefault()
-    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4)
+    if (!selectedAdminId) return;
+
+    e.preventDefault();
+    const pastedData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 4);
 
     if (pastedData.length === 4) {
-      const newDigits = pastedData.split('')
-      setPinDigits(newDigits)
-      setStatus('entering')
-      inputRefs.current[3]?.focus()
+      const newDigits = pastedData.split("");
+      setPinDigits(newDigits);
+      setStatus("entering");
+      inputRefs.current[3]?.focus();
+      handleValidate(pastedData);
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const statusConfig = {
     idle: {
       icon: Lock,
-      iconColor: 'text-gray-400',
-      message: 'Entrez votre code PIN',
-      dotColor: 'bg-warm-gray-300',
+      iconColor: "text-gray-400",
+      message: selectedAdminId
+        ? "Entrez votre code PIN"
+        : "Sélectionnez un administrateur",
+      dotColor: "bg-warm-gray-300",
     },
     entering: {
       icon: Lock,
-      iconColor: 'text-navy',
-      message: 'Entrez votre code PIN',
-      dotColor: 'bg-navy',
+      iconColor: "text-navy",
+      message: "Entrez votre code PIN",
+      dotColor: "bg-navy",
     },
     validating: {
       icon: Loader2,
-      iconColor: 'text-navy',
-      message: 'Vérification...',
-      dotColor: 'bg-navy',
+      iconColor: "text-navy",
+      message: "Vérification...",
+      dotColor: "bg-navy",
       spin: true,
     },
     success: {
       icon: CheckCircle2,
-      iconColor: 'text-apple-green',
-      message: 'Code correct',
-      dotColor: 'bg-apple-green',
+      iconColor: "text-apple-green",
+      message: "Code correct",
+      dotColor: "bg-apple-green",
     },
     error: {
       icon: XCircle,
-      iconColor: 'text-apple-red',
-      message: 'Code incorrect',
-      dotColor: 'bg-apple-red',
+      iconColor: "text-apple-red",
+      message: "Code incorrect",
+      dotColor: "bg-apple-red",
     },
-  }
+  };
 
-  const config = statusConfig[status]
-  const Icon = config.icon
+  const config = statusConfig[status];
+  const Icon = config.icon;
 
   return (
     <>
@@ -156,16 +198,16 @@ export default function AdminPinEntry({ isOpen, onClose, onSuccess, actionLabel 
           <div className="flex justify-center mb-6">
             <div
               className={`w-16 h-16 rounded-full ${
-                status === 'success'
-                  ? 'bg-apple-green/10'
-                  : status === 'error'
-                  ? 'bg-apple-red/10'
-                  : 'bg-warm-gray-300'
+                status === "success"
+                  ? "bg-apple-green/10"
+                  : status === "error"
+                    ? "bg-apple-red/10"
+                    : "bg-warm-gray-300"
               } flex items-center justify-center`}
             >
               <Icon
                 className={`w-8 h-8 ${config.iconColor} ${
-                  config.spin ? 'animate-spin' : ''
+                  config.spin ? "animate-spin" : ""
                 }`}
                 strokeWidth={2}
               />
@@ -174,13 +216,66 @@ export default function AdminPinEntry({ isOpen, onClose, onSuccess, actionLabel 
 
           {/* Title */}
           <h3 className="text-center text-xl font-semibold text-gray-900 mb-2">
-            {actionLabel || 'Confirmation requise'}
+            {actionLabel || "Confirmation requise"}
           </h3>
 
           {/* Message */}
           <p className="text-center text-sm text-gray-600 mb-8">
             {config.message}
           </p>
+
+          {/* Admin selector */}
+          <div className="mb-6 space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">
+              Administrateur
+            </p>
+
+            {adminsLoading && (
+              <div className="text-xs text-[#6B7280]">
+                Chargement des administrateurs...
+              </div>
+            )}
+
+            {adminsError && !adminsLoading && (
+              <div className="text-xs text-status-red">{adminsError}</div>
+            )}
+
+            {!adminsLoading && !adminsError && admins.length === 0 && (
+              <div className="text-xs text-[#6B7280]">
+                Aucun administrateur disponible
+              </div>
+            )}
+
+            {!adminsLoading &&
+              admins.map((admin) => (
+                <button
+                  key={admin.id}
+                  type="button"
+                  onClick={() => handleAdminSelect(admin.id)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                    selectedAdminId === admin.id
+                      ? "border-navy bg-navy/5"
+                      : "border-warm-gray-400 hover:border-navy/40"
+                  }`}
+                >
+                  <div className="w-9 h-9 rounded-full bg-navy/10 flex items-center justify-center text-xs font-semibold text-navy">
+                    {admin.name
+                      .split(" ")
+                      .filter(Boolean)
+                      .map((part) => part[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-semibold text-sm text-[#111827]">
+                      {admin.name}
+                    </div>
+                    <div className="text-xs text-[#6B7280]">{admin.role}</div>
+                  </div>
+                </button>
+              ))}
+          </div>
 
           {/* PIN input boxes */}
           <div className="flex justify-center gap-3 mb-6">
@@ -196,22 +291,33 @@ export default function AdminPinEntry({ isOpen, onClose, onSuccess, actionLabel 
                 onChange={(e) => handleDigitChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 onPaste={index === 0 ? handlePaste : undefined}
-                disabled={status === 'validating' || status === 'success'}
+                disabled={
+                  !selectedAdminId ||
+                  status === "validating" ||
+                  status === "success" ||
+                  verifying
+                }
                 className={`w-14 h-14 text-center text-xl font-semibold bg-warm-gray-200 rounded-xl border-2 transition-all duration-200 shadow-inner focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
-                  status === 'error'
-                    ? 'border-status-red'
+                  status === "error"
+                    ? "border-status-red"
                     : pinDigits[index]
-                    ? 'border-navy'
-                    : 'border-transparent focus:border-navy'
+                      ? "border-navy"
+                      : "border-transparent focus:border-navy"
                 }`}
               />
             ))}
           </div>
 
+          {localError && (
+            <p className="text-xs text-status-red text-center mb-4">
+              {localError}
+            </p>
+          )}
+
           {/* Cancel button */}
           <button
             onClick={handleClose}
-            disabled={status === 'validating'}
+            disabled={status === "validating"}
             className="w-full py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-black/5 transition-all duration-200 disabled:opacity-50"
           >
             Annuler
@@ -219,5 +325,5 @@ export default function AdminPinEntry({ isOpen, onClose, onSuccess, actionLabel 
         </div>
       </div>
     </>
-  )
+  );
 }
