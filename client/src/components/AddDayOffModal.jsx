@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { X, Upload, AlertTriangle, ChevronLeft, ChevronRight, Check } from 'lucide-react'
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, addMonths, subMonths } from 'date-fns'
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useDaysOff } from '../hooks/useDaysOff'
 import CustomSelect from './CustomSelect'
@@ -310,13 +310,20 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                       const isFirstOfRow = col === 0
                       const shouldShowMonthSeparator = isPrevDayDifferentMonth && isFirstOfRow
 
+                      const today = new Date()
+                      today.setHours(0, 0, 0, 0)
+                      const isToday = isSameDay(day, today)
+
                       let cellStyle = {
-                        width: '48px',
-                        height: '48px',
+                        width: '36px',
+                        height: '36px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                         borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
                         borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
                       }
-                      let textClass = 'flex items-center justify-center transition-all duration-150'
+                      let textClass = 'transition-all duration-150 rounded-lg'
 
                       if (!isCurrentMonth) {
                         textClass += ' opacity-40'
@@ -327,27 +334,38 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                       }
 
                       if (isStart || isEnd || isExisting) {
-                        // Selected/existing: vibrant red
-                        cellStyle.background = 'linear-gradient(135deg, #FF3B30 0%, #C0392B 100%)'
-                        cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 2px rgba(0,0,0,0.2)'
-                        textClass += ' text-white font-bold'
+                        // Selected start/end or existing day-off: COLOR 1 - rich red
+                        cellStyle.background = 'linear-gradient(135deg, #FF3B30, #C0392B)'
+                        cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                        textClass += ' text-white font-semibold'
                         if (isExisting) textClass += ' cursor-not-allowed'
                       } else if (isInRange) {
-                        // In range: light red
-                        cellStyle.background = '#FFE5E5'
-                        textClass += ' text-[#C0392B] font-semibold'
+                        // Selected range middle: very light red tint
+                        cellStyle.background = 'rgba(255,59,48,0.08)'
+                        textClass += ' text-[#FF3B30] font-medium'
                       } else if (isWeekend) {
-                        // Weekend: soft gray
-                        cellStyle.background = '#F5F5F7'
-                        textClass += ' text-gray-400 font-medium cursor-not-allowed'
+                        // COLOR 3 - Weekend: medium gray
+                        cellStyle.background = '#E5E5EA'
+                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.05)'
+                        textClass += ' text-[#8E8E93] cursor-not-allowed'
                       } else if (isPast) {
-                        // Past: white but disabled
-                        cellStyle.background = '#FFFFFF'
-                        textClass += ' text-gray-300 font-medium cursor-not-allowed'
+                        // Past: COLOR 2 with opacity
+                        cellStyle.background = '#FAFAFA'
+                        cellStyle.border = '1px solid rgba(0,0,0,0.05)'
+                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.03)'
+                        cellStyle.opacity = 0.35
+                        textClass += ' text-[#1C1C1E] cursor-not-allowed'
                       } else {
-                        // Selectable: white with hover
-                        cellStyle.background = '#FFFFFF'
-                        textClass += ' text-gray-800 font-medium hover:bg-blue-50'
+                        // COLOR 2 - Normal selectable workday: light warm gray
+                        cellStyle.background = '#FAFAFA'
+                        cellStyle.border = '1px solid rgba(0,0,0,0.05)'
+                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.03)'
+                        textClass += ' text-[#1C1C1E] hover:bg-[#F2F2F7]'
+                      }
+
+                      // Today indicator
+                      if (isToday && !isStart && !isEnd) {
+                        textClass += ' ring-2 ring-blue-400 ring-offset-1'
                       }
 
                       return (
@@ -357,8 +375,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                           disabled={isWeekend || isPast || isExisting}
                           className={textClass}
                           style={{
-                            fontSize: '15px',
-                            fontVariantNumeric: 'tabular-nums',
+                            fontSize: '13px',
                             ...cellStyle
                           }}
                         >

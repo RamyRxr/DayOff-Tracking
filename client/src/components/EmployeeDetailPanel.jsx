@@ -358,12 +358,15 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                   const shouldShowMonthSeparator = isNewMonth && isFirstOfRow
 
                   let cellStyle = {
-                    width: '48px',
-                    height: '48px',
+                    width: '36px',
+                    height: '36px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
                     borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
                   }
-                  let textClass = 'flex items-center justify-center transition-all duration-150'
+                  let textClass = 'transition-all duration-150 rounded-lg'
 
                   // Month separator
                   if (shouldShowMonthSeparator) {
@@ -371,18 +374,21 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                   }
 
                   if (isDayOff) {
-                    // Day-off: vibrant red gradient
-                    cellStyle.background = 'linear-gradient(135deg, #FF3B30 0%, #C0392B 100%)'
-                    cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 2px rgba(0,0,0,0.2)'
-                    textClass += ' text-white font-bold'
+                    // COLOR 1 - Day off: rich shiny red gradient
+                    cellStyle.background = 'linear-gradient(135deg, #FF3B30, #C0392B)'
+                    cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                    textClass += ' text-white font-semibold'
                   } else if (isWeekend) {
-                    // Weekend: soft gray
-                    cellStyle.background = '#F5F5F7'
-                    textClass += ' text-gray-400 font-medium'
+                    // COLOR 3 - Weekend: medium gray
+                    cellStyle.background = '#E5E5EA'
+                    cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.05)'
+                    textClass += ' text-[#8E8E93] cursor-not-allowed'
                   } else {
-                    // Normal workday: clean white
-                    cellStyle.background = '#FFFFFF'
-                    textClass += ' text-gray-800 font-medium hover:bg-gray-50'
+                    // COLOR 2 - Normal workday: light warm gray
+                    cellStyle.background = '#FAFAFA'
+                    cellStyle.border = '1px solid rgba(0,0,0,0.05)'
+                    cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.03)'
+                    textClass += ' text-[#1C1C1E] hover:bg-[#F2F2F7]'
                   }
 
                   return (
@@ -390,8 +396,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                       key={i}
                       className={textClass}
                       style={{
-                        fontSize: '15px',
-                        fontVariantNumeric: 'tabular-nums',
+                        fontSize: '13px',
                         ...cellStyle
                       }}
                     >
