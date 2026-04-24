@@ -351,7 +351,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                 {startDate && endDate && (
                   <div className="bg-navy/5 border border-navy/10 rounded-xl p-3">
                     <div className="text-sm font-semibold text-navy">
-                      {workingDays} jours ouvrables · {calendarDays} jours calendaires
+                      {workingDays} jours ouvrables · {totalCalendarDays} jours calendaires
                     </div>
                   </div>
                 )}
