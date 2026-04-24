@@ -55,6 +55,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
 
   // Early return AFTER all hooks
   if (!isOpen) return null
+  if (!employee) return null
 
   const handleClose = () => {
     setStep(1)
@@ -170,6 +171,8 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
   }
 
   const handleSubmit = () => {
+    if (!employee?.id || !startDate || !endDate) return
+
     onSubmit?.({
       employeeId: employee.id,
       startDate: startDate.toISOString().split('T')[0],
