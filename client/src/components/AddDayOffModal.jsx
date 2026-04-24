@@ -18,27 +18,6 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
 
   const { daysOff } = useDaysOff({ employeeId: employee?.id })
 
-  if (!isOpen) return null
-
-  const handleClose = () => {
-    setStep(1)
-    setStartDate(null)
-    setEndDate(null)
-    setUploadedFile(null)
-    setReason('')
-    setSelectedAdmin(null)
-    setPin(['', '', '', ''])
-    setPinStatus('idle')
-    setCurrentMonth(new Date())
-    onClose?.()
-  }
-
-  // Mock admins
-  const admins = [
-    { id: 1, name: 'Ahmed Benali', role: 'Responsable RH', initials: 'AB' },
-    { id: 2, name: 'Fatima Meziane', role: 'Directeur Admin', initials: 'FM' },
-  ]
-
   // Generate existing day-off dates set
   const existingDates = useMemo(() => {
     const dates = new Set()
@@ -73,6 +52,28 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
 
     return days
   }, [currentMonth])
+
+  // Early return AFTER all hooks
+  if (!isOpen) return null
+
+  const handleClose = () => {
+    setStep(1)
+    setStartDate(null)
+    setEndDate(null)
+    setUploadedFile(null)
+    setReason('')
+    setSelectedAdmin(null)
+    setPin(['', '', '', ''])
+    setPinStatus('idle')
+    setCurrentMonth(new Date())
+    onClose?.()
+  }
+
+  // Mock admins
+  const admins = [
+    { id: 1, name: 'Ahmed Benali', role: 'Responsable RH', initials: 'AB' },
+    { id: 2, name: 'Fatima Meziane', role: 'Directeur Admin', initials: 'FM' },
+  ]
 
   const handleDayClick = (day) => {
     const dayStr = day.toISOString().split('T')[0]
