@@ -3,6 +3,7 @@ import { X, Calendar, Upload, AlertTriangle, ChevronLeft, ChevronRight, Check } 
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, addMonths, subMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useDaysOff } from '../hooks/useDaysOff'
+import CustomSelect from './CustomSelect'
 
 export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) {
   const [step, setStep] = useState(1)
@@ -364,23 +365,19 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               </div>
 
               {/* Reason Selector */}
-              <div>
-                <label className="block text-sm font-medium text-[#111827] mb-2">
-                  Type de congé
-                  <span className="text-status-red ml-1">*</span>
-                </label>
-                <select
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-warm-gray-400 rounded-xl text-[#111827] focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all"
-                >
-                  <option value="">Sélectionnez un type</option>
-                  <option value="Congé annuel">Congé annuel</option>
-                  <option value="Congé maladie">Congé maladie</option>
-                  <option value="Congé sans solde">Congé sans solde</option>
-                  <option value="Autre">Autre</option>
-                </select>
-              </div>
+              <CustomSelect
+                label="Type de congé"
+                required
+                value={reason}
+                onChange={(value) => setReason(value)}
+                placeholder="Sélectionnez un type"
+                options={[
+                  { value: 'Congé annuel', label: 'Congé annuel' },
+                  { value: 'Congé maladie', label: 'Congé maladie' },
+                  { value: 'Congé sans solde', label: 'Congé sans solde' },
+                  { value: 'Autre', label: 'Autre' },
+                ]}
+              />
             </>
           ) : (
             <>

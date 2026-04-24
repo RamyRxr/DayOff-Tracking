@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X, Unlock, CheckCircle2, ChevronLeft, Check } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import CustomSelect from './CustomSelect'
 
 export default function UnblockModal({ employee, activeBlock, isOpen, onClose, onSubmit }) {
   const [step, setStep] = useState(1)
@@ -168,23 +169,19 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
               </div>
 
               {/* Unblock reason dropdown */}
-              <div>
-                <label className="block text-sm font-medium text-[#111827] mb-2">
-                  Motif du déblocage
-                  <span className="text-status-red ml-1">*</span>
-                </label>
-                <select
-                  value={unblockReason}
-                  onChange={(e) => setUnblockReason(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-warm-gray-400 rounded-xl text-[#111827] text-sm focus:outline-none focus:ring-2 focus:ring-status-green/20 focus:border-status-green transition-all"
-                >
-                  <option value="">Sélectionnez un motif</option>
-                  <option value="Erreur administrative">Erreur administrative</option>
-                  <option value="Justification acceptée">Justification acceptée</option>
-                  <option value="Décision hiérarchique">Décision hiérarchique</option>
-                  <option value="Autre">Autre</option>
-                </select>
-              </div>
+              <CustomSelect
+                label="Motif du déblocage"
+                required
+                value={unblockReason}
+                onChange={(value) => setUnblockReason(value)}
+                placeholder="Sélectionnez un motif"
+                options={[
+                  { value: 'Erreur administrative', label: 'Erreur administrative' },
+                  { value: 'Justification acceptée', label: 'Justification acceptée' },
+                  { value: 'Décision hiérarchique', label: 'Décision hiérarchique' },
+                  { value: 'Autre', label: 'Autre' },
+                ]}
+              />
 
               {/* Description field */}
               <div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X, UserPlus, RefreshCw, ChevronLeft, Check } from 'lucide-react'
 import { useEmployees } from '../hooks/useEmployees'
+import CustomSelect from './CustomSelect'
 
 const DEPARTMENTS = [
   'Production',
@@ -294,22 +295,14 @@ export default function AddEmployeeModal({ isOpen, onClose, onSubmit }) {
 
               {/* Département */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] mb-2">
-                  Département
-                  <span className="text-status-red ml-1">*</span>
-                </label>
-                <select
+                <CustomSelect
+                  label="Département"
+                  required
                   value={formData.department}
-                  onChange={(e) => handleChange('department', e.target.value)}
-                  className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
-                    errors.department ? 'border-status-red' : 'border-warm-gray-400'
-                  }`}
-                >
-                  <option value="">Sélectionnez un département</option>
-                  {DEPARTMENTS.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
+                  onChange={(value) => handleChange('department', value)}
+                  placeholder="Sélectionnez un département"
+                  options={DEPARTMENTS.map(dept => ({ value: dept, label: dept }))}
+                />
                 {errors.department && (
                   <p className="text-xs text-status-red mt-1">{errors.department}</p>
                 )}
