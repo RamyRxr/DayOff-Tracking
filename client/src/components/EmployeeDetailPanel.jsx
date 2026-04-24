@@ -385,9 +385,10 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                       key={i}
                       className={`rounded-lg flex items-center justify-center transition-colors duration-100 ${textClass}`}
                       style={{
-                        width: '36px',
-                        height: '36px',
-                        fontSize: '13px',
+                        width: '48px',
+                        height: '48px',
+                        fontSize: '15px',
+                        fontWeight: '500',
                         ...cellStyle
                       }}
                     >
