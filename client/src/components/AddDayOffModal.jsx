@@ -188,15 +188,15 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
   const isStep2Valid = pinStatus === 'verified'
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
       <div
-        className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-up"
+        className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col h-[92vh] sm:max-h-[88vh] overflow-hidden"
         style={{
-          boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 16px 48px rgba(0,0,0,0.16)'
+          boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)'
         }}
       >
-        {/* Header */}
-        <div className="bg-white border-b border-black/6 px-6 py-4 flex items-center justify-between">
+        {/* STICKY HEADER */}
+        <div className="flex-shrink-0 bg-white border-b border-gray-100 px-5 pt-5 pb-4 flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3">
               {step === 2 && (
@@ -237,8 +237,8 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        {/* SCROLLABLE BODY */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-5 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
           {step === 1 ? (
             <>
               {/* Mini Calendar */}
@@ -545,10 +545,13 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               </div>
             </>
           )}
+
+          {/* Extra padding at bottom so last field not hidden */}
+          <div className="h-6" />
         </div>
 
-        {/* Footer */}
-        <div className="bg-white border-t border-black/6 px-6 py-4 flex items-center justify-between">
+        {/* STICKY FOOTER */}
+        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex items-center justify-between">
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
             className="px-4 py-2.5 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all"
