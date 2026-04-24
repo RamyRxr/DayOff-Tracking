@@ -183,8 +183,13 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
   const isStep2Valid = pinStatus === 'verified'
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center">
-      <div className="bg-white rounded-3xl shadow-modal w-[560px] max-h-[90vh] overflow-hidden animate-slide-up">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
+      <div
+        className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-up"
+        style={{
+          boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 16px 48px rgba(0,0,0,0.16)'
+        }}
+      >
         {/* Header */}
         <div className="bg-white border-b border-black/6 px-6 py-4 flex items-center justify-between">
           <div className="flex-1">
@@ -198,24 +203,26 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                 </button>
               )}
               <div>
-                <h2 className="font-display text-xl font-bold text-[#111827]">
-                  {step === 1 ? 'Ajouter un Congé' : 'Autorisation requise'}
+                <h2 className="text-[17px] font-semibold text-[#111827]">
+                  {step === 1 ? 'Ajouter un Congé' : 'Autorisation'}
                 </h2>
                 {step === 1 && employee && (
-                  <p className="text-xs text-[#6B7280] mt-0.5">
+                  <p className="text-xs text-gray-500 mt-1">
                     {employee.name} · {employee.matricule}
                   </p>
                 )}
                 {step === 2 && startDate && endDate && (
-                  <p className="text-xs text-[#6B7280] mt-0.5">
-                    {format(startDate, 'd', { locale: fr })} – {format(endDate, 'd MMM yyyy', { locale: fr })} · {workingDays} jours · {reason}
+                  <p className="text-xs text-gray-500 mt-1">
+                    {format(startDate, 'd', { locale: fr })}–{format(endDate, 'd MMM', { locale: fr })} · {workingDays} jours · {reason}
                   </p>
                 )}
               </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-[#6B7280]">Étape {step} sur 2</span>
+            <span className="bg-gray-100 text-gray-500 text-xs rounded-full px-2 py-0.5">
+              Étape {step} / 2
+            </span>
             <button
               onClick={handleClose}
               className="w-8 h-8 rounded-lg hover:bg-black/5 flex items-center justify-center transition-colors"
@@ -411,7 +418,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               {/* PIN Input */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] mb-3">
-                  Code PIN
+                  Code PIN à 4 chiffres
                 </label>
                 <div className="flex justify-center gap-3">
                   {[0, 1, 2, 3].map(index => (
@@ -425,15 +432,18 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                       value={pin[index]}
                       onChange={(e) => handlePinChange(index, e.target.value)}
                       disabled={pinStatus === 'verifying' || pinStatus === 'verified'}
-                      className={`w-14 h-14 text-center text-xl font-semibold rounded-xl border-2 transition-all shadow-inner focus:outline-none ${
+                      className={`w-12 h-14 text-center text-xl font-semibold rounded-xl transition-all focus:outline-none ${
                         pinStatus === 'error'
-                          ? 'border-status-red bg-status-red/5'
+                          ? 'border-2 border-red-400 bg-red-50 ring-2 ring-red-400'
                           : pinStatus === 'verified'
-                          ? 'border-status-green bg-status-green/5'
+                          ? 'border-2 border-green-400 bg-green-50 ring-2 ring-green-400'
                           : pin[index]
-                          ? 'border-navy bg-warm-gray-200'
-                          : 'border-transparent bg-warm-gray-200 focus:border-navy'
+                          ? 'border-2 border-[#1B3A6B]/40 bg-white ring-2 ring-[#1B3A6B]/40'
+                          : 'bg-gray-50 focus:ring-2 focus:ring-[#1B3A6B]/40 focus:bg-white'
                       }`}
+                      style={{
+                        boxShadow: pinStatus === 'error' || pinStatus === 'verified' ? undefined : 'inset 0 1px 2px rgba(0,0,0,0.06)'
+                      }}
                     />
                   ))}
                 </div>
