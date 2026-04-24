@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { X, UserPlus, RefreshCw, ChevronLeft, Check } from "lucide-react";
 import { useEmployees } from "../hooks/useEmployees";
 import { useAdmins, useAdminPin } from "../hooks/useAdmins";
@@ -19,6 +20,7 @@ export default function AddEmployeeModal({
   onSubmit,
   onSuccess,
 }) {
+  const { t } = useTranslation();
   const isVisible = typeof isOpen === "boolean" ? isOpen : true;
   const { employees, addEmployee } = useEmployees();
   const { admins } = useAdmins();
@@ -87,33 +89,33 @@ export default function AddEmployeeModal({
     const newErrors = {};
 
     if (!data.prenom.trim()) {
-      newErrors.prenom = "Prénom requis";
+      newErrors.prenom = t('prenomRequis');
     }
 
     if (!data.nom.trim()) {
-      newErrors.nom = "Nom requis";
+      newErrors.nom = t('nomRequis');
     }
 
     if (!data.matricule.trim()) {
-      newErrors.matricule = "Matricule requis";
+      newErrors.matricule = t('matriculeRequis');
     }
 
     if (!data.department) {
-      newErrors.department = "Département requis";
+      newErrors.department = t('departementRequis');
     }
 
     if (!data.position.trim()) {
-      newErrors.position = "Poste requis";
+      newErrors.position = t('posteRequis');
     }
 
     if (!data.email.trim()) {
-      newErrors.email = "Email requis";
+      newErrors.email = t('emailRequis');
     } else if (!data.email.includes("@")) {
-      newErrors.email = "Email doit contenir @";
+      newErrors.email = t('emailInvalide');
     }
 
     if (!data.startDate) {
-      newErrors.startDate = "Date d'embauche requise";
+      newErrors.startDate = t('dateEmbaucheRequise');
     }
 
     setErrors(newErrors);
@@ -259,10 +261,10 @@ export default function AddEmployeeModal({
             </div>
             <div>
               <h2 className="font-display text-xl font-bold text-[#111827]">
-                {step === 1 ? "Nouvel Employé" : "Autorisation requise"}
+                {step === 1 ? t('nouvelEmploye') : t('autorisationRequise')}
               </h2>
               <p className="text-xs text-[#6B7280] mt-0.5">
-                Étape {step} sur 2
+                {t('etape')} {step} {t('sur')} 2
               </p>
             </div>
           </div>
@@ -281,7 +283,7 @@ export default function AddEmployeeModal({
               {/* Prénom */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] mb-2">
-                  Prénom
+                  {t('prenom')}
                   <span className="text-status-red ml-1">*</span>
                 </label>
                 <input
@@ -302,7 +304,7 @@ export default function AddEmployeeModal({
               {/* Nom */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] mb-2">
-                  Nom
+                  {t('nom')}
                   <span className="text-status-red ml-1">*</span>
                 </label>
                 <input
@@ -321,7 +323,7 @@ export default function AddEmployeeModal({
               {/* Matricule (auto-generated) */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] mb-2">
-                  Matricule
+                  {t('matricule')}
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -333,24 +335,24 @@ export default function AddEmployeeModal({
                   <button
                     onClick={generateMatricule}
                     className="px-4 py-3 bg-navy/10 hover:bg-navy/20 rounded-xl transition-colors"
-                    title="Générer nouveau matricule"
+                    title={t('genererMatricule')}
                   >
                     <RefreshCw className="w-5 h-5 text-navy" />
                   </button>
                 </div>
                 <p className="text-xs text-[#6B7280] mt-1">
-                  généré automatiquement
+                  {t('genereAutomatiquement')}
                 </p>
               </div>
 
               {/* Département */}
               <div>
                 <CustomSelect
-                  label="Département"
+                  label={t('departement')}
                   required
                   value={formData.department}
                   onChange={(value) => handleChange("department", value)}
-                  placeholder="Sélectionnez un département"
+                  placeholder={t('selectionnezDepartement')}
                   options={DEPARTMENTS.map((dept) => ({
                     value: dept,
                     label: dept,
@@ -366,12 +368,12 @@ export default function AddEmployeeModal({
               {/* Poste */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] mb-2">
-                  Poste
+                  {t('poste')}
                   <span className="text-status-red ml-1">*</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="Ex: Technicien, Chef d'équipe..."
+                  placeholder={t('exPoste')}
                   value={formData.position}
                   onChange={(e) => handleChange("position", e.target.value)}
                   className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
@@ -390,7 +392,7 @@ export default function AddEmployeeModal({
               {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] mb-2">
-                  Email
+                  {t('email')}
                   <span className="text-status-red ml-1">*</span>
                 </label>
                 <input
@@ -409,9 +411,9 @@ export default function AddEmployeeModal({
               {/* Téléphone */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] mb-2">
-                  Téléphone
+                  {t('telephone')}
                   <span className="text-[#6B7280] font-normal ml-1">
-                    (optionnel)
+                    ({t('optionnel')})
                   </span>
                 </label>
                 <input
@@ -426,7 +428,7 @@ export default function AddEmployeeModal({
               {/* Date d'embauche */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] mb-2">
-                  Date d'embauche
+                  {t('dateEmbauche')}
                   <span className="text-status-red ml-1">*</span>
                 </label>
                 <input
@@ -451,7 +453,7 @@ export default function AddEmployeeModal({
               {/* Admin Selector */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] mb-3">
-                  Administrateur
+                  {t('administrateur')}
                 </label>
                 <div className="space-y-2">
                   {admins.map((admin) => (
@@ -493,7 +495,7 @@ export default function AddEmployeeModal({
                   ))}
                   {admins.length === 0 && (
                     <p className="text-xs text-[#6B7280]">
-                      Aucun administrateur disponible
+                      {t('aucunAdministrateur')}
                     </p>
                   )}
                 </div>
@@ -502,7 +504,7 @@ export default function AddEmployeeModal({
               {/* PIN Input */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] mb-3">
-                  Code PIN
+                  {t('codePIN')}
                 </label>
                 <div className="flex justify-center gap-3">
                   {[0, 1, 2, 3].map((index) => (
@@ -535,22 +537,22 @@ export default function AddEmployeeModal({
                 </div>
                 {!selectedAdmin && (
                   <p className="text-xs text-[#6B7280] text-center mt-2">
-                    Sélectionnez un administrateur d'abord
+                    {t('selectionnerAdminDabord')}
                   </p>
                 )}
                 {pinStatus === "verifying" && (
                   <p className="text-xs text-navy text-center mt-2">
-                    Vérification...
+                    {t('verification')}
                   </p>
                 )}
                 {pinStatus === "error" && (
                   <p className="text-xs text-status-red text-center mt-2">
-                    Code incorrect
+                    {t('codeIncorrect')}
                   </p>
                 )}
                 {pinStatus === "verified" && (
                   <p className="text-xs text-status-green text-center mt-2">
-                    ✓ Code correct
+                    {t('codeCorrect')}
                   </p>
                 )}
               </div>
@@ -570,14 +572,14 @@ export default function AddEmployeeModal({
             onClick={step === 1 ? handleClose : () => setStep(1)}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all"
           >
-            {step === 1 ? "Annuler" : "← Retour"}
+            {step === 1 ? t('annuler') : t('retourFleche')}
           </button>
           <button
             onClick={step === 1 ? handleStep1Submit : handleFinalSubmit}
             disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
             className="flex-1 bg-navy text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {step === 1 ? "Suivant →" : "Créer l'employé"}
+            {step === 1 ? t('suivantFleche') : t('creerEmploye')}
           </button>
         </div>
       </div>

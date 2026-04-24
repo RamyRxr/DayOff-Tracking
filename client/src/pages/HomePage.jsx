@@ -40,11 +40,11 @@ export default function HomePage() {
     if (!activeFilter) return null
     const count = filteredEmployees.length
     const labels = {
-      actif: 'actifs',
-      risque: 'à risque',
-      bloqué: 'bloqués',
+      actif: t('actifs'),
+      risque: t('aRisque'),
+      bloqué: t('bloques_'),
     }
-    return `Affichage : ${count} employé${count > 1 ? 's' : ''} ${labels[activeFilter]}`
+    return `${t('affichage')} : ${count} ${count > 1 ? t('employesPlural') : t('employe')} ${labels[activeFilter]}`
   }
 
   const handleAddEmployeeSubmit = async (employeeData) => {
@@ -91,14 +91,14 @@ export default function HomePage() {
           <AlertCircle className="w-6 h-6 text-status-red" />
           <div>
             <div className="font-semibold text-status-red">
-              Erreur de chargement
+              {t('erreurChargement')}
             </div>
             <p className="text-sm text-[#374151] mt-1">{error}</p>
             <button
               onClick={refetch}
               className="text-sm text-navy hover:underline mt-2"
             >
-              Réessayer
+              {t('reessayer')}
             </button>
           </div>
         </div>
@@ -245,35 +245,35 @@ export default function HomePage() {
       <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-ambient overflow-hidden">
         {filteredEmployees.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-[#6B7280]">Aucun employé trouvé</p>
+            <p className="text-[#6B7280]">{t('aucunEmployeTrouve')}</p>
           </div>
         ) : (
           <table className="w-full">
             <thead className="bg-warm-gray-200 border-b border-black/6">
               <tr>
                 <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
-                  Employé
+                  {t('employe')}
                 </th>
                 <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
-                  Département
+                  {t('departement')}
                 </th>
                 <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
-                  Congé
+                  {t('conge')}
                 </th>
                 <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
-                  Statut
+                  {t('statut')}
                 </th>
                 <th className="text-right px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
-                  Actions
+                  {t('actions')}
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/6">
               {filteredEmployees.slice(0, 5).map((employee) => {
                 const statusConfig = {
-                  actif: { label: 'Actif', dotColor: 'bg-status-green', bgColor: 'bg-status-green/10', textColor: 'text-status-green' },
-                  risque: { label: 'À risque', dotColor: 'bg-status-amber', bgColor: 'bg-status-amber/10', textColor: 'text-status-amber' },
-                  bloqué: { label: 'Bloqué', dotColor: 'bg-status-red', bgColor: 'bg-status-red/10', textColor: 'text-status-red' },
+                  actif: { label: t('actif'), dotColor: 'bg-status-green', bgColor: 'bg-status-green/10', textColor: 'text-status-green' },
+                  risque: { label: t('aRisqueStatus'), dotColor: 'bg-status-amber', bgColor: 'bg-status-amber/10', textColor: 'text-status-amber' },
+                  bloqué: { label: t('bloque'), dotColor: 'bg-status-red', bgColor: 'bg-status-red/10', textColor: 'text-status-red' },
                 }
                 const status = statusConfig[employee.status] || statusConfig.actif
 
@@ -305,7 +305,7 @@ export default function HomePage() {
                     </td>
                     <td className="px-6 py-3">
                       <div className="text-sm text-[#111827]">
-                        {employee.daysUsed} jours
+                        {employee.daysUsed} {t('jours')}
                       </div>
                     </td>
                     <td className="px-6 py-3">

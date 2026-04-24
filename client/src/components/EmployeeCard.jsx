@@ -1,19 +1,23 @@
+import { useTranslation } from 'react-i18next'
+
 export default function EmployeeCard({ employee, onDetailsClick }) {
+  const { t } = useTranslation()
+
   const statusConfig = {
     actif: {
-      label: 'Actif',
+      label: t('actif'),
       dotColor: 'bg-status-green',
       bgColor: 'bg-status-green/10',
       textColor: 'text-status-green',
     },
     risque: {
-      label: 'À risque',
+      label: t('aRisqueStatus'),
       dotColor: 'bg-status-amber',
       bgColor: 'bg-status-amber/10',
       textColor: 'text-status-amber',
     },
     bloqué: {
-      label: 'Bloqué',
+      label: t('bloque'),
       dotColor: 'bg-status-red',
       bgColor: 'bg-status-red/10',
       textColor: 'text-status-red',
@@ -52,7 +56,7 @@ export default function EmployeeCard({ employee, onDetailsClick }) {
         {/* Days used + Progress bar */}
         <div className="flex-shrink-0">
           <div className="text-xs text-[#6B7280] mb-1">
-            {employee.daysUsed} / {employee.daysTotal} jours
+            {employee.daysUsed} / {employee.daysTotal} {t('jours')}
           </div>
           <div className="w-[100px] h-1 bg-warm-gray-300 rounded-full overflow-hidden">
             <div
@@ -81,7 +85,7 @@ export default function EmployeeCard({ employee, onDetailsClick }) {
             }}
             className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#6B7280] border border-[#E5E7EB] hover:bg-[#F9FAFB] hover:border-[#D1D5DB] transition-all duration-150"
           >
-            Détails
+            {t('details')}
           </button>
         </div>
       </div>
