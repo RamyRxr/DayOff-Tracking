@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X, ShieldAlert, AlertTriangle, ChevronLeft, Check } from 'lucide-react'
+import CustomSelect from './CustomSelect'
 
 export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit }) {
   const [step, setStep] = useState(1)
@@ -172,23 +173,19 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
               </div>
 
               {/* Reason selector */}
-              <div>
-                <label className="block text-sm font-medium text-[#111827] mb-2">
-                  Motif du blocage
-                  <span className="text-status-red ml-1">*</span>
-                </label>
-                <select
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-warm-gray-400 rounded-xl text-[#111827] focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all"
-                >
-                  <option value="">Sélectionnez un motif</option>
-                  <option value="Absences non justifiées">Absences non justifiées</option>
-                  <option value="Dépassement du quota de congés">Dépassement du quota de congés</option>
-                  <option value="Non-respect des procédures">Non-respect des procédures</option>
-                  <option value="Autre">Autre</option>
-                </select>
-              </div>
+              <CustomSelect
+                label="Motif du blocage"
+                required
+                value={reason}
+                onChange={(value) => setReason(value)}
+                placeholder="Sélectionnez un motif"
+                options={[
+                  { value: 'Absences non justifiées', label: 'Absences non justifiées' },
+                  { value: 'Dépassement du quota de congés', label: 'Dépassement du quota de congés' },
+                  { value: 'Non-respect des procédures', label: 'Non-respect des procédures' },
+                  { value: 'Autre', label: 'Autre' },
+                ]}
+              />
 
               {/* Description field */}
               <div>
