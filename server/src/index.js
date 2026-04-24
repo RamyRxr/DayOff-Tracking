@@ -12,7 +12,7 @@ const uploadRouter = require('./routes/upload')
 const app = express()
 const PORT = process.env.PORT || 3001
 
-app.use(cors({ origin: 'http://localhost:5173' }))
+app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'] }))
 app.use(express.json())
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
 
@@ -21,6 +21,16 @@ app.use('/api/admins', adminsRouter)
 app.use('/api/daysoff', daysOffRouter)
 app.use('/api/blocks', blocksRouter)
 app.use('/api/upload', uploadRouter)
+
+app.get('/', (req, res) => {
+  res.json({
+    data: {
+      message: 'DayOff backend is running',
+      apiBase: '/api',
+      health: '/api/health',
+    },
+  })
+})
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
