@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Lock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Lock, CheckCircle2, XCircle, Loader2, Check } from "lucide-react";
 import { useAdmins, useAdminPin } from "../hooks/useAdmins";
 
 /**
@@ -63,13 +63,21 @@ export default function AdminPinEntry({
   }
 
   const handleAdminSelect = (adminId) => {
-    if (status === "validating" || status === "success") return;
+    console.log('🔍 Admin clicked:', adminId);
+    console.log('🔍 Current selected:', selectedAdminId);
+
+    if (status === "validating" || status === "success") {
+      console.log('⚠️ Selection blocked by status:', status);
+      return;
+    }
 
     setSelectedAdminId(adminId);
     setPinDigits(["", "", "", ""]);
     setStatus("idle");
     setLocalError("");
     reset();
+
+    console.log('✅ Admin selected:', adminId);
 
     setTimeout(() => {
       inputRefs.current[0]?.focus();
@@ -247,18 +255,24 @@ export default function AdminPinEntry({
             )}
 
             {!adminsLoading &&
-              admins.map((admin) => (
-                <button
-                  key={admin.id}
-                  type="button"
-                  onClick={() => handleAdminSelect(admin.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                    selectedAdminId === admin.id
-                      ? "border-navy bg-navy/5"
-                      : "border-warm-gray-400 hover:border-navy/40"
-                  }`}
-                >
-                  <div className="w-9 h-9 rounded-full bg-navy/10 flex items-center justify-center text-xs font-semibold text-navy">
+              admins.map((admin) => {
+                const isSelected = selectedAdminId === admin.id;
+                console.log(`🎨 Rendering admin ${admin.name} (${admin.id}): selected=${isSelected}`);
+
+                return (
+                  <button
+                    key={admin.id}
+                    type="button"
+                    onClick={() => handleAdminSelect(admin.id)}
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all relative ${
+                      isSelected
+                        ? "border-navy bg-navy/10 shadow-sm"
+                        : "border-warm-gray-400 hover:border-navy/40"
+                    }`}
+                  >
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
+                    isSelected ? "bg-navy text-white" : "bg-navy/10 text-navy"
+                  }`}>
                     {admin.name
                       .split(" ")
                       .filter(Boolean)
@@ -273,8 +287,14 @@ export default function AdminPinEntry({
                     </div>
                     <div className="text-xs text-[#6B7280]">{admin.role}</div>
                   </div>
+                  {isSelected && (
+                    <div className="w-6 h-6 rounded-full bg-navy flex items-center justify-center">
+                      <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                    </div>
+                  )}
                 </button>
-              ))}
+                );
+              })}
           </div>
 
           {/* PIN input boxes */}

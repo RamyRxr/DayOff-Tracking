@@ -1,17 +1,20 @@
 import { X, Mail, Phone, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
-import { format } from 'date-fns'
+import { format, isBefore, isAfter, startOfDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useBlocks } from '../hooks/useBlocks'
 import AddDayOffModal from './AddDayOffModal'
 import BlockEmployeeModal from './BlockEmployeeModal'
 import UnblockModal from './UnblockModal'
+import DayOffDetailsPopup from './DayOffDetailsPopup'
 
 export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdate }) {
   const [showAddDayOff, setShowAddDayOff] = useState(false)
   const [showBlock, setShowBlock] = useState(false)
   const [showUnblock, setShowUnblock] = useState(false)
+  const [selectedDayOff, setSelectedDayOff] = useState(null)
+  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 })
 
   // Fetch day-off records for this employee
   const { daysOff, addDayOff } = useDaysOff({ employeeId: employee?.id })
@@ -313,12 +316,28 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                   const isWeekend = dayData.isWeekend
                   const isToday = dayData.date.toDateString() === new Date().toDateString()
 
+                  // Find the day-off record for this day
+                  const dayOffRecord = employee?.daysOff?.find(d =>
+                    !isBefore(dayData.date, startOfDay(new Date(d.startDate))) &&
+                    !isAfter(dayData.date, startOfDay(new Date(d.endDate)))
+                  )
+
+                  const handleClick = (e) => {
+                    if (dayOffRecord) {
+                      setSelectedDayOff(dayOffRecord)
+                      setPopupPosition({ x: e.clientX, y: e.clientY })
+                    }
+                  }
+
+                  const Element = isDayOff ? 'button' : 'div'
+
                   return (
-                    <div
+                    <Element
                       key={i}
+                      onClick={isDayOff ? handleClick : undefined}
                       className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
                         isDayOff
-                          ? 'text-white font-semibold'
+                          ? 'text-white font-semibold cursor-pointer hover:opacity-90'
                           : isWeekend
                             ? 'text-[#8E8E93] cursor-not-allowed'
                             : 'text-[#1C1C1E] hover:bg-[#F2F2F7]'
@@ -339,7 +358,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                       }}
                     >
                       {dayData.day}
-                    </div>
+                    </Element>
                   )
                 })}
               </div>
@@ -357,12 +376,28 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                   const isWeekend = dayData.isWeekend
                   const isToday = dayData.date.toDateString() === new Date().toDateString()
 
+                  // Find the day-off record for this day
+                  const dayOffRecord = employee?.daysOff?.find(d =>
+                    !isBefore(dayData.date, startOfDay(new Date(d.startDate))) &&
+                    !isAfter(dayData.date, startOfDay(new Date(d.endDate)))
+                  )
+
+                  const handleClick = (e) => {
+                    if (dayOffRecord) {
+                      setSelectedDayOff(dayOffRecord)
+                      setPopupPosition({ x: e.clientX, y: e.clientY })
+                    }
+                  }
+
+                  const Element = isDayOff ? 'button' : 'div'
+
                   return (
-                    <div
+                    <Element
                       key={i}
+                      onClick={isDayOff ? handleClick : undefined}
                       className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
                         isDayOff
-                          ? 'text-white font-semibold'
+                          ? 'text-white font-semibold cursor-pointer hover:opacity-90'
                           : isWeekend
                             ? 'text-[#8E8E93] cursor-not-allowed'
                             : 'text-[#1C1C1E] hover:bg-[#F2F2F7]'
@@ -383,7 +418,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                       }}
                     >
                       {dayData.day}
-                    </div>
+                    </Element>
                   )
                 })}
               </div>
@@ -469,6 +504,15 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
         onClose={() => setShowUnblock(false)}
         onSubmit={handleUnblockSubmit}
       />
+
+      {/* Day-Off Details Popup */}
+      {selectedDayOff && (
+        <DayOffDetailsPopup
+          dayOff={selectedDayOff}
+          position={popupPosition}
+          onClose={() => setSelectedDayOff(null)}
+        />
+      )}
     </>
   )
 }

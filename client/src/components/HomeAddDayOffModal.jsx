@@ -5,6 +5,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 import { fr } from 'date-fns/locale'
 import { useEmployees } from '../hooks/useEmployees'
 import { useDaysOff } from '../hooks/useDaysOff'
+import { useAdmins, useAdminPin } from '../hooks/useAdmins'
 import CustomSelect from './CustomSelect'
 
 export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
@@ -29,12 +30,22 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
 
   const { employees, loading } = useEmployees()
   const { daysOff, addDayOff } = useDaysOff({ employeeId: selectedEmployee?.id })
+  const { admins: rawAdmins, loading: adminsLoading } = useAdmins()
+  const { verify: verifyPin } = useAdminPin()
 
-  // Mock admins
-  const admins = [
-    { id: 1, name: 'Ahmed Benali', role: 'Responsable RH', initials: 'AB' },
-    { id: 2, name: 'Fatima Meziane', role: 'Directeur Admin', initials: 'FM' },
-  ]
+  // Transform admins to add initials
+  const admins = useMemo(() => {
+    return rawAdmins.map(admin => ({
+      ...admin,
+      initials: admin.name
+        .split(' ')
+        .filter(Boolean)
+        .map(part => part[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    }))
+  }, [rawAdmins])
 
   // Filter employees based on search query
   const filteredEmployees = useMemo(() => {
@@ -82,6 +93,14 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   }, [currentMonth])
 
   if (!isOpen) return null
+
+  console.log('🔍 MODAL DEBUG:', {
+    step,
+    adminsCount: admins.length,
+    adminsLoading,
+    selectedAdmin: selectedAdmin?.id,
+    selectedAdminName: selectedAdmin?.name
+  })
 
   const handleClose = () => {
     setStep(1)
@@ -177,20 +196,27 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   }
 
   const handlePinValidate = async (pinValue) => {
+    if (!selectedAdmin?.id) {
+      console.error('❌ No admin selected')
+      return
+    }
+
+    console.log('🔐 Validating PIN for admin:', selectedAdmin.id)
     setPinStatus('verifying')
-    // Mock validation
-    setTimeout(() => {
-      if (pinValue === '1234') {
-        setPinStatus('verified')
-      } else {
-        setPinStatus('error')
-        setTimeout(() => {
-          setPin(['', '', '', ''])
-          setPinStatus('idle')
-          document.getElementById('home-pin-0')?.focus()
-        }, 1500)
-      }
-    }, 800)
+
+    try {
+      await verifyPin(selectedAdmin.id, pinValue)
+      console.log('✅ PIN verified successfully')
+      setPinStatus('verified')
+    } catch (error) {
+      console.error('❌ PIN verification failed:', error)
+      setPinStatus('error')
+      setTimeout(() => {
+        setPin(['', '', '', ''])
+        setPinStatus('idle')
+        document.getElementById('home-pin-0')?.focus()
+      }, 1500)
+    }
   }
 
   const handleFinalSubmit = async () => {
@@ -529,34 +555,66 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                 <label className="block text-sm font-medium text-[#111827] mb-3">
                   {t('administrateur')}
                 </label>
+
+                {/* DEBUG INFO */}
+                <div className="mb-2 p-2 bg-yellow-100 text-xs rounded">
+                  <div>Admins loaded: {admins.length}</div>
+                  <div>Selected: {selectedAdmin?.name || 'None'} ({selectedAdmin?.id || 'No ID'})</div>
+                  <div>Loading: {adminsLoading ? 'Yes' : 'No'}</div>
+                </div>
+
                 <div className="space-y-2">
-                  {admins.map(admin => (
-                    <button
-                      key={admin.id}
-                      onClick={() => {
-                        if (selectedAdmin?.id === admin.id) return
-                        setSelectedAdmin(admin)
-                        setPin(['', '', '', ''])
-                        setPinStatus('idle')
-                      }}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                        selectedAdmin?.id === admin.id
-                          ? 'border-navy bg-navy/5'
-                          : 'border-warm-gray-400 hover:border-navy/40'
-                      }`}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center text-sm font-semibold text-navy">
+                  {adminsLoading && (
+                    <div className="text-sm text-gray-500">Chargement des administrateurs...</div>
+                  )}
+
+                  {!adminsLoading && admins.length === 0 && (
+                    <div className="text-sm text-red-500">Aucun administrateur trouvé</div>
+                  )}
+
+                  {!adminsLoading && admins.map(admin => {
+                    const isSelected = selectedAdmin?.id === admin.id
+                    console.log(`🎨 Rendering admin ${admin.name} (${admin.id}): selected=${isSelected}, selectedAdminId=${selectedAdmin?.id}`)
+
+                    return (
+                      <button
+                        type="button"
+                        key={admin.id}
+                        onClick={() => {
+                          console.log('🖱️ Admin clicked:', admin.id, admin.name)
+                          console.log('🖱️ Currently selected:', selectedAdmin?.id)
+
+                          if (selectedAdmin?.id === admin.id) {
+                            console.log('⚠️ Already selected, ignoring click')
+                            return
+                          }
+
+                          console.log('✅ Selecting admin:', admin.id)
+                          setSelectedAdmin(admin)
+                          setPin(['', '', '', ''])
+                          setPinStatus('idle')
+                        }}
+                        className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                          isSelected
+                            ? 'border-navy bg-navy/10 shadow-sm'
+                            : 'border-warm-gray-400 hover:border-navy/40'
+                        }`}
+                      >
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+                        isSelected ? 'bg-navy text-white' : 'bg-navy/10 text-navy'
+                      }`}>
                         {admin.initials}
                       </div>
                       <div className="flex-1 text-left">
                         <div className="font-semibold text-[#111827]">{admin.name}</div>
                         <div className="text-xs text-[#6B7280]">{admin.role}</div>
                       </div>
-                      {selectedAdmin?.id === admin.id && (
+                      {isSelected && (
                         <Check className="w-5 h-5 text-navy" />
                       )}
                     </button>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
 

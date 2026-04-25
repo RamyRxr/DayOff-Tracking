@@ -18,7 +18,7 @@ export default function LoginPage({ onLoginSuccess }) {
     }
 
     try {
-      const admin = await verify(parseInt(selectedAdminId), pin)
+      const admin = await verify(selectedAdminId, pin)
       onLoginSuccess(admin)
     } catch (err) {
       // Error is handled by hook
@@ -48,7 +48,7 @@ export default function LoginPage({ onLoginSuccess }) {
     }
   }, [dropdownOpen])
 
-  const selectedAdmin = admins.find((a) => a.id === parseInt(selectedAdminId))
+  const selectedAdmin = admins.find((a) => a.id === selectedAdminId)
 
   const getAdminInitials = (name) => {
     return name
@@ -123,7 +123,7 @@ export default function LoginPage({ onLoginSuccess }) {
                             key={admin.id}
                             type="button"
                             onClick={() => {
-                              setSelectedAdminId(admin.id.toString())
+                              setSelectedAdminId(admin.id)
                               setDropdownOpen(false)
                             }}
                             className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-150 ${

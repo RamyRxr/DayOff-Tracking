@@ -1,144 +1,107 @@
-import { useState, useEffect } from 'react'
-
-const ADMINS_KEY = 'dayoff-tracking:mock-admins:v1'
-const UPDATE_EVENT = 'dayoff-mock-updated'
-
-const DEFAULT_ADMINS = [
-  {
-    id: 1,
-    name: 'Ahmed Benali',
-    email: 'ahmed.benali@naftal.dz',
-    role: 'Responsable RH',
-    pin: '1234',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    name: 'Fatima Meziane',
-    email: 'fatima.meziane@naftal.dz',
-    role: 'Directeur Admin',
-    pin: '5678',
-    createdAt: new Date().toISOString(),
-  },
-]
-
-function clone(value) {
-  if (typeof structuredClone === 'function') {
-    return structuredClone(value)
-  }
-  return JSON.parse(JSON.stringify(value))
-}
-
-function readAdminsRaw() {
-  try {
-    const raw = localStorage.getItem(ADMINS_KEY)
-    if (!raw) {
-      localStorage.setItem(ADMINS_KEY, JSON.stringify(DEFAULT_ADMINS))
-      return clone(DEFAULT_ADMINS)
-    }
-
-    const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) {
-      return clone(DEFAULT_ADMINS)
-    }
-
-    return parsed
-  } catch {
-    return clone(DEFAULT_ADMINS)
-  }
-}
-
-function publicAdmin(admin) {
-  const { pin: _PIN, ...adminData } = admin
-  return adminData
-}
-
-function readAdmins() {
-  return readAdminsRaw().map(publicAdmin)
-}
-
-function emitDataChange() {
-  window.dispatchEvent(new Event(UPDATE_EVENT))
-}
+import { useState, useEffect, useCallback } from 'react'
+import { getAdmins, verifyAdminPin } from '../api/admins'
 
 /**
  * Hook to fetch admins list
  */
 export function useAdmins() {
-  const [admins, setAdmins] = useState(() => readAdmins())
-  const loading = false
-  const error = null
+    const [admins, setAdmins] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
-  useEffect(() => {
-    const syncAdmins = () => {
-      setAdmins(readAdmins())
+    const refetch = useCallback(async () => {
+        try {
+            setLoading(true)
+            setError(null)
+            const response = await getAdmins()
+            setAdmins(Array.isArray(response?.data) ? response.data : [])
+        } catch (err) {
+            setError(err.message || 'Erreur lors du chargement des administrateurs')
+        } finally {
+            setLoading(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        let cancelled = false
+
+        async function loadAdmins() {
+            try {
+                const response = await getAdmins()
+                if (cancelled) return
+                setError(null)
+                setAdmins(Array.isArray(response?.data) ? response.data : [])
+            } catch (err) {
+                if (cancelled) return
+                setError(err.message || 'Erreur lors du chargement des administrateurs')
+            } finally {
+                if (!cancelled) setLoading(false)
+            }
+        }
+
+        loadAdmins()
+
+        return () => {
+            cancelled = true
+        }
+    }, [])
+
+    return {
+        admins,
+        loading,
+        error,
+        refetch,
     }
-
-    const onStorage = (event) => {
-      if (event.key === ADMINS_KEY) {
-        syncAdmins()
-      }
-    }
-
-    window.addEventListener(UPDATE_EVENT, syncAdmins)
-    window.addEventListener('storage', onStorage)
-
-    return () => {
-      window.removeEventListener(UPDATE_EVENT, syncAdmins)
-      window.removeEventListener('storage', onStorage)
-    }
-  }, [])
-
-  return {
-    admins,
-    loading,
-    error,
-  }
 }
 
 /**
  * Hook to verify admin PIN
  */
 export function useAdminPin() {
-  const [verifying, setVerifying] = useState(false)
-  const [verifiedAdmin, setVerifiedAdmin] = useState(null)
-  const [error, setError] = useState(null)
+    const [verifying, setVerifying] = useState(false)
+    const [verifiedAdmin, setVerifiedAdmin] = useState(null)
+    const [error, setError] = useState(null)
 
-  const verify = async (adminId, pin) => {
-    try {
-      setVerifying(true)
-      setError(null)
+    const verify = async (adminId, pin) => {
+        try {
+            setVerifying(true)
+            setError(null)
 
-      const admin = readAdminsRaw().find((item) => item.id === Number(adminId))
-      if (!admin || admin.pin !== pin) {
-        throw new Error('Code PIN incorrect')
-      }
+            const response = await verifyAdminPin({
+                adminId: String(adminId),
+                pin: String(pin),
+            })
 
-      const data = {
-        ...publicAdmin(admin),
-        verified: true,
-      }
-      setVerifiedAdmin(data)
-      emitDataChange()
-      return data
-    } catch (err) {
-      setError(err.message)
-      throw err
-    } finally {
-      setVerifying(false)
+            if (!response?.data?.valid) {
+                throw new Error('Code PIN incorrect')
+            }
+
+            const data = {
+                id: String(adminId),
+                name: response.data.adminName,
+                verified: true,
+            }
+
+            setVerifiedAdmin(data)
+            return data
+        } catch (err) {
+            setError(err.message)
+            throw err
+        } finally {
+            setVerifying(false)
+        }
     }
-  }
 
-  const reset = () => {
-    setVerifiedAdmin(null)
-    setError(null)
-  }
+    const reset = () => {
+        setVerifiedAdmin(null)
+        setError(null)
+    }
 
-  return {
-    verify,
-    verifying,
-    verifiedAdmin,
-    error,
-    reset,
-  }
+    return {
+        verify,
+        verifying,
+        verifiedAdmin,
+        error,
+        reset,
+    }
 }
