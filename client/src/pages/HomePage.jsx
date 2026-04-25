@@ -118,11 +118,11 @@ export default function HomePage() {
     <div>
       {/* Animated tab pills - Interactive filters */}
       <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-3 shadow-ambient mb-6 animate-fade-up">
-        <div className="relative flex items-center justify-between gap-2">
+        <div className="relative flex items-center justify-between gap-4 px-2">
           {/* Employés pill */}
           <button
             onClick={() => setActiveFilter(null)}
-            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
+            className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === null
                 ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
                 : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
@@ -147,10 +147,13 @@ export default function HomePage() {
             <div className="text-[11px] uppercase tracking-wider mt-0.5">{t('totalEmployes')}</div>
           </button>
 
+          {/* Divider */}
+          <div className="w-px h-8 bg-gray-100 self-center" />
+
           {/* Actifs pill */}
           <button
             onClick={() => setActiveFilter('actif')}
-            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
+            className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'actif'
                 ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
                 : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
@@ -175,10 +178,13 @@ export default function HomePage() {
             <div className="text-[11px] uppercase tracking-wider mt-0.5">{t('actifs')}</div>
           </button>
 
+          {/* Divider */}
+          <div className="w-px h-8 bg-gray-100 self-center" />
+
           {/* À risque pill */}
           <button
             onClick={() => setActiveFilter('risque')}
-            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
+            className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'risque'
                 ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
                 : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
@@ -205,10 +211,13 @@ export default function HomePage() {
             <div className="text-[11px] uppercase tracking-wider mt-0.5">{t('aRisque')}</div>
           </button>
 
+          {/* Divider */}
+          <div className="w-px h-8 bg-gray-100 self-center" />
+
           {/* Bloqués pill */}
           <button
             onClick={() => setActiveFilter('bloqué')}
-            className={`relative z-10 flex-1 rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
+            className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'bloqué'
                 ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
                 : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
