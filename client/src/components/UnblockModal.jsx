@@ -3,6 +3,7 @@ import { X, Unlock, CheckCircle2, ChevronLeft, Check } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import CustomSelect from './CustomSelect'
+import { useAdmins } from '../hooks/useAdmins'
 
 export default function UnblockModal({ employee, activeBlock, isOpen, onClose, onSubmit }) {
   // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
@@ -12,6 +13,9 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
   const [selectedAdmin, setSelectedAdmin] = useState(null)
   const [pin, setPin] = useState(['', '', '', ''])
   const [pinStatus, setPinStatus] = useState('idle')
+
+  // Fetch all admins from API
+  const { admins, loading: loadingAdmins } = useAdmins()
 
   // Early return AFTER all hooks
   if (!isOpen || !employee) return null
@@ -26,10 +30,17 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
     onClose?.()
   }
 
-  const admins = [
-    { id: 1, name: 'Ahmed Benali', role: 'Responsable RH', initials: 'AB' },
-    { id: 2, name: 'Fatima Meziane', role: 'Directeur Admin', initials: 'FM' },
-  ]
+  // Generate initials for admin cards
+  const getInitials = (name) => {
+    if (!name) return 'NA'
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase()
+  }
 
   const handlePinChange = (index, value) => {
     if (value.length > 1) value = value[value.length - 1]
@@ -68,6 +79,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
     onSubmit?.({
       blockId: activeBlock?.id,
       employeeId: employee.id,
+      adminId: selectedAdmin?.id,
       reason: unblockReason,
       description: description.trim(),
     })
@@ -165,7 +177,8 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
                   <div className="flex justify-between">
                     <span className="text-[#6B7280]">Bloqué par</span>
                     <span className="text-[#111827] font-medium">
-                      {activeBlock?.adminName || 'Admin RH'}
+                      {activeBlock?.blockedBy?.name || '—'}
+                      {activeBlock?.blockedBy?.role && ` — ${activeBlock.blockedBy.role}`}
                     </span>
                   </div>
                 </div>
@@ -222,30 +235,40 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
                 <label className="block text-sm font-medium text-[#111827] mb-3">
                   Administrateur
                 </label>
-                <div className="space-y-2">
-                  {admins.map(admin => (
-                    <button
-                      key={admin.id}
-                      onClick={() => setSelectedAdmin(admin)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                        selectedAdmin?.id === admin.id
-                          ? 'border-navy bg-navy/5'
-                          : 'border-warm-gray-400 hover:border-navy/40'
-                      }`}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center text-sm font-semibold text-navy">
-                        {admin.initials}
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-semibold text-[#111827]">{admin.name}</div>
-                        <div className="text-xs text-[#6B7280]">{admin.role}</div>
-                      </div>
-                      {selectedAdmin?.id === admin.id && (
-                        <Check className="w-5 h-5 text-navy" />
-                      )}
-                    </button>
-                  ))}
-                </div>
+                {loadingAdmins ? (
+                  <div className="text-center py-4 text-sm text-[#6B7280]">
+                    Chargement des administrateurs...
+                  </div>
+                ) : admins.length === 0 ? (
+                  <div className="text-center py-4 text-sm text-status-red">
+                    Aucun administrateur disponible
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {admins.map(admin => (
+                      <button
+                        key={admin.id}
+                        onClick={() => setSelectedAdmin(admin)}
+                        className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                          selectedAdmin?.id === admin.id
+                            ? 'border-navy bg-navy/5'
+                            : 'border-warm-gray-400 hover:border-navy/40'
+                        }`}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center text-sm font-semibold text-navy">
+                          {getInitials(admin.name)}
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="font-semibold text-[#111827]">{admin.name}</div>
+                          <div className="text-xs text-[#6B7280]">{admin.role}</div>
+                        </div>
+                        {selectedAdmin?.id === admin.id && (
+                          <Check className="w-5 h-5 text-navy" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* PIN Input */}
