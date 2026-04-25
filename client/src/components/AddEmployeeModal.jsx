@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { X, UserPlus, RefreshCw, ChevronLeft } from "lucide-react";
 import { useEmployees } from "../hooks/useEmployees";
 import { useAdmins, useAdminPin } from "../hooks/useAdmins";
+import { useDarkMode } from "../hooks/useDarkMode";
 import CustomSelect from "./CustomSelect";
 import AutorisationStep from "./AutorisationStep";
 
@@ -22,6 +23,7 @@ export default function AddEmployeeModal({
   onSuccess,
 }) {
   const { t } = useTranslation();
+  const { isDark } = useDarkMode();
   const isVisible = typeof isOpen === "boolean" ? isOpen : true;
   const { employees, addEmployee } = useEmployees();
   const { admins } = useAdmins();
@@ -232,9 +234,6 @@ export default function AddEmployeeModal({
   };
 
   if (!isVisible) return null;
-
-  // Dark mode detection
-  const isDark = document.documentElement.classList.contains('dark');
 
   const isStep1Valid =
     formData.prenom &&

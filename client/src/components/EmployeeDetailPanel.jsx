@@ -4,12 +4,14 @@ import { format, isBefore, isAfter, startOfDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useBlocks } from '../hooks/useBlocks'
+import { useDarkMode } from '../hooks/useDarkMode'
 import AddDayOffModal from './AddDayOffModal'
 import BlockEmployeeModal from './BlockEmployeeModal'
 import UnblockModal from './UnblockModal'
 import DayOffDetailsPopup from './DayOffDetailsPopup'
 
 export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdate }) {
+  const { isDark } = useDarkMode()
   const [showAddDayOff, setShowAddDayOff] = useState(false)
   const [showBlock, setShowBlock] = useState(false)
   const [showUnblock, setShowUnblock] = useState(false)
@@ -23,9 +25,6 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
   const { blocks, block, unblock } = useBlocks()
 
   if (!isOpen || !employee) return null
-
-  // Dark mode detection
-  const isDark = document.documentElement.classList.contains('dark')
 
   const handleAddDayOffSubmit = async (dayOffData) => {
     try {

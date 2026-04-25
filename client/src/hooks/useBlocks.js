@@ -78,6 +78,8 @@ export function useBlocks(activeOnly = true) {
     }, [activeOnly])
 
     useEffect(() => {
+        // Safe: refetch is memoized and only changes when activeOnly changes
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         refetch()
     }, [refetch])
 

@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { X, ShieldAlert, AlertTriangle, ChevronLeft } from 'lucide-react'
+import { useDarkMode } from '../hooks/useDarkMode'
 import CustomSelect from './CustomSelect'
 import AutorisationStep from './AutorisationStep'
 
 export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit }) {
   // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
+  const { isDark } = useDarkMode()
   const [step, setStep] = useState(1)
   const [reason, setReason] = useState('')
   const [description, setDescription] = useState('')
@@ -14,9 +16,6 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
 
   // Early return AFTER all hooks
   if (!isOpen || !employee) return null
-
-  // Dark mode detection
-  const isDark = document.documentElement.classList.contains('dark')
 
   // Check if employee can be blocked
   const canBlock = employee.daysUsed >= 15

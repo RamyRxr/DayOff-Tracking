@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { Home, Users, ShieldAlert, Calendar, LogOut, Moon, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useDarkMode } from '../hooks/useDarkMode'
 
 const navItems = [
   { to: '/', labelKey: 'accueil', icon: Home },
@@ -11,11 +12,12 @@ const navItems = [
 
 export default function Sidebar({ currentAdmin, onLogout }) {
   const { t } = useTranslation()
+  const { isDark } = useDarkMode()
 
   return (
     <aside
       className="fixed left-0 top-0 bottom-0 w-60 bg-white/60 backdrop-blur-2xl border-r-0.5 border-black/6 flex flex-col z-40 dark:border-white/[0.07]"
-      style={document.documentElement.classList.contains('dark') ? {
+      style={isDark ? {
         backgroundColor: 'rgba(18,18,26,0.95)',
         backdropFilter: 'blur(40px)'
       } : {}}
