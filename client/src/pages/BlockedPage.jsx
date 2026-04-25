@@ -78,6 +78,60 @@ export default function BlockedPage() {
     })
   }
 
+  const handleDownloadBlockDetails = (employee, block, e) => {
+    e.stopPropagation()
+
+    // Calculate period dates
+    const currentDate = new Date()
+    const periodStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 20)
+    const periodEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 19)
+
+    const periodStartFormatted = periodStart.toLocaleDateString('fr-DZ', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+    const periodEndFormatted = periodEnd.toLocaleDateString('fr-DZ', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+
+    // Get employee data from the block
+    const emp = block.employee
+    const email = emp.email || `${emp.name.toLowerCase().split(' ').join('.')}@naftal.dz`
+
+    // File content
+    const content = `════════════════════════════════════════
+DÉCISION DE BLOCAGE — NAFTAL SPA
+════════════════════════════════════════
+Matricule:        ${emp.matricule}
+Nom complet:      ${emp.name}
+Département:      ${emp.department}
+Poste:            ${emp.position}
+Email:            ${email}
+Téléphone:        ${emp.phone || '—'}
+────────────────────────────────────────
+Date de blocage:  ${formatDate(block.blockedAt)}
+Motif:            ${block.reason}
+Description:      ${block.description || '—'}
+Bloqué par:       ${block.blockedBy?.name || '—'} — ${block.blockedBy?.role || '—'}
+────────────────────────────────────────
+Période:          ${periodStartFormatted} → ${periodEndFormatted}
+Jours de congé:   ${block.daysUsed} / 15
+════════════════════════════════════════`
+
+    // Create and download file
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    const today = new Date().toISOString().split('T')[0]
+    a.href = url
+    a.download = `decision-blocage-${emp.matricule}-${today}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const handleExport = () => {
     // Generate CSV content
     const headers = ['Nom', 'Matricule', 'Email', 'Téléphone', 'Département', 'Motif', 'Date de blocage']
@@ -228,8 +282,15 @@ export default function BlockedPage() {
                   Voir détails
                 </button>
                 <button
+                  onClick={(e) => handleDownloadBlockDetails(employee, employee.blockData, e)}
+                  className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl font-medium text-sm text-navy border border-navy/20 hover:bg-navy/5 transition-all duration-200"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Télécharger
+                </button>
+                <button
                   onClick={(e) => handleUnblockClick(employee, employee.blockData, e)}
-                  className="flex-1 flex items-center justify-center gap-2 border border-status-green/30 text-status-green px-4 py-2.5 rounded-xl font-medium text-sm hover:bg-status-green/5 transition-all duration-200"
+                  className="flex items-center justify-center gap-2 border border-status-green/30 text-status-green px-4 py-2.5 rounded-xl font-medium text-sm hover:bg-status-green/5 transition-all duration-200"
                 >
                   <Unlock className="w-4 h-4" strokeWidth={2} />
                   Débloquer
