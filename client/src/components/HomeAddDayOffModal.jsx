@@ -75,40 +75,44 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     return dates
   }, [daysOff])
 
-  // Generate calendar days for BOTH months (current + next)
+  // Generate calendar days for work period (20th to 19th split)
   const { currentMonthDays, nextMonthDays, currentMonthObj, nextMonthObj } = useMemo(() => {
     const today = new Date()
-    const currentMonthObj = new Date(today.getFullYear(), today.getMonth(), 1)
-    const nextMonthObj = addMonths(currentMonthObj, 1)
+    const currentYear = today.getFullYear()
+    const currentMonth = today.getMonth()
+    const currentMonthObj = new Date(currentYear, currentMonth, 1)
 
-    // Generate days for current month
-    const currentMonthStart = startOfMonth(currentMonthObj)
-    const currentMonthEnd = endOfMonth(currentMonthObj)
-    const currentDays = eachDayOfInterval({ start: currentMonthStart, end: currentMonthEnd })
+    // Next month handling (wrap to next year if December)
+    const nextMonth = currentMonth + 1
+    const nextYear = nextMonth > 11 ? currentYear + 1 : currentYear
+    const normalizedNextMonth = nextMonth % 12
+    const nextMonthObj = new Date(nextYear, normalizedNextMonth, 1)
 
-    // Pad start of current month with previous month days
-    const currentStartDayOfWeek = currentMonthStart.getDay()
-    const currentDaysToAdd = currentStartDayOfWeek === 0 ? 6 : currentStartDayOfWeek - 1
-    const prevMonthEnd = endOfMonth(subMonths(currentMonthObj, 1))
-    for (let i = currentDaysToAdd - 1; i >= 0; i--) {
-      const day = new Date(prevMonthEnd)
-      day.setDate(prevMonthEnd.getDate() - i)
-      currentDays.unshift(day)
+    // Generate days 20 to end of current month
+    const daysInCurrentMonth = endOfMonth(currentMonthObj).getDate()
+    const currentDays = []
+    for (let d = 20; d <= daysInCurrentMonth; d++) {
+      currentDays.push(new Date(currentYear, currentMonth, d))
     }
 
-    // Generate days for next month
-    const nextMonthStart = startOfMonth(nextMonthObj)
-    const nextMonthEnd = endOfMonth(nextMonthObj)
-    const nextDays = eachDayOfInterval({ start: nextMonthStart, end: nextMonthEnd })
+    // Pad start with empty cells for grid alignment
+    const firstDayOfWeek = currentDays[0].getDay()
+    const currentDaysToAdd = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1
+    for (let i = 0; i < currentDaysToAdd; i++) {
+      currentDays.unshift(null) // null for empty cells
+    }
 
-    // Pad start of next month with current month days
-    const nextStartDayOfWeek = nextMonthStart.getDay()
-    const nextDaysToAdd = nextStartDayOfWeek === 0 ? 6 : nextStartDayOfWeek - 1
-    const currentMonthEndDate = endOfMonth(currentMonthObj)
-    for (let i = nextDaysToAdd - 1; i >= 0; i--) {
-      const day = new Date(currentMonthEndDate)
-      day.setDate(currentMonthEndDate.getDate() - i)
-      nextDays.unshift(day)
+    // Generate days 1 to 19 of next month
+    const nextDays = []
+    for (let d = 1; d <= 19; d++) {
+      nextDays.push(new Date(nextYear, normalizedNextMonth, d))
+    }
+
+    // Pad start with empty cells for grid alignment
+    const nextFirstDayOfWeek = nextDays[0].getDay()
+    const nextDaysToAdd = nextFirstDayOfWeek === 0 ? 6 : nextFirstDayOfWeek - 1
+    for (let i = 0; i < nextDaysToAdd; i++) {
+      nextDays.unshift(null) // null for empty cells
     }
 
     return {
@@ -477,6 +481,11 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                     {/* Day cells grid */}
                     <div className="grid grid-cols-7">
                       {currentMonthDays.map((day, i) => {
+                        // Empty cell for padding
+                        if (!day) {
+                          return <div key={i} className="w-full aspect-square" />
+                        }
+
                         const dayStr = day.toISOString().split('T')[0]
                         const isWeekend = day.getDay() === 5 || day.getDay() === 6
                         const today = new Date()
@@ -499,10 +508,6 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                           borderBottom: !isLastRow ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
                         }
                         let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
-
-                        if (!isCurrentMonth) {
-                          textClass += ' opacity-40'
-                        }
 
                         // APPLE-STYLE SHINY GRADIENT COLORS
                         if (isExisting) {
@@ -595,6 +600,11 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                     {/* Day cells grid */}
                     <div className="grid grid-cols-7">
                       {nextMonthDays.map((day, i) => {
+                        // Empty cell for padding
+                        if (!day) {
+                          return <div key={i} className="w-full aspect-square" />
+                        }
+
                         const dayStr = day.toISOString().split('T')[0]
                         const isWeekend = day.getDay() === 5 || day.getDay() === 6
                         const today = new Date()
@@ -617,10 +627,6 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                           borderBottom: !isLastRow ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
                         }
                         let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
-
-                        if (!isCurrentMonth) {
-                          textClass += ' opacity-40'
-                        }
 
                         // APPLE-STYLE SHINY GRADIENT COLORS
                         if (isExisting) {
