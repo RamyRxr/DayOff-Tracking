@@ -81,110 +81,113 @@ export default function Layout({ currentAdmin, onLogout }) {
             </div>
           </div>
 
-          {/* Notification bell */}
-          <div className="relative" ref={notifRef}>
+          {/* Right controls group */}
+          <div className="flex items-center gap-1">
+            {/* Notification bell */}
+            <div className="relative" ref={notifRef}>
+              <button
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                className="relative p-2 hover:bg-black/5 dark:hover:bg-white/[0.06] rounded-lg transition-colors"
+              >
+                <svg className="w-5 h-5 text-[#6B7280] dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-status-red rounded-full flex items-center justify-center text-[10px] font-bold text-white animate-pulse px-1">
+                    {displayCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown */}
+              {notificationsOpen && (
+                <div className="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-[#2C2C2E] rounded-2xl shadow-ambient border border-black/6 dark:border-white/[0.08] overflow-hidden animate-in">
+                  {/* Header */}
+                  <div className="px-4 py-3 border-b border-black/6 dark:border-white/[0.06] flex items-center justify-between">
+                    <h3 className="font-semibold text-[#111827] dark:text-white">{t('notifications')}</h3>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={handleMarkAllRead}
+                        className="text-xs text-navy dark:text-blue-400 hover:underline font-medium"
+                      >
+                        {t('toutMarquerLu')}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Notifications List */}
+                  <div className="max-h-96 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="py-12 text-center">
+                        <p className="text-[#6B7280] text-sm">{t('aucuneNotification')}</p>
+                      </div>
+                    ) : (
+                      notifications.map((notif) => {
+                        const isRead = readNotifications.has(notif.id)
+                        return (
+                          <div
+                            key={notif.id}
+                            onMouseEnter={() => handleNotificationHover(notif.id)}
+                            className={`px-4 py-3 hover:bg-black/[0.02] transition-all duration-200 border-b-0.5 border-black/6 last:border-b-0 ${
+                              isRead ? 'opacity-60' : ''
+                            }`}
+                          >
+                            <div className="flex gap-3">
+                              {/* Icon */}
+                              <div className="flex-shrink-0">
+                                <div
+                                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                    notif.type === 'risque'
+                                      ? 'bg-status-amber/10'
+                                      : 'bg-status-red/10'
+                                  }`}
+                                >
+                                  <span className="text-sm">
+                                    {notif.type === 'risque' ? '⚠' : '🚫'}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Content */}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[13px] text-[#111827] leading-snug">
+                                  {notif.message}
+                                </p>
+                                <p className="text-[11px] text-[#6B7280] mt-1">
+                                  {notif.matricule}
+                                </p>
+                              </div>
+
+                              {/* Timestamp */}
+                              <div className="text-[11px] text-[#6B7280] flex-shrink-0">
+                                {notif.timestamp}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Dark/Light Mode Toggle */}
             <button
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-              className="relative p-2 hover:bg-black/5 dark:hover:bg-white/[0.06] rounded-lg transition-colors"
+              onClick={toggleDarkMode}
+              className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all duration-200"
+              title={isDark ? 'Mode clair' : 'Mode sombre'}
             >
-              <svg className="w-5 h-5 text-[#6B7280] dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-status-red rounded-full flex items-center justify-center text-[10px] font-bold text-white animate-pulse px-1">
-                  {displayCount}
-                </span>
+              {isDark ? (
+                <Sun size={16} className="text-amber-500" />
+              ) : (
+                <Moon size={16} className="text-gray-600" />
               )}
             </button>
 
-            {/* Notification Dropdown */}
-            {notificationsOpen && (
-              <div className="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-[#2C2C2E] rounded-2xl shadow-ambient border border-black/6 dark:border-white/[0.08] overflow-hidden animate-in">
-                {/* Header */}
-                <div className="px-4 py-3 border-b border-black/6 dark:border-white/[0.06] flex items-center justify-between">
-                  <h3 className="font-semibold text-[#111827] dark:text-white">{t('notifications')}</h3>
-                  {unreadCount > 0 && (
-                    <button
-                      onClick={handleMarkAllRead}
-                      className="text-xs text-navy dark:text-blue-400 hover:underline font-medium"
-                    >
-                      {t('toutMarquerLu')}
-                    </button>
-                  )}
-                </div>
-
-                {/* Notifications List */}
-                <div className="max-h-96 overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <div className="py-12 text-center">
-                      <p className="text-[#6B7280] text-sm">{t('aucuneNotification')}</p>
-                    </div>
-                  ) : (
-                    notifications.map((notif) => {
-                      const isRead = readNotifications.has(notif.id)
-                      return (
-                        <div
-                          key={notif.id}
-                          onMouseEnter={() => handleNotificationHover(notif.id)}
-                          className={`px-4 py-3 hover:bg-black/[0.02] transition-all duration-200 border-b-0.5 border-black/6 last:border-b-0 ${
-                            isRead ? 'opacity-60' : ''
-                          }`}
-                        >
-                          <div className="flex gap-3">
-                            {/* Icon */}
-                            <div className="flex-shrink-0">
-                              <div
-                                className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                  notif.type === 'risque'
-                                    ? 'bg-status-amber/10'
-                                    : 'bg-status-red/10'
-                                }`}
-                              >
-                                <span className="text-sm">
-                                  {notif.type === 'risque' ? '⚠' : '🚫'}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Content */}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[13px] text-[#111827] leading-snug">
-                                {notif.message}
-                              </p>
-                              <p className="text-[11px] text-[#6B7280] mt-1">
-                                {notif.matricule}
-                              </p>
-                            </div>
-
-                            {/* Timestamp */}
-                            <div className="text-[11px] text-[#6B7280] flex-shrink-0">
-                              {notif.timestamp}
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })
-                  )}
-                </div>
-              </div>
-            )}
+            {/* Language Selector */}
+            <LanguageSelector />
           </div>
-
-          {/* Dark/Light Mode Toggle */}
-          <button
-            onClick={toggleDarkMode}
-            className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all duration-200 mr-3"
-            title={isDark ? 'Mode clair' : 'Mode sombre'}
-          >
-            {isDark ? (
-              <Sun size={16} className="text-amber-500" />
-            ) : (
-              <Moon size={16} className="text-gray-600" />
-            )}
-          </button>
-
-          {/* Language Selector */}
-          <LanguageSelector />
         </header>
 
         {/* Page content */}
