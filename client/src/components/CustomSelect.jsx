@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
+import { useDarkMode } from '../hooks/useDarkMode'
 
 export default function CustomSelect({ options, value, onChange, placeholder = 'Sélectionner...', label, required = false, onOpen }) {
+  const { isDark } = useDarkMode()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
-  const isDark = document.documentElement.classList.contains('dark')
 
   // Close dropdown on outside click
   useEffect(() => {

@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { X, Unlock, CheckCircle2, ChevronLeft, Check } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { useDarkMode } from '../hooks/useDarkMode'
 import CustomSelect from './CustomSelect'
 import { useAdmins } from '../hooks/useAdmins'
 
 export default function UnblockModal({ employee, activeBlock, isOpen, onClose, onSubmit }) {
   // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
+  const { isDark } = useDarkMode()
   const [step, setStep] = useState(1)
   const [unblockReason, setUnblockReason] = useState('')
   const [description, setDescription] = useState('')
@@ -19,9 +21,6 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
 
   // Early return AFTER all hooks
   if (!isOpen || !employee) return null
-
-  // Dark mode detection
-  const isDark = document.documentElement.classList.contains('dark')
 
   const handleClose = () => {
     setStep(1)
