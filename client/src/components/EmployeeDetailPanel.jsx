@@ -302,40 +302,56 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
           </div>
 
           {/* Calendar */}
-          <div className="bg-white rounded-2xl p-4" style={{
-            boxShadow: '0 0 0 1px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04)'
-          }}>
+          <div
+            className="bg-white dark:bg-[#1C1C28] rounded-2xl p-4"
+            style={isDark ? {
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.3)'
+            } : {
+              boxShadow: '0 0 0 1px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04)'
+            }}
+          >
             {/* Month header */}
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-[13px] font-semibold text-gray-800 uppercase tracking-wide">
+              <h4 className="text-[13px] font-semibold text-gray-800 dark:text-[#F2F2F7] uppercase tracking-wide">
                 {periodStart.toLocaleDateString('fr-DZ', { month: 'long', year: 'numeric' })}
               </h4>
               <div className="flex gap-1">
-                <button className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
-                  <ChevronLeft className="w-4 h-4 text-gray-600" />
+                <button className="w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06] flex items-center justify-center transition-colors">
+                  <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-[#8E8E93]" />
                 </button>
-                <button className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
-                  <ChevronRight className="w-4 h-4 text-gray-600" />
+                <button className="w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06] flex items-center justify-center transition-colors">
+                  <ChevronRight className="w-4 h-4 text-gray-600 dark:text-[#8E8E93]" />
                 </button>
               </div>
             </div>
 
             {/* Inner calendar area */}
-            <div className="rounded-xl p-3" style={{
-              background: '#FAFAFA',
-              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04)'
-            }}>
+            <div
+              className="rounded-xl p-3"
+              style={isDark ? {
+                background: 'rgba(255,255,255,0.02)',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.3)'
+              } : {
+                background: '#FAFAFA',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04)'
+              }}
+            >
               {/* Split Calendar - First Half (20-30) */}
             <div className="mb-4">
-              <div className="text-[11px] uppercase tracking-wider text-gray-400 mb-2 ml-1">Avril</div>
+              <div className="text-[11px] uppercase tracking-wider text-gray-400 dark:text-[#636366] mb-2 ml-1">Avril</div>
 
               {/* Day name header */}
-              <div className="grid grid-cols-7 gap-0.5 pb-1 mb-1" style={{ borderBottom: '0.5px solid #E5E5EA' }}>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>D</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>L</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>M</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>M</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>J</div>
+              <div
+                className="grid grid-cols-7 gap-0.5 pb-1 mb-1"
+                style={{
+                  borderBottom: isDark ? '0.5px solid rgba(255,255,255,0.06)' : '0.5px solid #E5E5EA'
+                }}
+              >
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>D</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>L</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>M</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>M</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>J</div>
                 <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>V</div>
                 <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>S</div>
               </div>
@@ -378,25 +394,25 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                         background: isDayOff
                           ? 'linear-gradient(135deg, rgba(255,59,48,0.15), rgba(192,57,43,0.1))'
                           : isWeekend
-                            ? '#F2F2F7'
+                            ? (isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7')
                             : isToday
                               ? 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
-                              : '#FAFAFA',
+                              : (isDark ? 'rgba(255,255,255,0.04)' : '#FAFAFA'),
                         boxShadow: isDayOff
                           ? 'inset 0 1px 0 rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,59,48,0.2)'
                           : isWeekend
-                            ? 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                            ? (isDark ? 'inset 0 1px 2px rgba(0,0,0,0.2)' : 'inset 0 1px 2px rgba(0,0,0,0.04)')
                             : isToday
                               ? '0 0 0 1.5px #007AFF'
-                              : 'inset 0 1px 1px rgba(255,255,255,0.9)',
-                        border: isDayOff || isWeekend || isToday ? 'none' : '1px solid rgba(0,0,0,0.04)',
+                              : (isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06)' : 'inset 0 1px 1px rgba(255,255,255,0.9)'),
+                        border: isDayOff || isWeekend || isToday ? 'none' : (isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)'),
                         color: isDayOff
                           ? '#C0392B'
                           : isWeekend
                             ? '#C7C7CC'
                             : isToday
                               ? '#007AFF'
-                              : '#374151',
+                              : (isDark ? '#C7C7CC' : '#374151'),
                         fontWeight: isDayOff ? 600 : isToday ? 600 : 'inherit',
                       }}
                     >
@@ -408,19 +424,24 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             </div>
 
             {/* Month Separator */}
-            <div className="w-full h-px bg-gray-100 my-3" />
+            <div className="w-full h-px bg-gray-100 dark:bg-white/[0.06] my-3" />
 
             {/* Split Calendar - Second Half (1-19) */}
             <div className="mt-2">
-              <div className="text-[11px] uppercase tracking-wider text-gray-400 mb-2 ml-1">Mai</div>
+              <div className="text-[11px] uppercase tracking-wider text-gray-400 dark:text-[#636366] mb-2 ml-1">Mai</div>
 
               {/* Day name header */}
-              <div className="grid grid-cols-7 gap-0.5 pb-1 mb-1" style={{ borderBottom: '0.5px solid #E5E5EA' }}>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>D</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>L</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>M</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>M</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>J</div>
+              <div
+                className="grid grid-cols-7 gap-0.5 pb-1 mb-1"
+                style={{
+                  borderBottom: isDark ? '0.5px solid rgba(255,255,255,0.06)' : '0.5px solid #E5E5EA'
+                }}
+              >
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>D</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>L</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>M</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>M</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>J</div>
                 <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>V</div>
                 <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>S</div>
               </div>
@@ -463,25 +484,25 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                         background: isDayOff
                           ? 'linear-gradient(135deg, rgba(255,59,48,0.15), rgba(192,57,43,0.1))'
                           : isWeekend
-                            ? '#F2F2F7'
+                            ? (isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7')
                             : isToday
                               ? 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
-                              : '#FAFAFA',
+                              : (isDark ? 'rgba(255,255,255,0.04)' : '#FAFAFA'),
                         boxShadow: isDayOff
                           ? 'inset 0 1px 0 rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,59,48,0.2)'
                           : isWeekend
-                            ? 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                            ? (isDark ? 'inset 0 1px 2px rgba(0,0,0,0.2)' : 'inset 0 1px 2px rgba(0,0,0,0.04)')
                             : isToday
                               ? '0 0 0 1.5px #007AFF'
-                              : 'inset 0 1px 1px rgba(255,255,255,0.9)',
-                        border: isDayOff || isWeekend || isToday ? 'none' : '1px solid rgba(0,0,0,0.04)',
+                              : (isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06)' : 'inset 0 1px 1px rgba(255,255,255,0.9)'),
+                        border: isDayOff || isWeekend || isToday ? 'none' : (isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)'),
                         color: isDayOff
                           ? '#C0392B'
                           : isWeekend
                             ? '#C7C7CC'
                             : isToday
                               ? '#007AFF'
-                              : '#374151',
+                              : (isDark ? '#C7C7CC' : '#374151'),
                         fontWeight: isDayOff ? 600 : isToday ? 600 : 'inherit',
                       }}
                     >
@@ -494,24 +515,27 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             </div>
 
             {/* Legend */}
-            <div className="flex items-center justify-center gap-3 mt-4 pt-3" style={{
-              borderTop: '0.5px solid rgba(0,0,0,0.06)'
-            }}>
+            <div
+              className="flex items-center justify-center gap-3 mt-4 pt-3"
+              style={{
+                borderTop: isDark ? '0.5px solid rgba(255,255,255,0.06)' : '0.5px solid rgba(0,0,0,0.06)'
+              }}
+            >
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-amber-500" />
-                <span className="text-[10px] text-gray-500">Congé</span>
+                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">Congé</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-gray-400" />
-                <span className="text-[10px] text-gray-500">Week-end</span>
+                <div className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-600" />
+                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">Week-end</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-[10px] text-gray-500">Bloqué</span>
+                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">Bloqué</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-blue-500" />
-                <span className="text-[10px] text-gray-500">Aujourd'hui</span>
+                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">Aujourd'hui</span>
               </div>
             </div>
           </div>
@@ -521,22 +545,25 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
         </div>
 
         {/* STICKY FOOTER - Action buttons */}
-        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-8 py-5 flex gap-3">
+        <div className="flex-shrink-0 bg-white dark:bg-[#16161E] border-t border-gray-100 dark:border-white/[0.06] px-8 py-5 flex gap-3">
             <button
               onClick={() => setShowAddDayOff(true)}
               disabled={employee.status === 'bloqué'}
               className={`flex-1 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
                 employee.status === 'bloqué'
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-navy text-white shadow-ambient hover:shadow-modal'
+                  ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                  : 'bg-navy dark:bg-[#2C4A6F] text-white shadow-ambient hover:shadow-modal'
               }`}
+              style={employee.status !== 'bloqué' && isDark ? {
+                boxShadow: '0 4px 12px rgba(26,47,79,0.4)'
+              } : {}}
             >
               + Ajouter un congé
             </button>
             {employee.status !== 'bloqué' && (
               <button
                 onClick={() => setShowBlock(true)}
-                className="px-4 py-3 border border-status-red/20 text-status-red rounded-xl font-medium text-sm hover:bg-status-red/5 transition-all duration-200"
+                className="px-4 py-3 border border-status-red/20 dark:border-[#FF6B6B]/20 text-status-red dark:text-[#FF6B6B] rounded-xl font-medium text-sm hover:bg-status-red/5 dark:hover:bg-[rgba(255,107,107,0.1)] transition-all duration-200"
               >
                 Bloquer
               </button>
@@ -544,7 +571,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             {employee.status === 'bloqué' && (
               <button
                 onClick={() => setShowUnblock(true)}
-                className="px-4 py-3 border border-status-green/20 text-status-green rounded-xl font-medium text-sm hover:bg-status-green/5 transition-all duration-200"
+                className="px-4 py-3 border border-status-green/20 dark:border-[#34C759]/20 text-status-green dark:text-[#34C759] rounded-xl font-medium text-sm hover:bg-status-green/5 dark:hover:bg-[rgba(52,199,89,0.1)] transition-all duration-200"
               >
                 Débloquer
               </button>
