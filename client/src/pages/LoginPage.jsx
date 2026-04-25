@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
-import { Lock, Loader2, AlertCircle, Check, ChevronDown } from 'lucide-react'
+import { Lock, Loader2, AlertCircle, Check, ChevronDown, Sun, Moon } from 'lucide-react'
 import { useAdmins, useAdminPin } from '../hooks/useAdmins'
+import { useDarkMode } from '../hooks/useDarkMode'
 
 export default function LoginPage({ onLoginSuccess }) {
+  const { isDark, toggle: toggleDarkMode } = useDarkMode()
   const { admins, loading: adminsLoading } = useAdmins()
   const { verify, verifying, error } = useAdminPin()
   const [selectedAdminId, setSelectedAdminId] = useState('')
@@ -60,9 +62,24 @@ export default function LoginPage({ onLoginSuccess }) {
   }
 
   return (
-    <div className="min-h-screen bg-warm-gray-200 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-warm-gray-200 dark:bg-gray-950 flex items-center justify-center p-4">
+      {/* Dark/Light Mode Toggle */}
+      <div className="fixed top-4 right-4 z-50">
+        <button
+          onClick={toggleDarkMode}
+          className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200"
+          title={isDark ? 'Mode clair' : 'Mode sombre'}
+        >
+          {isDark ? (
+            <Sun size={16} className="text-amber-500" />
+          ) : (
+            <Moon size={16} className="text-gray-600" />
+          )}
+        </button>
+      </div>
+
       {/* Login Card */}
-      <div className="bg-white/95 backdrop-blur-2xl rounded-3xl shadow-modal w-full max-w-md p-8">
+      <div className="bg-white/95 dark:bg-gray-900 dark:border dark:border-gray-800 backdrop-blur-2xl rounded-3xl shadow-modal w-full max-w-md p-8">
         {/* Logo/Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-full bg-navy/10 flex items-center justify-center mx-auto mb-4">
