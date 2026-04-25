@@ -310,7 +310,19 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             {/* Split Calendar - First Half (20-30) */}
             <div className="mb-4">
               <div className="text-[11px] uppercase tracking-wider text-gray-400 mb-2 ml-1">Avril</div>
-              <div className="grid grid-cols-7 gap-1">
+
+              {/* Day name header */}
+              <div className="grid grid-cols-7 gap-0.5 border-b border-gray-100 pb-1 mb-1">
+                <div className="text-[10px] font-medium text-gray-400 text-center py-1">D</div>
+                <div className="text-[10px] font-medium text-gray-400 text-center py-1">L</div>
+                <div className="text-[10px] font-medium text-gray-400 text-center py-1">M</div>
+                <div className="text-[10px] font-medium text-gray-400 text-center py-1">M</div>
+                <div className="text-[10px] font-medium text-gray-400 text-center py-1">J</div>
+                <div className="text-[10px] font-medium text-gray-300 text-center py-1">V</div>
+                <div className="text-[10px] font-medium text-gray-300 text-center py-1">S</div>
+              </div>
+
+              <div className="grid grid-cols-7 gap-0.5">
                 {periodDays.filter(d => d.day >= 20 && d.date.getMonth() === periodStart.getMonth()).map((dayData, i) => {
                   const isDayOff = dayData.isDayOff
                   const isWeekend = dayData.isWeekend
@@ -335,7 +347,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                     <Element
                       key={i}
                       onClick={isDayOff ? handleClick : undefined}
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
                         isDayOff
                           ? 'text-white font-semibold cursor-pointer hover:opacity-90'
                           : isWeekend
@@ -370,7 +382,19 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             {/* Split Calendar - Second Half (1-19) */}
             <div className="mt-2">
               <div className="text-[11px] uppercase tracking-wider text-gray-400 mb-2 ml-1">Mai</div>
-              <div className="grid grid-cols-7 gap-1">
+
+              {/* Day name header */}
+              <div className="grid grid-cols-7 gap-0.5 border-b border-gray-100 pb-1 mb-1">
+                <div className="text-[10px] font-medium text-gray-400 text-center py-1">D</div>
+                <div className="text-[10px] font-medium text-gray-400 text-center py-1">L</div>
+                <div className="text-[10px] font-medium text-gray-400 text-center py-1">M</div>
+                <div className="text-[10px] font-medium text-gray-400 text-center py-1">M</div>
+                <div className="text-[10px] font-medium text-gray-400 text-center py-1">J</div>
+                <div className="text-[10px] font-medium text-gray-300 text-center py-1">V</div>
+                <div className="text-[10px] font-medium text-gray-300 text-center py-1">S</div>
+              </div>
+
+              <div className="grid grid-cols-7 gap-0.5">
                 {periodDays.filter(d => d.day <= 19 && d.date.getMonth() !== periodStart.getMonth()).map((dayData, i) => {
                   const isDayOff = dayData.isDayOff
                   const isWeekend = dayData.isWeekend
@@ -395,7 +419,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                     <Element
                       key={i}
                       onClick={isDayOff ? handleClick : undefined}
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
                         isDayOff
                           ? 'text-white font-semibold cursor-pointer hover:opacity-90'
                           : isWeekend
