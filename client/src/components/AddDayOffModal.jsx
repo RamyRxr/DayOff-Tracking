@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { X, Upload, AlertTriangle, ChevronLeft, ChevronRight, Check } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -6,6 +7,7 @@ import { useDaysOff } from '../hooks/useDaysOff'
 import CustomSelect from './CustomSelect'
 
 export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) {
+  const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [startDate, setStartDate] = useState(null)
@@ -170,18 +172,26 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!employee?.id || !startDate || !endDate) return
 
-    onSubmit?.({
-      employeeId: employee.id,
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0],
-      workingDays,
-      reason,
-      file: uploadedFile,
-    })
-    handleClose()
+    try {
+      await onSubmit?.({
+        employeeId: employee.id,
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0],
+        workingDays,
+        reason,
+        file: uploadedFile,
+      })
+
+      handleClose()
+      alert('✅ Congé ajouté avec succès')
+      navigate('/')
+    } catch (error) {
+      alert(`❌ Erreur: ${error.message}`)
+      // Stay on current page if error
+    }
   }
 
   const isStep1Valid = startDate && endDate && reason

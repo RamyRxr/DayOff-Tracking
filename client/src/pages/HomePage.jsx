@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Plus, Loader2, AlertCircle } from 'lucide-react'
@@ -23,6 +23,11 @@ export default function HomePage() {
 
   const isHomePage = location.pathname === '/'
   const isAnyModalOpen = !!selectedEmployee || showAddEmployee || showHomeAddDayOff || !!dayOffEmployee
+
+  // Refetch employees when component mounts (ensures fresh data after navigation)
+  useEffect(() => {
+    refetch()
+  }, [refetch])
 
   // Calculate stats from employees data
   const stats = {
