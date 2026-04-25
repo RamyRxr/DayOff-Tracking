@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
 
-export default function CustomSelect({ options, value, onChange, placeholder = 'Sélectionner...', label, required = false }) {
+export default function CustomSelect({ options, value, onChange, placeholder = 'Sélectionner...', label, required = false, onOpen }) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -22,8 +22,21 @@ export default function CustomSelect({ options, value, onChange, placeholder = '
   const selectedOption = options.find(opt => opt.value === value)
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      {label && (
+    <>
+      <style>{`
+        @keyframes dropdownOpen {
+          0% {
+            opacity: 0;
+            transform: translateY(-6px) scale(0.98);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+      `}</style>
+      <div className="relative" ref={dropdownRef}>
+        {label && (
         <label className="block text-sm font-medium text-[#111827] mb-2">
           {label}
           {required && <span className="text-status-red ml-1">*</span>}
@@ -33,7 +46,13 @@ export default function CustomSelect({ options, value, onChange, placeholder = '
       {/* Selected Display / Trigger */}
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          const newOpenState = !isOpen
+          setIsOpen(newOpenState)
+          if (newOpenState && onOpen) {
+            onOpen()
+          }
+        }}
         className="w-full px-4 py-3 bg-warm-gray-200 rounded-xl text-left flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all"
       >
         {selectedOption ? (
@@ -51,7 +70,12 @@ export default function CustomSelect({ options, value, onChange, placeholder = '
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-black/6 shadow-ambient overflow-hidden z-10 animate-in">
+        <div
+          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-black/6 shadow-ambient overflow-hidden z-10"
+          style={{
+            animation: 'dropdownOpen 150ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        >
           <div className="p-2 space-y-1 max-h-64 overflow-y-auto">
             {options.map((option) => {
               const isSelected = value === option.value
@@ -81,6 +105,7 @@ export default function CustomSelect({ options, value, onChange, placeholder = '
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
