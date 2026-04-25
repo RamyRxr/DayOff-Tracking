@@ -427,46 +427,115 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                   </button>
                 </div>
 
-                {/* Calendar grid */}
-                <div className="w-full grid grid-cols-7 gap-px bg-black/6 rounded-xl overflow-hidden">
+                {/* Calendar grid - seamless professional with Apple-style colors */}
+                <div className="rounded-xl overflow-hidden mb-3" style={{
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
+                  background: '#FFFFFF'
+                }}>
                   {/* Day headers */}
-                  {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
-                    <div key={i} className="bg-warm-gray-200 text-center py-2 text-[11px] font-semibold text-[#6B7280]">
-                      {day}
-                    </div>
-                  ))}
-
-                  {/* Calendar cells */}
-                  {calendarDays.map((day, idx) => {
-                    const isCurrentMonth = isSameMonth(day, currentMonth)
-                    const isWeekend = day.getDay() === 5 || day.getDay() === 6
-                    const dayStr = day.toISOString().split('T')[0]
-                    const isExisting = existingDates.has(dayStr)
-                    const today = new Date()
-                    today.setHours(0, 0, 0, 0)
-                    const isPast = day < today
-                    const isStart = startDate && isSameDay(day, startDate)
-                    const isEnd = endDate && isSameDay(day, endDate)
-                    const isInRange = startDate && endDate && day >= startDate && day <= endDate
-                    const isSelectable = isCurrentMonth && !isWeekend && !isExisting && !isPast
-
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => handleDayClick(day)}
-                        disabled={!isSelectable}
-                        className={`aspect-square bg-white flex items-center justify-center text-sm transition-all ${
-                          !isCurrentMonth ? 'text-[#D1D5DB]' :
-                          isWeekend || isExisting || isPast ? 'text-[#D1D5DB] cursor-not-allowed' :
-                          isStart || isEnd ? 'bg-navy text-white font-bold' :
-                          isInRange ? 'bg-navy/10 text-navy font-medium' :
-                          'text-[#111827] hover:bg-navy/5'
-                        }`}
+                  <div className="grid grid-cols-7" style={{
+                    borderBottom: '1px solid rgba(0,0,0,0.08)',
+                    background: '#FAFAFA'
+                  }}>
+                    {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
+                      <div
+                        key={i}
+                        className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 uppercase"
+                        style={{
+                          letterSpacing: '0.5px',
+                          borderRight: i < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none'
+                        }}
                       >
-                        {format(day, 'd')}
-                      </button>
-                    )
-                  })}
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Day cells grid */}
+                  <div className="grid grid-cols-7">
+                    {calendarDays.map((day, i) => {
+                      const dayStr = day.toISOString().split('T')[0]
+                      const isWeekend = day.getDay() === 5 || day.getDay() === 6
+                      const today = new Date()
+                      today.setHours(0, 0, 0, 0)
+                      const isPast = day < today
+                      const isExisting = existingDates.has(dayStr)
+                      const isStart = startDate && day.toDateString() === startDate.toDateString()
+                      const isEnd = endDate && day.toDateString() === endDate.toDateString()
+                      const isInRange = startDate && endDate && day > startDate && day < endDate
+                      const isCurrentMonth = isSameMonth(day, currentMonth)
+                      const isToday = isSameDay(day, today)
+
+                      // Grid positioning
+                      const col = i % 7
+                      const isLastCol = col === 6
+                      const isLastRow = i >= calendarDays.length - 7
+
+                      let cellStyle = {
+                        borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                        borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                      }
+                      let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
+
+                      if (!isCurrentMonth) {
+                        textClass += ' opacity-40'
+                      }
+
+                      // APPLE-STYLE SHINY GRADIENT COLORS
+                      if (isExisting) {
+                        // ALREADY USED CONGÉ DAYS (disabled) - Red gradient
+                        cellStyle.background = 'linear-gradient(145deg, #FF3B30, #C0392B)'
+                        cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                        cellStyle.opacity = 0.85
+                        textClass += ' text-white font-semibold cursor-not-allowed'
+                      } else if (isStart || isEnd) {
+                        // SELECTED START / END DAY - Blue gradient
+                        cellStyle.background = 'linear-gradient(145deg, #007AFF, #0055D4)'
+                        cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 8px rgba(0,122,255,0.4)'
+                        textClass += ' text-white font-semibold'
+                      } else if (isInRange) {
+                        // SELECTED RANGE (between start and end) - Light blue gradient
+                        cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.12), rgba(0,122,255,0.08))'
+                        cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.6)'
+                        textClass += ' text-[#0055D4] font-medium'
+                      } else if (isWeekend) {
+                        // WEEKEND (Friday + Saturday - disabled) - Gray
+                        cellStyle.background = '#F2F2F7'
+                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                        textClass += ' text-[#C7C7CC] cursor-not-allowed'
+                      } else if (isToday && !isStart && !isEnd) {
+                        // TODAY (if not selected) - Light blue with blue ring
+                        cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
+                        cellStyle.boxShadow = '0 0 0 1.5px #007AFF'
+                        textClass += ' text-[#007AFF] font-semibold'
+                      } else if (isPast) {
+                        // PAST DAYS (disabled) - Faded gray
+                        cellStyle.background = '#F2F2F7'
+                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                        cellStyle.opacity = 0.35
+                        textClass += ' text-gray-400 cursor-not-allowed'
+                      } else {
+                        // NORMAL HOVERABLE DAY - White with gray hover
+                        cellStyle.background = 'white'
+                        textClass += ' text-gray-800 hover:bg-[#F2F2F7]'
+                      }
+
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => handleDayClick(day)}
+                          disabled={isWeekend || isPast || isExisting}
+                          className={textClass}
+                          style={{
+                            fontSize: '13px',
+                            ...cellStyle
+                          }}
+                        >
+                          {format(day, 'd')}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
 
