@@ -344,17 +344,16 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
 
                         // APPLE-STYLE SHINY GRADIENT COLORS
                         if (isExisting) {
-                          cellStyle.background = 'linear-gradient(145deg, #FF3B30, #C0392B)'
-                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
-                          cellStyle.opacity = 0.85
-                          textClass += ' text-white font-semibold cursor-not-allowed'
+                          cellStyle.background = 'linear-gradient(145deg, rgba(255,59,48,0.12), rgba(192,57,43,0.08))'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.85), inset 0 0 0 1px rgba(255,59,48,0.18)'
+                          textClass += ' text-[#C0392B] font-semibold cursor-not-allowed'
                         } else if (isStart || isEnd) {
                           cellStyle.background = 'linear-gradient(145deg, #007AFF, #0055D4)'
-                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 8px rgba(0,122,255,0.4)'
-                          textClass += ' text-white font-semibold'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(0,122,255,0.35)'
+                          textClass += ' text-white font-bold'
                         } else if (isInRange) {
-                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.12), rgba(0,122,255,0.08))'
-                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.6)'
+                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.1), rgba(0,122,255,0.06))'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,122,255,0.15)'
                           textClass += ' text-[#0055D4] font-medium'
                         } else if (isWeekend) {
                           cellStyle.background = '#F2F2F7'
@@ -362,16 +361,16 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                           textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else if (isToday && !isStart && !isEnd) {
                           cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
-                          cellStyle.boxShadow = '0 0 0 1.5px #007AFF'
+                          cellStyle.boxShadow = '0 0 0 1.5px #007AFF, inset 0 1px 0 rgba(255,255,255,0.9)'
                           textClass += ' text-[#007AFF] font-semibold'
                         } else if (isPast) {
-                          cellStyle.background = '#F2F2F7'
-                          cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
-                          cellStyle.opacity = 0.35
-                          textClass += ' text-gray-400 cursor-not-allowed'
+                          cellStyle.background = 'transparent'
+                          cellStyle.opacity = 0.6
+                          textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else {
-                          cellStyle.background = 'white'
-                          textClass += ' text-gray-800 hover:bg-[#F2F2F7]'
+                          cellStyle.background = 'rgba(255,255,255,0.8)'
+                          cellStyle.boxShadow = 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
+                          textClass += ' text-[#374151] hover:bg-[#F2F2F7]'
                         }
 
                         return (
@@ -461,17 +460,16 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
 
                         // APPLE-STYLE SHINY GRADIENT COLORS
                         if (isExisting) {
-                          cellStyle.background = 'linear-gradient(145deg, #FF3B30, #C0392B)'
-                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
-                          cellStyle.opacity = 0.85
-                          textClass += ' text-white font-semibold cursor-not-allowed'
+                          cellStyle.background = 'linear-gradient(145deg, rgba(255,59,48,0.12), rgba(192,57,43,0.08))'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.85), inset 0 0 0 1px rgba(255,59,48,0.18)'
+                          textClass += ' text-[#C0392B] font-semibold cursor-not-allowed'
                         } else if (isStart || isEnd) {
                           cellStyle.background = 'linear-gradient(145deg, #007AFF, #0055D4)'
-                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 8px rgba(0,122,255,0.4)'
-                          textClass += ' text-white font-semibold'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(0,122,255,0.35)'
+                          textClass += ' text-white font-bold'
                         } else if (isInRange) {
-                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.12), rgba(0,122,255,0.08))'
-                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.6)'
+                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.1), rgba(0,122,255,0.06))'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,122,255,0.15)'
                           textClass += ' text-[#0055D4] font-medium'
                         } else if (isWeekend) {
                           cellStyle.background = '#F2F2F7'
@@ -479,16 +477,16 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                           textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else if (isToday && !isStart && !isEnd) {
                           cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
-                          cellStyle.boxShadow = '0 0 0 1.5px #007AFF'
+                          cellStyle.boxShadow = '0 0 0 1.5px #007AFF, inset 0 1px 0 rgba(255,255,255,0.9)'
                           textClass += ' text-[#007AFF] font-semibold'
                         } else if (isPast) {
-                          cellStyle.background = '#F2F2F7'
-                          cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
-                          cellStyle.opacity = 0.35
-                          textClass += ' text-gray-400 cursor-not-allowed'
+                          cellStyle.background = 'transparent'
+                          cellStyle.opacity = 0.6
+                          textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else {
-                          cellStyle.background = 'white'
-                          textClass += ' text-gray-800 hover:bg-[#F2F2F7]'
+                          cellStyle.background = 'rgba(255,255,255,0.8)'
+                          cellStyle.boxShadow = 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
+                          textClass += ' text-[#374151] hover:bg-[#F2F2F7]'
                         }
 
                         return (
