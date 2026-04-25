@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { X, Unlock, CheckCircle2, ChevronLeft, Check } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -12,20 +12,6 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
   const [selectedAdmin, setSelectedAdmin] = useState(null)
   const [pin, setPin] = useState(['', '', '', ''])
   const [pinStatus, setPinStatus] = useState('idle')
-  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false)
-  const sentinelRef = useRef(null)
-
-  // IntersectionObserver for footer visibility
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setHasScrolledToBottom(true)
-      },
-      { threshold: 0.1 }
-    )
-    if (sentinelRef.current) observer.observe(sentinelRef.current)
-    return () => observer.disconnect()
-  }, [])
 
   // Early return AFTER all hooks
   if (!isOpen || !employee) return null
@@ -303,17 +289,10 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
               </div>
             </>
           )}
-
-          {/* Sentinel for IntersectionObserver */}
-          <div ref={sentinelRef} className="h-px" />
         </div>
 
-        {/* STICKY FOOTER with IntersectionObserver animation */}
-        <div className={`flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3 transition-all duration-300 ${
-          hasScrolledToBottom
-            ? 'opacity-100 translate-y-0'
-            : 'opacity-0 translate-y-4 pointer-events-none'
-        }`}>
+        {/* STICKY FOOTER - always visible */}
+        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3">
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all duration-200"
