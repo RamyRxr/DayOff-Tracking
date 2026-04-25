@@ -6,11 +6,13 @@ import { fr } from 'date-fns/locale'
 import { useEmployees } from '../hooks/useEmployees'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useAdmins, useAdminPin } from '../hooks/useAdmins'
+import { useDarkMode } from '../hooks/useDarkMode'
 import CustomSelect from './CustomSelect'
 import AutorisationStep from './AutorisationStep'
 
 export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const { t } = useTranslation()
+  const { isDark } = useDarkMode()
   const [step, setStep] = useState(1)
 
   // Step 1: Employee selection
@@ -277,27 +279,31 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+    <div className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
       <div
-        className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col h-[92vh] sm:max-h-[88vh] overflow-hidden"
-        style={{ boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)' }}
+        className="bg-white dark:bg-[#16161E] rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col h-[92vh] sm:max-h-[88vh] overflow-hidden"
+        style={isDark ? {
+          boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 24px 64px rgba(0,0,0,0.6)'
+        } : {
+          boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)'
+        }}
       >
         {/* STICKY HEADER */}
-        <div className="flex-shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
+        <div className="flex-shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100 dark:border-white/[0.06]">
           <div className="flex items-center gap-3">
             {step > 1 && (
               <button
                 onClick={() => setStep(step - 1)}
-                className="p-1 hover:bg-black/5 rounded-lg transition-colors"
+                className="p-1 hover:bg-black/5 dark:hover:bg-white/[0.06] rounded-lg transition-colors"
               >
-                <ChevronLeft className="w-5 h-5 text-[#6B7280]" />
+                <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#8E8E93]" />
               </button>
             )}
             <div>
-              <h2 className="font-display text-xl font-bold text-[#111827]">
+              <h2 className="font-display text-xl font-bold text-[#111827] dark:text-[#F2F2F7]">
                 {t('ajouterConge')}
               </h2>
-              <p className="text-xs text-[#6B7280] mt-0.5">
+              <p className="text-xs text-[#6B7280] dark:text-[#8E8E93] mt-0.5">
                 {t('etape')} {step} {t('sur')} 3 — {
                   step === 1 ? t('choisirEmploye') :
                   step === 2 ? t('datesEtMotif') :
@@ -308,9 +314,9 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
           </div>
           <button
             onClick={handleClose}
-            className="w-8 h-8 rounded-lg hover:bg-black/5 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-lg hover:bg-black/5 dark:hover:bg-white/[0.06] flex items-center justify-center transition-colors"
           >
-            <X className="w-5 h-5 text-[#6B7280]" />
+            <X className="w-5 h-5 text-[#6B7280] dark:text-[#8E8E93]" />
           </button>
         </div>
 
@@ -320,14 +326,14 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
             <>
               {/* Search input */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280] dark:text-[#8E8E93]" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t('rechercherMatricule')}
                   autoFocus
-                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-[rgba(118,118,128,0.08)] border-0 text-sm focus:outline-none focus:ring-2 focus:ring-navy/20"
+                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-[rgba(118,118,128,0.08)] dark:bg-white/[0.06] border-0 text-sm text-[#111827] dark:text-[#F2F2F7] placeholder:text-[#6B7280] dark:placeholder:text-[#636366] focus:outline-none focus:ring-2 focus:ring-navy/20 dark:focus:ring-[#2C4A6F]/20"
                   style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.08)' }}
                 />
               </div>
@@ -337,16 +343,16 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                 {loading ? (
                   // Skeleton loading
                   Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="animate-pulse flex items-center gap-3 p-3 rounded-xl bg-warm-gray-200">
-                      <div className="w-8 h-8 rounded-full bg-warm-gray-300" />
+                    <div key={i} className="animate-pulse flex items-center gap-3 p-3 rounded-xl bg-warm-gray-200 dark:bg-white/[0.06]">
+                      <div className="w-8 h-8 rounded-full bg-warm-gray-300 dark:bg-white/[0.08]" />
                       <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-warm-gray-300 rounded w-1/2" />
-                        <div className="h-3 bg-warm-gray-300 rounded w-1/3" />
+                        <div className="h-4 bg-warm-gray-300 dark:bg-white/[0.08] rounded w-1/2" />
+                        <div className="h-3 bg-warm-gray-300 dark:bg-white/[0.08] rounded w-1/3" />
                       </div>
                     </div>
                   ))
                 ) : filteredEmployees.length === 0 ? (
-                  <div className="py-8 text-center text-[#6B7280]">
+                  <div className="py-8 text-center text-[#6B7280] dark:text-[#8E8E93]">
                     {t('aucunEmployeTrouve')}
                   </div>
                 ) : (
@@ -359,21 +365,21 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                         onClick={() => setSelectedEmployee(emp)}
                         className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
                           isSelected
-                            ? 'border-navy bg-navy/5'
-                            : 'border-transparent bg-warm-gray-200 hover:bg-black/[0.02]'
+                            ? 'border-navy dark:border-[#2C4A6F] bg-navy/5 dark:bg-[#2C4A6F]/10'
+                            : 'border-transparent bg-warm-gray-200 dark:bg-white/[0.06] hover:bg-black/[0.02] dark:hover:bg-white/[0.08]'
                         }`}
                         style={isSelected ? { borderLeft: '2px solid #1B3A6B' } : {}}
                       >
-                        <div className="w-8 h-8 rounded-full bg-warm-gray-300 flex items-center justify-center text-xs font-semibold text-[#374151]">
+                        <div className="w-8 h-8 rounded-full bg-warm-gray-300 dark:bg-white/[0.08] flex items-center justify-center text-xs font-semibold text-[#374151] dark:text-[#8E8E93]">
                           {emp.avatar}
                         </div>
                         <div className="flex-1 text-left min-w-0">
-                          <div className="font-semibold text-sm text-[#111827] truncate">
+                          <div className="font-semibold text-sm text-[#111827] dark:text-[#F2F2F7] truncate">
                             {emp.name}
                           </div>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-xs font-mono text-[#6B7280]">{emp.matricule}</span>
-                            <span className="px-2 py-0.5 bg-warm-gray-300 text-[#374151] text-[10px] rounded-md">
+                            <span className="text-xs font-mono text-[#6B7280] dark:text-[#8E8E93]">{emp.matricule}</span>
+                            <span className="px-2 py-0.5 bg-warm-gray-300 dark:bg-white/[0.08] text-[#374151] dark:text-[#8E8E93] text-[10px] rounded-md">
                               {emp.department}
                             </span>
                           </div>
@@ -392,34 +398,34 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
 
               {/* Selected employee preview */}
               {selectedEmployee && (
-                <div className="bg-warm-gray-200 rounded-xl p-4" style={{ boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.08)' }}>
+                <div className="bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl p-4" style={{ boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.08)' }}>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-warm-gray-300 flex items-center justify-center text-sm font-semibold text-[#374151]">
+                    <div className="w-10 h-10 rounded-full bg-warm-gray-300 dark:bg-white/[0.08] flex items-center justify-center text-sm font-semibold text-[#374151] dark:text-[#8E8E93]">
                       {selectedEmployee.avatar}
                     </div>
                     <div className="flex-1">
-                      <div className="font-semibold text-sm text-[#111827]">
+                      <div className="font-semibold text-sm text-[#111827] dark:text-[#F2F2F7]">
                         {selectedEmployee.name}
                       </div>
-                      <div className="text-xs text-[#6B7280]">
+                      <div className="text-xs text-[#6B7280] dark:text-[#8E8E93]">
                         {selectedEmployee.matricule} · {selectedEmployee.department}
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <div className="flex-1 bg-white rounded-lg px-2 py-1.5 text-center">
-                      <div className="text-xs text-[#6B7280]">{t('joursConge')}</div>
-                      <div className="text-sm font-bold text-navy">{selectedEmployee.daysUsed || 0}</div>
+                    <div className="flex-1 bg-white dark:bg-[#1C1C28] rounded-lg px-2 py-1.5 text-center">
+                      <div className="text-xs text-[#6B7280] dark:text-[#636366]">{t('joursConge')}</div>
+                      <div className="text-sm font-bold text-navy dark:text-[#5E9FFF]">{selectedEmployee.daysUsed || 0}</div>
                     </div>
-                    <div className="flex-1 bg-white rounded-lg px-2 py-1.5 text-center">
-                      <div className="text-xs text-[#6B7280]">{t('joursTravailles')}</div>
-                      <div className="text-sm font-bold text-navy">
+                    <div className="flex-1 bg-white dark:bg-[#1C1C28] rounded-lg px-2 py-1.5 text-center">
+                      <div className="text-xs text-[#6B7280] dark:text-[#636366]">{t('joursTravailles')}</div>
+                      <div className="text-sm font-bold text-navy dark:text-[#5E9FFF]">
                         {30 - (selectedEmployee.daysUsed || 0)}
                       </div>
                     </div>
-                    <div className="flex-1 bg-white rounded-lg px-2 py-1.5 text-center">
-                      <div className="text-xs text-[#6B7280]">{t('joursDisponibles')}</div>
-                      <div className="text-sm font-bold text-navy">
+                    <div className="flex-1 bg-white dark:bg-[#1C1C28] rounded-lg px-2 py-1.5 text-center">
+                      <div className="text-xs text-[#6B7280] dark:text-[#636366]">{t('joursDisponibles')}</div>
+                      <div className="text-sm font-bold text-navy dark:text-[#5E9FFF]">
                         {selectedEmployee.daysTotal - selectedEmployee.daysUsed}
                       </div>
                     </div>
@@ -435,29 +441,32 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
               <div>
                 {/* CURRENT MONTH */}
                 <div className="mb-4">
-                  <div
-                    className="text-[11px] uppercase font-semibold mb-2 tracking-wider"
-                    style={{ color: '#6B7280' }}
-                  >
+                  <div className="text-[11px] uppercase font-semibold mb-2 tracking-wider text-[#6B7280] dark:text-[#636366]">
                     {format(currentMonthObj, 'MMMM', { locale: fr })}
                   </div>
 
-                  <div className="rounded-xl overflow-hidden" style={{
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-                    background: '#FFFFFF'
-                  }}>
+                  <div
+                    className="rounded-xl overflow-hidden bg-white dark:bg-[#1C1C28]"
+                    style={isDark ? {
+                      boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 1px 3px rgba(0,0,0,0.4)'
+                    } : {
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)'
+                    }}
+                  >
                     {/* Day headers */}
-                    <div className="grid grid-cols-7" style={{
-                      borderBottom: '1px solid rgba(0,0,0,0.08)',
-                      background: '#FAFAFA'
-                    }}>
+                    <div
+                      className="grid grid-cols-7 bg-[#FAFAFA] dark:bg-white/[0.04]"
+                      style={{
+                        borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(0,0,0,0.08)'
+                      }}
+                    >
                       {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
                         <div
                           key={i}
-                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 uppercase"
+                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 dark:text-[#8E8E93] uppercase"
                           style={{
                             letterSpacing: '0.5px',
-                            borderRight: i < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none'
+                            borderRight: i < 6 ? (isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)') : 'none'
                           }}
                         >
                           {day}
@@ -486,8 +495,8 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                         const isLastRow = i >= currentMonthDays.length - 7
 
                         let cellStyle = {
-                          borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
-                          borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                          borderRight: !isLastCol ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
+                          borderBottom: !isLastRow ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
                         }
                         let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
 
@@ -509,7 +518,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                           cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,122,255,0.15)'
                           textClass += ' text-[#0055D4] font-medium'
                         } else if (isWeekend) {
-                          cellStyle.background = '#F2F2F7'
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7'
                           cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
                           textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else if (isToday && !isStart && !isEnd) {
@@ -521,9 +530,9 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                           cellStyle.opacity = 0.6
                           textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else {
-                          cellStyle.background = 'rgba(255,255,255,0.8)'
-                          cellStyle.boxShadow = 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
-                          textClass += ' text-[#374151] hover:bg-[#F2F2F7]'
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.8)'
+                          cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06), 0 0 0 1px rgba(255,255,255,0.04)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
+                          textClass += isDark ? ' text-[#C7C7CC] hover:bg-white/[0.06]' : ' text-[#374151] hover:bg-[#F2F2F7]'
                         }
 
                         return (
@@ -546,33 +555,36 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                 </div>
 
                 {/* SEPARATOR */}
-                <div className="w-full h-px my-4" style={{ background: '#E5E5EA' }} />
+                <div className="w-full h-px my-4 bg-[#E5E5EA] dark:bg-white/[0.06]" />
 
                 {/* NEXT MONTH */}
                 <div className="mb-3">
-                  <div
-                    className="text-[11px] uppercase font-semibold mb-2 tracking-wider"
-                    style={{ color: '#6B7280' }}
-                  >
+                  <div className="text-[11px] uppercase font-semibold mb-2 tracking-wider text-[#6B7280] dark:text-[#636366]">
                     {format(nextMonthObj, 'MMMM', { locale: fr })}
                   </div>
 
-                  <div className="rounded-xl overflow-hidden" style={{
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-                    background: '#FFFFFF'
-                  }}>
+                  <div
+                    className="rounded-xl overflow-hidden bg-white dark:bg-[#1C1C28]"
+                    style={isDark ? {
+                      boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 1px 3px rgba(0,0,0,0.4)'
+                    } : {
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)'
+                    }}
+                  >
                     {/* Day headers */}
-                    <div className="grid grid-cols-7" style={{
-                      borderBottom: '1px solid rgba(0,0,0,0.08)',
-                      background: '#FAFAFA'
-                    }}>
+                    <div
+                      className="grid grid-cols-7 bg-[#FAFAFA] dark:bg-white/[0.04]"
+                      style={{
+                        borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(0,0,0,0.08)'
+                      }}
+                    >
                       {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
                         <div
                           key={i}
-                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 uppercase"
+                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 dark:text-[#8E8E93] uppercase"
                           style={{
                             letterSpacing: '0.5px',
-                            borderRight: i < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none'
+                            borderRight: i < 6 ? (isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)') : 'none'
                           }}
                         >
                           {day}
@@ -601,8 +613,8 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                         const isLastRow = i >= nextMonthDays.length - 7
 
                         let cellStyle = {
-                          borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
-                          borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                          borderRight: !isLastCol ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
+                          borderBottom: !isLastRow ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
                         }
                         let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
 
@@ -624,7 +636,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                           cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,122,255,0.15)'
                           textClass += ' text-[#0055D4] font-medium'
                         } else if (isWeekend) {
-                          cellStyle.background = '#F2F2F7'
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7'
                           cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
                           textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else if (isToday && !isStart && !isEnd) {
@@ -636,9 +648,9 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                           cellStyle.opacity = 0.6
                           textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else {
-                          cellStyle.background = 'rgba(255,255,255,0.8)'
-                          cellStyle.boxShadow = 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
-                          textClass += ' text-[#374151] hover:bg-[#F2F2F7]'
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.8)'
+                          cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06), 0 0 0 1px rgba(255,255,255,0.04)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
+                          textClass += isDark ? ' text-[#C7C7CC] hover:bg-white/[0.06]' : ' text-[#374151] hover:bg-[#F2F2F7]'
                         }
 
                         return (
@@ -663,31 +675,31 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
 
               {/* Date summary */}
               {startDate && endDate && (
-                <div className="bg-navy/5 rounded-xl p-4">
+                <div className="bg-navy/5 dark:bg-[#2C4A6F]/10 rounded-xl p-4">
                   <div className="flex items-center gap-4 text-sm">
                     <div>
-                      <div className="text-[#6B7280] text-xs">{t('dateDebut')}</div>
-                      <div className="font-semibold text-navy">
+                      <div className="text-[#6B7280] dark:text-[#8E8E93] text-xs">{t('dateDebut')}</div>
+                      <div className="font-semibold text-navy dark:text-[#5E9FFF]">
                         {format(startDate, 'dd MMM yyyy', { locale: fr })}
                       </div>
                     </div>
-                    <div className="text-[#6B7280]">→</div>
+                    <div className="text-[#6B7280] dark:text-[#8E8E93]">→</div>
                     <div>
-                      <div className="text-[#6B7280] text-xs">{t('dateFin')}</div>
-                      <div className="font-semibold text-navy">
+                      <div className="text-[#6B7280] dark:text-[#8E8E93] text-xs">{t('dateFin')}</div>
+                      <div className="font-semibold text-navy dark:text-[#5E9FFF]">
                         {format(endDate, 'dd MMM yyyy', { locale: fr })}
                       </div>
                     </div>
                   </div>
-                  <div className="mt-3 flex gap-4 text-xs">
+                  <div className="mt-3 flex gap-4 text-xs text-[#374151] dark:text-[#C7C7CC]">
                     <div>
-                      <span className="font-bold text-navy">{workingDays}</span> {t('joursOuvrables')}
+                      <span className="font-bold text-navy dark:text-[#5E9FFF]">{workingDays}</span> {t('joursOuvrables')}
                     </div>
                     <div>
-                      <span className="font-bold text-navy">{totalCalendarDays}</span> {t('joursCalendaires')}
+                      <span className="font-bold text-navy dark:text-[#5E9FFF]">{totalCalendarDays}</span> {t('joursCalendaires')}
                     </div>
                     {hasSandwich && (
-                      <div className="flex items-center gap-1 text-status-amber">
+                      <div className="flex items-center gap-1 text-status-amber dark:text-[#FF9F0A]">
                         <AlertTriangle className="w-3 h-3" />
                         <span className="font-medium">{t('sandwichDetection')}</span>
                       </div>
@@ -698,12 +710,12 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
 
               {/* File upload */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] mb-2">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
                   {t('pieceJustificative')}
                 </label>
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-warm-gray-400 rounded-xl cursor-pointer hover:bg-warm-gray-200 transition-colors">
-                  <Upload className="w-6 h-6 text-[#6B7280] mb-2" />
-                  <span className="text-xs text-[#6B7280]">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-warm-gray-400 dark:border-white/[0.12] rounded-xl cursor-pointer hover:bg-warm-gray-200 dark:hover:bg-white/[0.06] transition-colors">
+                  <Upload className="w-6 h-6 text-[#6B7280] dark:text-[#636366] mb-2" />
+                  <span className="text-xs text-[#6B7280] dark:text-[#636366]">
                     {uploadedFile ? uploadedFile.name : t('glisserCliquer')}
                   </span>
                   <input
@@ -745,8 +757,8 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
           {step === 3 && (
             <>
               {/* Summary */}
-              <div className="bg-warm-gray-200 rounded-xl p-4">
-                <div className="text-sm font-medium text-[#111827]">
+              <div className="bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl p-4">
+                <div className="text-sm font-medium text-[#111827] dark:text-[#F2F2F7]">
                   {selectedEmployee?.name} · {startDate && endDate && `${format(startDate, 'dd MMM', { locale: fr })}–${format(endDate, 'dd MMM', { locale: fr })}`} · {workingDays} {t('jours')} · {reason === 'annual' ? t('congeAnnuel') : reason === 'sick' ? t('congeMaladie') : reason === 'unpaid' ? t('congeSansSolde') : t('autre')}
                 </div>
               </div>
@@ -772,10 +784,10 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
         </div>
 
         {/* STICKY FOOTER */}
-        <div className="flex-shrink-0 flex items-center gap-3 px-5 py-4 border-t border-gray-100 bg-white">
+        <div className="flex-shrink-0 flex items-center gap-3 px-5 py-4 border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#16161E]">
           <button
             onClick={step === 1 ? handleClose : () => setStep(step - 1)}
-            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all duration-200"
+            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#8E8E93] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
           >
             {step === 1 ? t('annuler') : t('retourFleche')}
           </button>
@@ -787,17 +799,32 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
               (step === 3 && !isStep3Valid)
             }
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
-            style={{
-              backgroundColor: ((step === 1 && isStep1Valid) || (step === 2 && isStep2Valid) || (step === 3 && isStep3Valid)) ? '#1A2F4F' : '#9CA3AF',
-              color: 'white'
-            }}
+            style={
+              ((step === 1 && isStep1Valid) || (step === 2 && isStep2Valid) || (step === 3 && isStep3Valid))
+                ? (isDark ? {
+                    background: 'linear-gradient(145deg, #1A2F4F, #0F1F35)',
+                    color: 'white',
+                    boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+                  } : {
+                    backgroundColor: '#1A2F4F',
+                    color: 'white'
+                  })
+                : {
+                    backgroundColor: '#9CA3AF',
+                    color: 'white'
+                  }
+            }
             onMouseEnter={(e) => {
               if ((step === 1 && isStep1Valid) || (step === 2 && isStep2Valid) || (step === 3 && isStep3Valid)) {
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,47,79,0.3)'
               }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
+              if ((step === 1 && isStep1Valid) || (step === 2 && isStep2Valid) || (step === 3 && isStep3Valid)) {
+                e.currentTarget.style.boxShadow = isDark
+                  ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+                  : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
+              }
             }}
           >
             {step === 3 ? t('confirmerConge') : t('suivantFleche')}
