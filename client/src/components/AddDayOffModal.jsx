@@ -331,39 +331,43 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                         cellStyle.borderTop = '2px solid rgba(0,0,0,0.15)'
                       }
 
-                      if (isStart || isEnd || isExisting) {
-                        // Selected start/end or existing day-off: COLOR 1 - rich red
-                        cellStyle.background = 'linear-gradient(135deg, #FF3B30, #C0392B)'
+                      // APPLE-STYLE SHINY GRADIENT COLORS
+                      if (isExisting) {
+                        // ALREADY USED CONGÉ DAYS (disabled) - Red gradient
+                        cellStyle.background = 'linear-gradient(145deg, #FF3B30, #C0392B)'
                         cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                        cellStyle.opacity = 0.85
+                        textClass += ' text-white font-semibold cursor-not-allowed'
+                      } else if (isStart || isEnd) {
+                        // SELECTED START / END DAY - Blue gradient
+                        cellStyle.background = 'linear-gradient(145deg, #007AFF, #0055D4)'
+                        cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 8px rgba(0,122,255,0.4)'
                         textClass += ' text-white font-semibold'
-                        if (isExisting) textClass += ' cursor-not-allowed'
                       } else if (isInRange) {
-                        // Selected range middle: very light red tint
-                        cellStyle.background = 'rgba(255,59,48,0.08)'
-                        textClass += ' text-[#FF3B30] font-medium'
+                        // SELECTED RANGE (between start and end) - Light blue gradient
+                        cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.12), rgba(0,122,255,0.08))'
+                        cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.6)'
+                        textClass += ' text-[#0055D4] font-medium'
                       } else if (isWeekend) {
-                        // COLOR 3 - Weekend: medium gray
-                        cellStyle.background = '#E5E5EA'
-                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.05)'
-                        textClass += ' text-[#8E8E93] cursor-not-allowed'
+                        // WEEKEND (Friday + Saturday - disabled) - Gray
+                        cellStyle.background = '#F2F2F7'
+                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                        textClass += ' text-[#C7C7CC] cursor-not-allowed'
+                      } else if (isToday && !isStart && !isEnd) {
+                        // TODAY (if not selected) - Light blue with blue ring
+                        cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
+                        cellStyle.boxShadow = '0 0 0 1.5px #007AFF'
+                        textClass += ' text-[#007AFF] font-semibold'
                       } else if (isPast) {
-                        // Past: COLOR 2 with opacity
-                        cellStyle.background = '#FAFAFA'
-                        cellStyle.border = '1px solid rgba(0,0,0,0.05)'
-                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.03)'
+                        // PAST DAYS (disabled) - Faded gray
+                        cellStyle.background = '#F2F2F7'
+                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
                         cellStyle.opacity = 0.35
-                        textClass += ' text-[#1C1C1E] cursor-not-allowed'
+                        textClass += ' text-gray-400 cursor-not-allowed'
                       } else {
-                        // COLOR 2 - Normal selectable workday: light warm gray
-                        cellStyle.background = '#FAFAFA'
-                        cellStyle.border = '1px solid rgba(0,0,0,0.05)'
-                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.03)'
-                        textClass += ' text-[#1C1C1E] hover:bg-[#F2F2F7]'
-                      }
-
-                      // Today indicator
-                      if (isToday && !isStart && !isEnd) {
-                        textClass += ' ring-2 ring-blue-400 ring-offset-1'
+                        // NORMAL HOVERABLE DAY - White with gray hover
+                        cellStyle.background = 'white'
+                        textClass += ' text-gray-800 hover:bg-[#F2F2F7]'
                       }
 
                       return (
