@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, Upload, Search, ChevronLeft, ChevronRight, Check, AlertTriangle } from 'lucide-react'
+import { X, Upload, Search, ChevronLeft, Check, AlertTriangle } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useEmployees } from '../hooks/useEmployees'
@@ -17,7 +17,6 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const [selectedEmployee, setSelectedEmployee] = useState(null)
 
   // Step 2: Dates and reason
-  const [currentMonth, setCurrentMonth] = useState(new Date())
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
   const [uploadedFile, setUploadedFile] = useState(null)
@@ -72,25 +71,49 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     return dates
   }, [daysOff])
 
-  // Generate calendar days
-  const calendarDays = useMemo(() => {
-    const monthStart = startOfMonth(currentMonth)
-    const monthEnd = endOfMonth(currentMonth)
-    const days = eachDayOfInterval({ start: monthStart, end: monthEnd })
+  // Generate calendar days for BOTH months (current + next)
+  const { currentMonthDays, nextMonthDays, currentMonthObj, nextMonthObj } = useMemo(() => {
+    const today = new Date()
+    const currentMonthObj = new Date(today.getFullYear(), today.getMonth(), 1)
+    const nextMonthObj = addMonths(currentMonthObj, 1)
 
-    // Pad start with previous month days
-    const startDayOfWeek = monthStart.getDay()
-    const daysToAdd = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1
+    // Generate days for current month
+    const currentMonthStart = startOfMonth(currentMonthObj)
+    const currentMonthEnd = endOfMonth(currentMonthObj)
+    const currentDays = eachDayOfInterval({ start: currentMonthStart, end: currentMonthEnd })
 
-    const prevMonthEnd = endOfMonth(subMonths(currentMonth, 1))
-    for (let i = daysToAdd - 1; i >= 0; i--) {
+    // Pad start of current month with previous month days
+    const currentStartDayOfWeek = currentMonthStart.getDay()
+    const currentDaysToAdd = currentStartDayOfWeek === 0 ? 6 : currentStartDayOfWeek - 1
+    const prevMonthEnd = endOfMonth(subMonths(currentMonthObj, 1))
+    for (let i = currentDaysToAdd - 1; i >= 0; i--) {
       const day = new Date(prevMonthEnd)
       day.setDate(prevMonthEnd.getDate() - i)
-      days.unshift(day)
+      currentDays.unshift(day)
     }
 
-    return days
-  }, [currentMonth])
+    // Generate days for next month
+    const nextMonthStart = startOfMonth(nextMonthObj)
+    const nextMonthEnd = endOfMonth(nextMonthObj)
+    const nextDays = eachDayOfInterval({ start: nextMonthStart, end: nextMonthEnd })
+
+    // Pad start of next month with current month days
+    const nextStartDayOfWeek = nextMonthStart.getDay()
+    const nextDaysToAdd = nextStartDayOfWeek === 0 ? 6 : nextStartDayOfWeek - 1
+    const currentMonthEndDate = endOfMonth(currentMonthObj)
+    for (let i = nextDaysToAdd - 1; i >= 0; i--) {
+      const day = new Date(currentMonthEndDate)
+      day.setDate(currentMonthEndDate.getDate() - i)
+      nextDays.unshift(day)
+    }
+
+    return {
+      currentMonthDays: currentDays,
+      nextMonthDays: nextDays,
+      currentMonthObj,
+      nextMonthObj
+    }
+  }, [])
 
   if (!isOpen) return null
 
@@ -113,7 +136,6 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     setSelectedAdmin(null)
     setPin(['', '', '', ''])
     setPinStatus('idle')
-    setCurrentMonth(new Date())
     onClose?.()
   }
 
@@ -407,134 +429,234 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
 
           {step === 2 && (
             <>
-              {/* Calendar */}
+              {/* Two-Month Calendar */}
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <button
-                    onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                    className="p-1 hover:bg-black/5 rounded-lg transition-colors"
+                {/* CURRENT MONTH */}
+                <div className="mb-4">
+                  <div
+                    className="text-[11px] uppercase font-semibold mb-2 tracking-wider"
+                    style={{ color: '#6B7280' }}
                   >
-                    <ChevronLeft className="w-5 h-5 text-[#6B7280]" />
-                  </button>
-                  <span className="font-semibold text-sm text-[#111827]">
-                    {format(currentMonth, 'MMMM yyyy', { locale: fr })}
-                  </span>
-                  <button
-                    onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                    className="p-1 hover:bg-black/5 rounded-lg transition-colors"
-                  >
-                    <ChevronRight className="w-5 h-5 text-[#6B7280]" />
-                  </button>
-                </div>
-
-                {/* Calendar grid - seamless professional with Apple-style colors */}
-                <div className="rounded-xl overflow-hidden mb-3" style={{
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-                  background: '#FFFFFF'
-                }}>
-                  {/* Day headers */}
-                  <div className="grid grid-cols-7" style={{
-                    borderBottom: '1px solid rgba(0,0,0,0.08)',
-                    background: '#FAFAFA'
-                  }}>
-                    {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
-                      <div
-                        key={i}
-                        className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 uppercase"
-                        style={{
-                          letterSpacing: '0.5px',
-                          borderRight: i < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none'
-                        }}
-                      >
-                        {day}
-                      </div>
-                    ))}
+                    {format(currentMonthObj, 'MMMM', { locale: fr })}
                   </div>
 
-                  {/* Day cells grid */}
-                  <div className="grid grid-cols-7">
-                    {calendarDays.map((day, i) => {
-                      const dayStr = day.toISOString().split('T')[0]
-                      const isWeekend = day.getDay() === 5 || day.getDay() === 6
-                      const today = new Date()
-                      today.setHours(0, 0, 0, 0)
-                      const isPast = day < today
-                      const isExisting = existingDates.has(dayStr)
-                      const isStart = startDate && day.toDateString() === startDate.toDateString()
-                      const isEnd = endDate && day.toDateString() === endDate.toDateString()
-                      const isInRange = startDate && endDate && day > startDate && day < endDate
-                      const isCurrentMonth = isSameMonth(day, currentMonth)
-                      const isToday = isSameDay(day, today)
-
-                      // Grid positioning
-                      const col = i % 7
-                      const isLastCol = col === 6
-                      const isLastRow = i >= calendarDays.length - 7
-
-                      let cellStyle = {
-                        borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
-                        borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
-                      }
-                      let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
-
-                      if (!isCurrentMonth) {
-                        textClass += ' opacity-40'
-                      }
-
-                      // APPLE-STYLE SHINY GRADIENT COLORS
-                      if (isExisting) {
-                        // ALREADY USED CONGÉ DAYS (disabled) - Red gradient
-                        cellStyle.background = 'linear-gradient(145deg, #FF3B30, #C0392B)'
-                        cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
-                        cellStyle.opacity = 0.85
-                        textClass += ' text-white font-semibold cursor-not-allowed'
-                      } else if (isStart || isEnd) {
-                        // SELECTED START / END DAY - Blue gradient
-                        cellStyle.background = 'linear-gradient(145deg, #007AFF, #0055D4)'
-                        cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 8px rgba(0,122,255,0.4)'
-                        textClass += ' text-white font-semibold'
-                      } else if (isInRange) {
-                        // SELECTED RANGE (between start and end) - Light blue gradient
-                        cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.12), rgba(0,122,255,0.08))'
-                        cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.6)'
-                        textClass += ' text-[#0055D4] font-medium'
-                      } else if (isWeekend) {
-                        // WEEKEND (Friday + Saturday - disabled) - Gray
-                        cellStyle.background = '#F2F2F7'
-                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
-                        textClass += ' text-[#C7C7CC] cursor-not-allowed'
-                      } else if (isToday && !isStart && !isEnd) {
-                        // TODAY (if not selected) - Light blue with blue ring
-                        cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
-                        cellStyle.boxShadow = '0 0 0 1.5px #007AFF'
-                        textClass += ' text-[#007AFF] font-semibold'
-                      } else if (isPast) {
-                        // PAST DAYS (disabled) - Faded gray
-                        cellStyle.background = '#F2F2F7'
-                        cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
-                        cellStyle.opacity = 0.35
-                        textClass += ' text-gray-400 cursor-not-allowed'
-                      } else {
-                        // NORMAL HOVERABLE DAY - White with gray hover
-                        cellStyle.background = 'white'
-                        textClass += ' text-gray-800 hover:bg-[#F2F2F7]'
-                      }
-
-                      return (
-                        <button
+                  <div className="rounded-xl overflow-hidden" style={{
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
+                    background: '#FFFFFF'
+                  }}>
+                    {/* Day headers */}
+                    <div className="grid grid-cols-7" style={{
+                      borderBottom: '1px solid rgba(0,0,0,0.08)',
+                      background: '#FAFAFA'
+                    }}>
+                      {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
+                        <div
                           key={i}
-                          onClick={() => handleDayClick(day)}
-                          disabled={isWeekend || isPast || isExisting}
-                          className={textClass}
+                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 uppercase"
                           style={{
-                            fontSize: '13px',
-                            ...cellStyle
+                            letterSpacing: '0.5px',
+                            borderRight: i < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none'
                           }}
                         >
-                          {format(day, 'd')}
-                        </button>
-                      )
-                    })}
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Day cells grid */}
+                    <div className="grid grid-cols-7">
+                      {currentMonthDays.map((day, i) => {
+                        const dayStr = day.toISOString().split('T')[0]
+                        const isWeekend = day.getDay() === 5 || day.getDay() === 6
+                        const today = new Date()
+                        today.setHours(0, 0, 0, 0)
+                        const isPast = day < today
+                        const isExisting = existingDates.has(dayStr)
+                        const isStart = startDate && day.toDateString() === startDate.toDateString()
+                        const isEnd = endDate && day.toDateString() === endDate.toDateString()
+                        const isInRange = startDate && endDate && day > startDate && day < endDate
+                        const isCurrentMonth = isSameMonth(day, currentMonthObj)
+                        const isToday = isSameDay(day, today)
+
+                        // Grid positioning
+                        const col = i % 7
+                        const isLastCol = col === 6
+                        const isLastRow = i >= currentMonthDays.length - 7
+
+                        let cellStyle = {
+                          borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                          borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                        }
+                        let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
+
+                        if (!isCurrentMonth) {
+                          textClass += ' opacity-40'
+                        }
+
+                        // APPLE-STYLE SHINY GRADIENT COLORS
+                        if (isExisting) {
+                          cellStyle.background = 'linear-gradient(145deg, #FF3B30, #C0392B)'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                          cellStyle.opacity = 0.85
+                          textClass += ' text-white font-semibold cursor-not-allowed'
+                        } else if (isStart || isEnd) {
+                          cellStyle.background = 'linear-gradient(145deg, #007AFF, #0055D4)'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 8px rgba(0,122,255,0.4)'
+                          textClass += ' text-white font-semibold'
+                        } else if (isInRange) {
+                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.12), rgba(0,122,255,0.08))'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.6)'
+                          textClass += ' text-[#0055D4] font-medium'
+                        } else if (isWeekend) {
+                          cellStyle.background = '#F2F2F7'
+                          cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                          textClass += ' text-[#C7C7CC] cursor-not-allowed'
+                        } else if (isToday && !isStart && !isEnd) {
+                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
+                          cellStyle.boxShadow = '0 0 0 1.5px #007AFF'
+                          textClass += ' text-[#007AFF] font-semibold'
+                        } else if (isPast) {
+                          cellStyle.background = '#F2F2F7'
+                          cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                          cellStyle.opacity = 0.35
+                          textClass += ' text-gray-400 cursor-not-allowed'
+                        } else {
+                          cellStyle.background = 'white'
+                          textClass += ' text-gray-800 hover:bg-[#F2F2F7]'
+                        }
+
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => handleDayClick(day)}
+                            disabled={isWeekend || isPast || isExisting}
+                            className={textClass}
+                            style={{
+                              fontSize: '13px',
+                              ...cellStyle
+                            }}
+                          >
+                            {format(day, 'd')}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* SEPARATOR */}
+                <div className="w-full h-px my-4" style={{ background: '#E5E5EA' }} />
+
+                {/* NEXT MONTH */}
+                <div className="mb-3">
+                  <div
+                    className="text-[11px] uppercase font-semibold mb-2 tracking-wider"
+                    style={{ color: '#6B7280' }}
+                  >
+                    {format(nextMonthObj, 'MMMM', { locale: fr })}
+                  </div>
+
+                  <div className="rounded-xl overflow-hidden" style={{
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
+                    background: '#FFFFFF'
+                  }}>
+                    {/* Day headers */}
+                    <div className="grid grid-cols-7" style={{
+                      borderBottom: '1px solid rgba(0,0,0,0.08)',
+                      background: '#FAFAFA'
+                    }}>
+                      {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
+                        <div
+                          key={i}
+                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 uppercase"
+                          style={{
+                            letterSpacing: '0.5px',
+                            borderRight: i < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none'
+                          }}
+                        >
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Day cells grid */}
+                    <div className="grid grid-cols-7">
+                      {nextMonthDays.map((day, i) => {
+                        const dayStr = day.toISOString().split('T')[0]
+                        const isWeekend = day.getDay() === 5 || day.getDay() === 6
+                        const today = new Date()
+                        today.setHours(0, 0, 0, 0)
+                        const isPast = day < today
+                        const isExisting = existingDates.has(dayStr)
+                        const isStart = startDate && day.toDateString() === startDate.toDateString()
+                        const isEnd = endDate && day.toDateString() === endDate.toDateString()
+                        const isInRange = startDate && endDate && day > startDate && day < endDate
+                        const isCurrentMonth = isSameMonth(day, nextMonthObj)
+                        const isToday = isSameDay(day, today)
+
+                        // Grid positioning
+                        const col = i % 7
+                        const isLastCol = col === 6
+                        const isLastRow = i >= nextMonthDays.length - 7
+
+                        let cellStyle = {
+                          borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                          borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                        }
+                        let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
+
+                        if (!isCurrentMonth) {
+                          textClass += ' opacity-40'
+                        }
+
+                        // APPLE-STYLE SHINY GRADIENT COLORS
+                        if (isExisting) {
+                          cellStyle.background = 'linear-gradient(145deg, #FF3B30, #C0392B)'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                          cellStyle.opacity = 0.85
+                          textClass += ' text-white font-semibold cursor-not-allowed'
+                        } else if (isStart || isEnd) {
+                          cellStyle.background = 'linear-gradient(145deg, #007AFF, #0055D4)'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 8px rgba(0,122,255,0.4)'
+                          textClass += ' text-white font-semibold'
+                        } else if (isInRange) {
+                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.12), rgba(0,122,255,0.08))'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.6)'
+                          textClass += ' text-[#0055D4] font-medium'
+                        } else if (isWeekend) {
+                          cellStyle.background = '#F2F2F7'
+                          cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                          textClass += ' text-[#C7C7CC] cursor-not-allowed'
+                        } else if (isToday && !isStart && !isEnd) {
+                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
+                          cellStyle.boxShadow = '0 0 0 1.5px #007AFF'
+                          textClass += ' text-[#007AFF] font-semibold'
+                        } else if (isPast) {
+                          cellStyle.background = '#F2F2F7'
+                          cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                          cellStyle.opacity = 0.35
+                          textClass += ' text-gray-400 cursor-not-allowed'
+                        } else {
+                          cellStyle.background = 'white'
+                          textClass += ' text-gray-800 hover:bg-[#F2F2F7]'
+                        }
+
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => handleDayClick(day)}
+                            disabled={isWeekend || isPast || isExisting}
+                            className={textClass}
+                            style={{
+                              fontSize: '13px',
+                              ...cellStyle
+                            }}
+                          >
+                            {format(day, 'd')}
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
