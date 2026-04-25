@@ -3,6 +3,7 @@ import { Search, Filter, Plus, ChevronDown, Loader2 } from 'lucide-react'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import AddDayOffModal from '../components/AddDayOffModal'
 import AddEmployeeModal from '../components/AddEmployeeModal'
+import CustomSelect from '../components/CustomSelect'
 import { useEmployees } from '../hooks/useEmployees'
 
 export default function EmployeesPage() {
@@ -138,20 +139,17 @@ export default function EmployeesPage() {
           </div>
 
           {/* Status filter */}
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280] pointer-events-none" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="pl-10 pr-10 py-2.5 bg-warm-gray-200 rounded-xl text-[#111827] font-medium text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all"
-            >
-              <option value="tous">Tous les statuts</option>
-              <option value="actif">Actifs</option>
-              <option value="risque">À risque</option>
-              <option value="bloqué">Bloqués</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280] pointer-events-none" />
-          </div>
+          <CustomSelect
+            options={[
+              { value: 'tous', label: 'Tous les statuts' },
+              { value: 'actif', label: 'Actifs' },
+              { value: 'risque', label: 'À risque' },
+              { value: 'bloqué', label: 'Bloqués' },
+            ]}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            placeholder="Filtrer par statut"
+          />
         </div>
       </div>
 
@@ -249,13 +247,25 @@ export default function EmployeesPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-[#111827] mb-1">
-                      {employee.daysUsed} / {employee.daysTotal} jours
+                    <div className={`text-sm mb-1 font-medium ${
+                      employee.daysUsed >= 14
+                        ? 'text-red-600'
+                        : employee.daysUsed >= 11
+                          ? 'text-amber-600'
+                          : 'text-gray-700'
+                    }`}>
+                      {employee.daysUsed} / 15 jours
                     </div>
                     <div className="w-24 h-1.5 bg-warm-gray-300 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-navy transition-all duration-300"
-                        style={{ width: `${progressPercent}%` }}
+                        className={`h-full transition-all duration-300 ${
+                          employee.daysUsed >= 14
+                            ? 'bg-red-500'
+                            : employee.daysUsed >= 11
+                              ? 'bg-amber-500'
+                              : 'bg-navy'
+                        }`}
+                        style={{ width: `${(employee.daysUsed / 15) * 100}%` }}
                       />
                     </div>
                   </td>
@@ -270,15 +280,41 @@ export default function EmployeesPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setSelectedEmployee(employee)
-                      }}
-                      className="text-xs font-medium text-gray-600 hover:bg-gray-100 transition-all px-3 py-1.5 rounded-lg"
-                    >
-                      Détails
-                    </button>
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedEmployee(employee)
+                        }}
+                        className="text-xs font-medium text-gray-600 hover:bg-gray-100 transition-all px-3 py-1.5 rounded-lg"
+                      >
+                        Détails
+                      </button>
+                      {employee.status !== 'bloqué' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (employee.daysUsed >= 15) {
+                              setSelectedEmployee(employee)
+                              // Trigger block modal (would need to add state for this)
+                            }
+                          }}
+                          disabled={employee.daysUsed < 15}
+                          className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-all ${
+                            employee.daysUsed >= 15
+                              ? 'text-red-600 hover:bg-red-50 cursor-pointer'
+                              : 'text-gray-400 opacity-40 cursor-not-allowed'
+                          }`}
+                          title={
+                            employee.daysUsed < 15
+                              ? 'Le blocage est possible après 15 jours de congé'
+                              : 'Bloquer cet employé'
+                          }
+                        >
+                          Bloquer
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               )
@@ -299,6 +335,7 @@ export default function EmployeesPage() {
         employee={selectedEmployee}
         isOpen={!!selectedEmployee && !showAddDayOff}
         onClose={() => setSelectedEmployee(null)}
+        onUpdate={refetch}
       />
 
       {/* Add Day Off Modal */}
