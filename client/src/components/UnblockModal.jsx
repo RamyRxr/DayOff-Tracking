@@ -5,6 +5,7 @@ import { fr } from 'date-fns/locale'
 import CustomSelect from './CustomSelect'
 
 export default function UnblockModal({ employee, activeBlock, isOpen, onClose, onSubmit }) {
+  // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
   const [step, setStep] = useState(1)
   const [unblockReason, setUnblockReason] = useState('')
   const [description, setDescription] = useState('')
@@ -13,8 +14,6 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
   const [pinStatus, setPinStatus] = useState('idle')
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false)
   const sentinelRef = useRef(null)
-
-  if (!isOpen || !employee) return null
 
   // IntersectionObserver for footer visibility
   useEffect(() => {
@@ -27,6 +26,9 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
     if (sentinelRef.current) observer.observe(sentinelRef.current)
     return () => observer.disconnect()
   }, [])
+
+  // Early return AFTER all hooks
+  if (!isOpen || !employee) return null
 
   const handleClose = () => {
     setStep(1)

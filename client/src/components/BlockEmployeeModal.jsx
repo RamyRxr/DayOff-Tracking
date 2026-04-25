@@ -3,6 +3,7 @@ import { X, ShieldAlert, AlertTriangle, ChevronLeft, Check } from 'lucide-react'
 import CustomSelect from './CustomSelect'
 
 export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit }) {
+  // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
   const [step, setStep] = useState(1)
   const [reason, setReason] = useState('')
   const [description, setDescription] = useState('')
@@ -11,8 +12,6 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
   const [pinStatus, setPinStatus] = useState('idle')
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false)
   const sentinelRef = useRef(null)
-
-  if (!isOpen || !employee) return null
 
   // IntersectionObserver for footer visibility
   useEffect(() => {
@@ -25,6 +24,9 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
     if (sentinelRef.current) observer.observe(sentinelRef.current)
     return () => observer.disconnect()
   }, [])
+
+  // Early return AFTER all hooks
+  if (!isOpen || !employee) return null
 
   const handleClose = () => {
     setStep(1)
