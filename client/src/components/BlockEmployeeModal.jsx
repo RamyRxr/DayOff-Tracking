@@ -306,20 +306,20 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
         </div>
 
         {/* STICKY FOOTER - always visible */}
-        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3">
+        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex items-center justify-end gap-3">
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
-            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all duration-200"
+            className="px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all duration-200"
           >
             {step === 1 ? 'Annuler' : '← Retour'}
           </button>
 
           {step === 1 ? (
-            <div className="flex-1 relative group">
+            <div className="relative group">
               <button
                 onClick={canBlock && reason ? () => setStep(2) : undefined}
                 disabled={!canBlock || !reason}
-                className={`w-full px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
+                className={`px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
                   canBlock && reason
                     ? 'bg-status-red text-white shadow-ambient hover:shadow-modal cursor-pointer'
                     : 'bg-status-red text-white opacity-40 cursor-not-allowed'
@@ -337,7 +337,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
             <button
               onClick={handleSubmit}
               disabled={!isStep2Valid}
-              className="flex-1 bg-status-red text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-status-red text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirmer le blocage
             </button>

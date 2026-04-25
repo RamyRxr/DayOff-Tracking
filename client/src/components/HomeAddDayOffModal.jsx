@@ -870,7 +870,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
         </div>
 
         {/* STICKY FOOTER */}
-        <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-t border-gray-100 bg-white">
+        <div className="flex-shrink-0 flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-100 bg-white">
           <button
             onClick={step === 1 ? handleClose : () => setStep(step - 1)}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all"

@@ -573,17 +573,17 @@ export default function AddEmployeeModal({
         </div>
 
         {/* STICKY FOOTER */}
-        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3">
+        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex items-center justify-end gap-3">
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
-            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all"
+            className="px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all"
           >
             {step === 1 ? t('annuler') : t('retourFleche')}
           </button>
           <button
             onClick={step === 1 ? handleStep1Submit : handleFinalSubmit}
             disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
-            className="flex-1 bg-navy text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-navy text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {step === 1 ? t('suivantFleche') : t('creerEmploye')}
           </button>
