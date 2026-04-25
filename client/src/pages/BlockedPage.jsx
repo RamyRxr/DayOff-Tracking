@@ -9,12 +9,13 @@ export default function BlockedPage() {
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [unblockEmployee, setUnblockEmployee] = useState(null)
   const [showUnblock, setShowUnblock] = useState(false)
+  const isDark = document.documentElement.classList.contains('dark')
 
   // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 text-navy animate-spin" />
+        <Loader2 className="w-8 h-8 text-navy dark:text-[#2C4A6F] animate-spin" />
       </div>
     )
   }
@@ -22,9 +23,9 @@ export default function BlockedPage() {
   // Error state
   if (error) {
     return (
-      <div className="bg-apple-red/10 border border-apple-red/20 rounded-2xl p-6">
-        <div className="font-semibold text-apple-red mb-2">Erreur</div>
-        <p className="text-sm text-gray-700">{error}</p>
+      <div className="bg-apple-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-apple-red/20 dark:border-[rgba(255,59,48,0.2)] rounded-2xl p-6">
+        <div className="font-semibold text-apple-red dark:text-[#FF6B6B] mb-2">Erreur</div>
+        <p className="text-sm text-gray-700 dark:text-[#8E8E93]">{error}</p>
       </div>
     )
   }
@@ -174,21 +175,21 @@ Jours de congé:   ${block.daysUsed} / 15
       <div className="flex items-start justify-between mb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-apple-red/10 flex items-center justify-center">
-              <ShieldAlert className="w-5 h-5 text-apple-red" strokeWidth={2} />
+            <div className="w-10 h-10 rounded-full bg-apple-red/10 dark:bg-[rgba(192,57,43,0.2)] flex items-center justify-center">
+              <ShieldAlert className="w-5 h-5 text-apple-red dark:text-[#FF6B6B]" strokeWidth={2} />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+            <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-[#F2F2F7]">
               Employés Bloqués
             </h1>
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-[#8E8E93]">
             Liste des employés bloqués pour dépassement de quota
           </p>
         </div>
         {mockBlockedEmployees.length > 0 && (
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm text-navy border border-navy/20 hover:bg-navy/5 transition-all"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm text-navy dark:text-[#5E9FFF] border border-navy/20 dark:border-white/[0.12] hover:bg-navy/5 dark:hover:bg-white/[0.04] transition-all"
           >
             <Download className="w-4 h-4" />
             Exporter les données
@@ -198,14 +199,14 @@ Jours de congé:   ${block.daysUsed} / 15
 
       {/* Alert banner */}
       {mockBlockedEmployees.length > 0 && (
-        <div className="flex gap-3 p-4 bg-apple-red/10 border border-apple-red/20 rounded-2xl mb-6">
-          <AlertCircle className="w-5 h-5 text-apple-red flex-shrink-0 mt-0.5" />
+        <div className="flex gap-3 p-4 bg-apple-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-apple-red/20 dark:border-[rgba(255,59,48,0.2)] rounded-2xl mb-6">
+          <AlertCircle className="w-5 h-5 text-apple-red dark:text-[#FF6B6B] flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <div className="font-semibold text-apple-red text-sm">
+            <div className="font-semibold text-apple-red dark:text-[#FF6B6B] text-sm">
               {mockBlockedEmployees.length} employé
               {mockBlockedEmployees.length > 1 ? 's bloqués' : ' bloqué'}
             </div>
-            <p className="text-xs text-gray-700 mt-1">
+            <p className="text-xs text-gray-700 dark:text-[#8E8E93] mt-1">
               Ces employés ne peuvent plus demander de congés. Vous pouvez les
               débloquer manuellement après vérification.
             </p>
@@ -218,13 +219,19 @@ Jours de congé:   ${block.daysUsed} / 15
         {mockBlockedEmployees.map((employee) => (
           <div
             key={employee.id}
-            className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-ambient hover:shadow-modal transition-all duration-200 overflow-hidden"
+            className="bg-white/80 backdrop-blur-xl rounded-2xl transition-all duration-200 overflow-hidden border border-black/6 dark:border-white/[0.07]"
+            style={isDark ? {
+              backgroundColor: '#16161E',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset'
+            } : {
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+            }}
           >
             <div className="p-5">
               {/* Top section */}
               <div className="flex items-start gap-4 mb-4">
                 {/* Avatar */}
-                <div className="w-12 h-12 rounded-full bg-warm-gray-400 flex items-center justify-center text-sm font-semibold text-gray-700 flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-warm-gray-400 dark:bg-white/[0.06] flex items-center justify-center text-sm font-semibold text-gray-700 dark:text-[#8E8E93] flex-shrink-0">
                   {employee.avatar}
                 </div>
 
@@ -232,26 +239,26 @@ Jours de congé:   ${block.daysUsed} / 15
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-semibold text-gray-900 truncate">
+                      <h3 className="text-base font-semibold text-gray-900 dark:text-[#F2F2F7] truncate">
                         {employee.name}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs font-mono text-gray-600">
+                        <span className="text-xs font-mono text-gray-600 dark:text-[#8E8E93]">
                           {employee.matricule}
                         </span>
-                        <span className="px-2 py-0.5 bg-warm-gray-300 text-gray-700 text-[11px] rounded-md">
+                        <span className="px-2 py-0.5 bg-warm-gray-300 dark:bg-white/[0.06] text-gray-700 dark:text-[#8E8E93] text-[11px] rounded-md">
                           {employee.department}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-600 mt-1">
+                      <div className="text-xs text-gray-600 dark:text-[#8E8E93] mt-1">
                         {employee.position}
                       </div>
                     </div>
 
                     {/* Status badge */}
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-apple-red/10">
-                      <div className="w-1.5 h-1.5 rounded-full bg-apple-red" />
-                      <span className="text-xs font-medium text-apple-red">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-apple-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-transparent dark:border-[rgba(255,59,48,0.2)]">
+                      <div className="w-1.5 h-1.5 rounded-full bg-apple-red dark:bg-[#FF6B6B]" />
+                      <span className="text-xs font-medium text-apple-red dark:text-[#FF6B6B]">
                         Bloqué
                       </span>
                     </div>
@@ -260,14 +267,14 @@ Jours de congé:   ${block.daysUsed} / 15
               </div>
 
               {/* Reason section */}
-              <div className="bg-warm-gray-200 rounded-xl p-3 mb-4">
-                <div className="text-xs font-semibold text-gray-700 mb-1">
+              <div className="bg-warm-gray-200 dark:bg-white/[0.04] rounded-xl p-3 mb-4">
+                <div className="text-xs font-semibold text-gray-700 dark:text-[#8E8E93] mb-1">
                   Raison du blocage
                 </div>
-                <div className="text-sm text-gray-900">
+                <div className="text-sm text-gray-900 dark:text-[#F2F2F7]">
                   {employee.blockedReason}
                 </div>
-                <div className="text-xs text-gray-600 mt-2">
+                <div className="text-xs text-gray-600 dark:text-[#8E8E93] mt-2">
                   Bloqué le {formatDate(employee.blockedAt)} par{' '}
                   {employee.blockedBy}
                 </div>
@@ -277,20 +284,20 @@ Jours de congé:   ${block.daysUsed} / 15
               <div className="flex gap-3">
                 <button
                   onClick={() => setSelectedEmployee(employee)}
-                  className="flex-1 px-4 py-2.5 rounded-xl font-medium text-sm text-gray-600 hover:bg-black/5 transition-all duration-200"
+                  className="flex-1 px-4 py-2.5 rounded-xl font-medium text-sm text-gray-600 dark:text-[#8E8E93] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
                 >
                   Voir détails
                 </button>
                 <button
                   onClick={(e) => handleDownloadBlockDetails(employee, employee.blockData, e)}
-                  className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl font-medium text-sm text-navy border border-navy/20 hover:bg-navy/5 transition-all duration-200"
+                  className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl font-medium text-sm text-navy dark:text-[#5E9FFF] border border-navy/20 dark:border-white/[0.12] hover:bg-navy/5 dark:hover:bg-white/[0.04] transition-all duration-200"
                 >
                   <Download className="w-3.5 h-3.5" />
                   Télécharger
                 </button>
                 <button
                   onClick={(e) => handleUnblockClick(employee, employee.blockData, e)}
-                  className="flex items-center justify-center gap-2 border border-status-green/30 text-status-green px-4 py-2.5 rounded-xl font-medium text-sm hover:bg-status-green/5 transition-all duration-200"
+                  className="flex items-center justify-center gap-2 border border-status-green/30 dark:border-[rgba(52,199,89,0.2)] text-status-green dark:text-[#34C759] px-4 py-2.5 rounded-xl font-medium text-sm hover:bg-status-green/5 dark:hover:bg-[rgba(52,199,89,0.1)] transition-all duration-200"
                 >
                   <Unlock className="w-4 h-4" strokeWidth={2} />
                   Débloquer
@@ -303,14 +310,22 @@ Jours de congé:   ${block.daysUsed} / 15
 
       {/* Empty state */}
       {mockBlockedEmployees.length === 0 && (
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-ambient p-16 text-center">
-          <div className="w-16 h-16 rounded-full bg-apple-green/10 flex items-center justify-center mx-auto mb-4">
-            <ShieldAlert className="w-8 h-8 text-apple-green" strokeWidth={2} />
+        <div
+          className="bg-white/80 backdrop-blur-xl rounded-2xl p-16 text-center border border-black/6 dark:border-white/[0.07]"
+          style={isDark ? {
+            backgroundColor: '#16161E',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset'
+          } : {
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+          }}
+        >
+          <div className="w-16 h-16 rounded-full bg-apple-green/10 dark:bg-[rgba(52,199,89,0.15)] flex items-center justify-center mx-auto mb-4">
+            <ShieldAlert className="w-8 h-8 text-apple-green dark:text-[#34C759]" strokeWidth={2} />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-[#F2F2F7] mb-2">
             Aucun employé bloqué
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-[#8E8E93]">
             Tous les employés respectent le quota minimum de jours ouvrables.
           </p>
         </div>
