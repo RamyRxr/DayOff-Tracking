@@ -91,7 +91,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 text-navy animate-spin" />
+        <Loader2 className="w-8 h-8 text-navy dark:text-[#2C4A6F] animate-spin" />
       </div>
     )
   }
@@ -99,17 +99,17 @@ export default function HomePage() {
   // Error state
   if (error) {
     return (
-      <div className="bg-status-red/10 border border-status-red/20 rounded-2xl p-6">
+      <div className="bg-status-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-status-red/20 dark:border-[rgba(255,59,48,0.2)] rounded-2xl p-6">
         <div className="flex items-center gap-3">
-          <AlertCircle className="w-6 h-6 text-status-red" />
+          <AlertCircle className="w-6 h-6 text-status-red dark:text-[#FF6B6B]" />
           <div>
-            <div className="font-semibold text-status-red">
+            <div className="font-semibold text-status-red dark:text-[#FF6B6B]">
               {t('erreurChargement')}
             </div>
-            <p className="text-sm text-[#374151] mt-1">{error}</p>
+            <p className="text-sm text-[#374151] dark:text-[#8E8E93] mt-1">{error}</p>
             <button
               onClick={refetch}
-              className="text-sm text-navy hover:underline mt-2"
+              className="text-sm text-navy dark:text-[#5E9FFF] hover:underline mt-2"
             >
               {t('reessayer')}
             </button>
@@ -119,31 +119,45 @@ export default function HomePage() {
     )
   }
 
+  const isDark = document.documentElement.classList.contains('dark')
+
   return (
     <div>
       {/* Animated tab pills - Interactive filters */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-3 shadow-ambient mb-6 animate-fade-up">
+      <div
+        className="bg-white/80 backdrop-blur-xl rounded-2xl p-3 mb-6 animate-fade-up border border-black/6 dark:border-white/[0.07]"
+        style={isDark ? {
+          backgroundColor: '#16161E',
+          boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset'
+        } : {
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+        }}
+      >
         <div className="relative flex items-center justify-between gap-4 px-2">
           {/* Employés pill */}
           <button
             onClick={() => setActiveFilter(null)}
             className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === null
-                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
-                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
+                ? 'bg-white dark:bg-white/[0.08] text-gray-900 dark:text-[#F2F2F7] font-semibold border-black/[0.08] dark:border-white/[0.12] scale-[1.03]'
+                : 'bg-white/60 dark:bg-white/[0.04] text-gray-500 dark:text-[#8E8E93] border-black/[0.06] dark:border-white/[0.07] hover:bg-white/85 dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-[#F2F2F7] hover:scale-[1.02]'
             }`}
-            style={{
+            style={isDark ? {
+              boxShadow: activeFilter === null
+                ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(0,0,0,0.2)'
+                : 'none'
+            } : {
               boxShadow: activeFilter === null
                 ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
                 : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
             }}
             onMouseEnter={(e) => {
-              if (activeFilter !== null) {
+              if (activeFilter !== null && !isDark) {
                 e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
               }
             }}
             onMouseLeave={(e) => {
-              if (activeFilter !== null) {
+              if (activeFilter !== null && !isDark) {
                 e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
               }
             }}
@@ -153,28 +167,32 @@ export default function HomePage() {
           </button>
 
           {/* Divider */}
-          <div className="w-px h-8 bg-gray-100 self-center" />
+          <div className="w-px h-8 bg-gray-100 dark:bg-white/[0.06] self-center" />
 
           {/* Actifs pill */}
           <button
             onClick={() => setActiveFilter('actif')}
             className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'actif'
-                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
-                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
+                ? 'bg-white dark:bg-white/[0.08] text-gray-900 dark:text-[#F2F2F7] font-semibold border-black/[0.08] dark:border-white/[0.12] scale-[1.03]'
+                : 'bg-white/60 dark:bg-white/[0.04] text-gray-500 dark:text-[#8E8E93] border-black/[0.06] dark:border-white/[0.07] hover:bg-white/85 dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-[#F2F2F7] hover:scale-[1.02]'
             }`}
-            style={{
+            style={isDark ? {
+              boxShadow: activeFilter === 'actif'
+                ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(0,0,0,0.2)'
+                : 'none'
+            } : {
               boxShadow: activeFilter === 'actif'
                 ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
                 : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
             }}
             onMouseEnter={(e) => {
-              if (activeFilter !== 'actif') {
+              if (activeFilter !== 'actif' && !isDark) {
                 e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
               }
             }}
             onMouseLeave={(e) => {
-              if (activeFilter !== 'actif') {
+              if (activeFilter !== 'actif' && !isDark) {
                 e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
               }
             }}
@@ -184,66 +202,74 @@ export default function HomePage() {
           </button>
 
           {/* Divider */}
-          <div className="w-px h-8 bg-gray-100 self-center" />
+          <div className="w-px h-8 bg-gray-100 dark:bg-white/[0.06] self-center" />
 
           {/* À risque pill */}
           <button
             onClick={() => setActiveFilter('risque')}
             className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'risque'
-                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
-                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
+                ? 'bg-white dark:bg-white/[0.08] text-gray-900 dark:text-[#F2F2F7] font-semibold border-black/[0.08] dark:border-white/[0.12] scale-[1.03]'
+                : 'bg-white/60 dark:bg-white/[0.04] text-gray-500 dark:text-[#8E8E93] border-black/[0.06] dark:border-white/[0.07] hover:bg-white/85 dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-[#F2F2F7] hover:scale-[1.02]'
             }`}
-            style={{
+            style={isDark ? {
+              boxShadow: activeFilter === 'risque'
+                ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(0,0,0,0.2)'
+                : 'none'
+            } : {
               boxShadow: activeFilter === 'risque'
                 ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
                 : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
             }}
             onMouseEnter={(e) => {
-              if (activeFilter !== 'risque') {
+              if (activeFilter !== 'risque' && !isDark) {
                 e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
               }
             }}
             onMouseLeave={(e) => {
-              if (activeFilter !== 'risque') {
+              if (activeFilter !== 'risque' && !isDark) {
                 e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
               }
             }}
           >
-            <div className={`text-[22px] font-bold ${activeFilter === 'risque' ? 'text-amber-600' : ''}`}>
+            <div className={`text-[22px] font-bold ${activeFilter === 'risque' ? 'text-amber-600 dark:text-[#FF9F0A]' : ''}`}>
               {stats.risque}
             </div>
             <div className="text-[11px] uppercase tracking-wider mt-0.5">{t('aRisque')}</div>
           </button>
 
           {/* Divider */}
-          <div className="w-px h-8 bg-gray-100 self-center" />
+          <div className="w-px h-8 bg-gray-100 dark:bg-white/[0.06] self-center" />
 
           {/* Bloqués pill */}
           <button
             onClick={() => setActiveFilter('bloqué')}
             className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'bloqué'
-                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
-                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
+                ? 'bg-white dark:bg-white/[0.08] text-gray-900 dark:text-[#F2F2F7] font-semibold border-black/[0.08] dark:border-white/[0.12] scale-[1.03]'
+                : 'bg-white/60 dark:bg-white/[0.04] text-gray-500 dark:text-[#8E8E93] border-black/[0.06] dark:border-white/[0.07] hover:bg-white/85 dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-[#F2F2F7] hover:scale-[1.02]'
             }`}
-            style={{
+            style={isDark ? {
+              boxShadow: activeFilter === 'bloqué'
+                ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(0,0,0,0.2)'
+                : 'none'
+            } : {
               boxShadow: activeFilter === 'bloqué'
                 ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
                 : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
             }}
             onMouseEnter={(e) => {
-              if (activeFilter !== 'bloqué') {
+              if (activeFilter !== 'bloqué' && !isDark) {
                 e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
               }
             }}
             onMouseLeave={(e) => {
-              if (activeFilter !== 'bloqué') {
+              if (activeFilter !== 'bloqué' && !isDark) {
                 e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
               }
             }}
           >
-            <div className={`text-[22px] font-bold ${activeFilter === 'bloqué' ? 'text-red-600' : ''}`}>
+            <div className={`text-[22px] font-bold ${activeFilter === 'bloqué' ? 'text-red-600 dark:text-[#FF6B6B]' : ''}`}>
               {stats.bloqué}
             </div>
             <div className="text-[11px] uppercase tracking-wider mt-0.5">{t('bloques')}</div>
@@ -253,80 +279,103 @@ export default function HomePage() {
 
       {/* Filter label */}
       {getFilterLabel() && (
-        <div className="text-sm text-[#6B7280] font-medium mb-4">
+        <div className="text-sm text-[#6B7280] dark:text-[#8E8E93] font-medium mb-4">
           {getFilterLabel()}
         </div>
       )}
 
       {/* Section label */}
-      <h2 className="text-xs uppercase tracking-widest text-[#6B7280] font-semibold mb-4 mt-8">
+      <h2 className="text-xs uppercase tracking-widest text-[#6B7280] dark:text-[#8E8E93] font-semibold mb-4 mt-8">
         {t('activiteRecente')}
       </h2>
 
       {/* Employee table */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-ambient overflow-hidden">
+      <div
+        className="bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden border border-black/6 dark:border-white/[0.07]"
+        style={isDark ? {
+          backgroundColor: '#16161E',
+          boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset'
+        } : {
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+        }}
+      >
         {filteredEmployees.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-[#6B7280]">{t('aucunEmployeTrouve')}</p>
+            <p className="text-[#6B7280] dark:text-[#8E8E93]">{t('aucunEmployeTrouve')}</p>
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-warm-gray-200 border-b border-black/6">
+            <thead className="bg-warm-gray-200 dark:bg-white/[0.04] border-b border-black/6 dark:border-white/[0.06]">
               <tr>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
                   {t('employe')}
                 </th>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
                   {t('departement')}
                 </th>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
                   {t('conge')}
                 </th>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
                   {t('statut')}
                 </th>
-                <th className="text-right px-6 py-3 text-[11px] font-semibold text-[#374151] uppercase tracking-wider">
+                <th className="text-right px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
                   {t('actions')}
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/6">
+            <tbody className="divide-y divide-black/6 dark:divide-white/[0.06]">
               {filteredEmployees.slice(0, 5).map((employee) => {
                 const statusConfig = {
-                  actif: { label: t('actif'), dotColor: 'bg-status-green', bgColor: 'bg-status-green/10', textColor: 'text-status-green' },
-                  risque: { label: t('aRisqueStatus'), dotColor: 'bg-status-amber', bgColor: 'bg-status-amber/10', textColor: 'text-status-amber' },
-                  bloqué: { label: t('bloque'), dotColor: 'bg-status-red', bgColor: 'bg-status-red/10', textColor: 'text-status-red' },
+                  actif: {
+                    label: t('actif'),
+                    dotColor: 'bg-status-green dark:bg-[#34C759]',
+                    bgColor: 'bg-status-green/10 dark:bg-[rgba(52,199,89,0.15)] border border-transparent dark:border-[rgba(52,199,89,0.2)]',
+                    textColor: 'text-status-green dark:text-[#34C759]'
+                  },
+                  risque: {
+                    label: t('aRisqueStatus'),
+                    dotColor: 'bg-status-amber dark:bg-[#FF9F0A]',
+                    bgColor: 'bg-status-amber/10 dark:bg-[rgba(255,159,10,0.15)] border border-transparent dark:border-[rgba(255,159,10,0.2)]',
+                    textColor: 'text-status-amber dark:text-[#FF9F0A]'
+                  },
+                  bloqué: {
+                    label: t('bloque'),
+                    dotColor: 'bg-status-red dark:bg-[#FF6B6B]',
+                    bgColor: 'bg-status-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-transparent dark:border-[rgba(255,59,48,0.2)]',
+                    textColor: 'text-status-red dark:text-[#FF6B6B]'
+                  },
                 }
                 const status = statusConfig[employee.status] || statusConfig.actif
 
                 return (
                   <tr
                     key={employee.id}
-                    className="h-[52px] hover:bg-black/[0.02] transition-colors cursor-pointer"
+                    className="h-[52px] hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors cursor-pointer"
                     onClick={() => setSelectedEmployee(employee)}
                   >
                     <td className="px-6 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-warm-gray-200 flex items-center justify-center text-xs font-semibold text-[#374151]">
+                        <div className="w-8 h-8 rounded-full bg-warm-gray-200 dark:bg-white/[0.06] flex items-center justify-center text-xs font-semibold text-[#374151] dark:text-[#8E8E93]">
                           {employee.avatar}
                         </div>
                         <div>
-                          <div className="font-semibold text-sm text-[#111827]">
+                          <div className="font-semibold text-sm text-[#111827] dark:text-[#F2F2F7]">
                             {employee.name}
                           </div>
-                          <div className="text-[11px] font-mono text-[#6B7280]">
+                          <div className="text-[11px] font-mono text-[#6B7280] dark:text-[#8E8E93]">
                             {employee.matricule}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-3">
-                      <span className="inline-block px-2 py-0.5 bg-warm-gray-300 text-[#374151] text-[11px] rounded-md">
+                      <span className="inline-block px-2 py-0.5 bg-warm-gray-300 dark:bg-white/[0.06] text-[#374151] dark:text-[#8E8E93] text-[11px] rounded-md">
                         {employee.department}
                       </span>
                     </td>
                     <td className="px-6 py-3">
-                      <div className="text-sm text-[#111827]">
+                      <div className="text-sm text-[#111827] dark:text-[#F2F2F7]">
                         {employee.daysUsed} {t('jours')}
                       </div>
                     </td>
@@ -344,7 +393,7 @@ export default function HomePage() {
                           e.stopPropagation()
                           setSelectedEmployee(employee)
                         }}
-                        className="text-xs font-medium text-[#6B7280] hover:text-navy transition-colors px-2 py-1"
+                        className="text-xs font-medium text-[#6B7280] dark:text-[#8E8E93] hover:text-navy dark:hover:text-[#5E9FFF] transition-colors px-2 py-1"
                       >
                         {t('details')}
                       </button>
@@ -361,9 +410,16 @@ export default function HomePage() {
       {isHomePage && (
         <button
           onClick={() => setShowHomeAddDayOff(true)}
-          className={`fixed bottom-8 right-8 w-14 h-14 bg-navy rounded-2xl flex items-center justify-center text-white shadow-modal hover:bg-navy-dark hover:scale-110 hover:rotate-90 active:scale-95 transition-all duration-300 group z-50 ${
+          className={`fixed bottom-8 right-8 w-14 h-14 rounded-2xl flex items-center justify-center text-white hover:scale-110 hover:rotate-90 active:scale-95 transition-all duration-300 group z-50 ${
             isAnyModalOpen ? 'opacity-0 pointer-events-none' : ''
           }`}
+          style={isDark ? {
+            background: 'linear-gradient(145deg, #2C4A6F, #1A2F4F)',
+            boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+          } : {
+            backgroundColor: '#1E3A5F',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+          }}
         >
           <Plus className="w-6 h-6 group-hover:w-7 group-hover:h-7 transition-all duration-300" strokeWidth={2.5} />
         </button>
