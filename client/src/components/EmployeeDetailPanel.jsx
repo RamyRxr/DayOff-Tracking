@@ -304,99 +304,82 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               </div>
             </div>
 
-            {/* Calendar grid - seamless professional layout */}
-            <div className="rounded-xl overflow-hidden" style={{
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-              background: '#FFFFFF'
-            }}>
-              {/* Day-of-week headers */}
-              <div className="grid grid-cols-7" style={{
-                borderBottom: '1px solid rgba(0,0,0,0.08)',
-                background: '#FAFAFA'
-              }}>
-                {[
-                  { label: 'LU', isWeekend: false },
-                  { label: 'MA', isWeekend: false },
-                  { label: 'ME', isWeekend: false },
-                  { label: 'JE', isWeekend: false },
-                  { label: 'VE', isWeekend: true },
-                  { label: 'SA', isWeekend: true },
-                  { label: 'DI', isWeekend: false }
-                ].map((day, i) => (
-                  <div
-                    key={i}
-                    className={`text-[10px] uppercase font-semibold text-center py-2 ${
-                      day.isWeekend ? 'text-gray-400' : 'text-gray-600'
-                    }`}
-                    style={{
-                      letterSpacing: '0.5px',
-                      borderRight: i < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none'
-                    }}
-                  >
-                    {day.label}
-                  </div>
-                ))}
-              </div>
-
-              {/* Day cells - seamless grid */}
-              <div className="grid grid-cols-7">
-                {periodDays.map((dayData, i) => {
-                  // Only 3 colors: day-off (red gradient), normal (white-gray), weekend (gray)
+            {/* Split Calendar - First Half (20-30) */}
+            <div className="mb-4">
+              <div className="text-[11px] uppercase tracking-wider text-gray-400 mb-2 ml-1">Avril</div>
+              <div className="grid grid-cols-7 gap-1">
+                {periodDays.filter(d => d.day >= 20 && d.date.getMonth() === periodStart.getMonth()).map((dayData, i) => {
                   const isDayOff = dayData.isDayOff
                   const isWeekend = dayData.isWeekend
-
-                  // Grid positioning
-                  const col = i % 7
-                  const isLastCol = col === 6
-                  const isLastRow = i >= periodDays.length - 7
-
-                  // Month separator
-                  const prevDay = i > 0 ? periodDays[i - 1] : null
-                  const isNewMonth = prevDay && dayData.date.getMonth() !== prevDay.date.getMonth()
-                  const isFirstOfRow = col === 0
-                  const shouldShowMonthSeparator = isNewMonth && isFirstOfRow
-
-                  let cellStyle = {
-                    width: '36px',
-                    height: '36px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
-                    borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
-                  }
-                  let textClass = 'transition-all duration-150 rounded-lg'
-
-                  // Month separator
-                  if (shouldShowMonthSeparator) {
-                    cellStyle.borderTop = '2px solid rgba(0,0,0,0.15)'
-                  }
-
-                  if (isDayOff) {
-                    // COLOR 1 - Day off: rich shiny red gradient
-                    cellStyle.background = 'linear-gradient(135deg, #FF3B30, #C0392B)'
-                    cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
-                    textClass += ' text-white font-semibold'
-                  } else if (isWeekend) {
-                    // COLOR 3 - Weekend: medium gray
-                    cellStyle.background = '#E5E5EA'
-                    cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.05)'
-                    textClass += ' text-[#8E8E93] cursor-not-allowed'
-                  } else {
-                    // COLOR 2 - Normal workday: light warm gray
-                    cellStyle.background = '#FAFAFA'
-                    cellStyle.border = '1px solid rgba(0,0,0,0.05)'
-                    cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.03)'
-                    textClass += ' text-[#1C1C1E] hover:bg-[#F2F2F7]'
-                  }
+                  const isToday = dayData.date.toDateString() === new Date().toDateString()
 
                   return (
                     <div
                       key={i}
-                      className={textClass}
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
+                        isDayOff
+                          ? 'text-white font-semibold'
+                          : isWeekend
+                            ? 'text-[#8E8E93] cursor-not-allowed'
+                            : 'text-[#1C1C1E] hover:bg-[#F2F2F7]'
+                      }`}
                       style={{
-                        fontSize: '13px',
-                        ...cellStyle
+                        background: isDayOff
+                          ? 'linear-gradient(135deg, #FF3B30, #C0392B)'
+                          : isWeekend
+                            ? '#E5E5EA'
+                            : isToday
+                              ? 'rgba(0,122,255,0.08)'
+                              : '#FAFAFA',
+                        boxShadow: isDayOff
+                          ? 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                          : isToday
+                            ? '0 0 0 1.5px #007AFF'
+                            : 'inset 0 1px 2px rgba(0,0,0,0.03)',
+                      }}
+                    >
+                      {dayData.day}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Month Separator */}
+            <div className="w-full h-px bg-gray-100 my-3" />
+
+            {/* Split Calendar - Second Half (1-19) */}
+            <div className="mt-2">
+              <div className="text-[11px] uppercase tracking-wider text-gray-400 mb-2 ml-1">Mai</div>
+              <div className="grid grid-cols-7 gap-1">
+                {periodDays.filter(d => d.day <= 19 && d.date.getMonth() !== periodStart.getMonth()).map((dayData, i) => {
+                  const isDayOff = dayData.isDayOff
+                  const isWeekend = dayData.isWeekend
+                  const isToday = dayData.date.toDateString() === new Date().toDateString()
+
+                  return (
+                    <div
+                      key={i}
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
+                        isDayOff
+                          ? 'text-white font-semibold'
+                          : isWeekend
+                            ? 'text-[#8E8E93] cursor-not-allowed'
+                            : 'text-[#1C1C1E] hover:bg-[#F2F2F7]'
+                      }`}
+                      style={{
+                        background: isDayOff
+                          ? 'linear-gradient(135deg, #FF3B30, #C0392B)'
+                          : isWeekend
+                            ? '#E5E5EA'
+                            : isToday
+                              ? 'rgba(0,122,255,0.08)'
+                              : '#FAFAFA',
+                        boxShadow: isDayOff
+                          ? 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                          : isToday
+                            ? '0 0 0 1.5px #007AFF'
+                            : 'inset 0 1px 2px rgba(0,0,0,0.03)',
                       }}
                     >
                       {dayData.day}
