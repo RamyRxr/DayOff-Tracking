@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { Home, Users, ShieldAlert, Calendar, LogOut, Moon, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useDarkMode } from '../hooks/useDarkMode'
 
 const navItems = [
   { to: '/', labelKey: 'accueil', icon: Home },
@@ -12,30 +11,17 @@ const navItems = [
 
 export default function Sidebar({ currentAdmin, onLogout }) {
   const { t } = useTranslation()
-  const { isDark, toggle } = useDarkMode()
 
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-60 bg-white/60 dark:bg-[#1C1C1E]/90 backdrop-blur-2xl border-r-0.5 border-black/6 dark:border-white/[0.06] flex flex-col z-40">
-      {/* Logo + Dark Mode Toggle */}
-      <div className="px-6 py-6 flex items-center justify-between">
-        <div>
-          <div className="font-display text-xl font-bold tracking-tight text-[#111827] dark:text-white">
-            DayOff
-          </div>
-          <div className="text-[10px] text-[#6B7280] dark:text-gray-400 mt-0.5 tracking-widest uppercase font-medium">
-            NAFTAL
-          </div>
+      {/* Logo */}
+      <div className="px-6 py-6">
+        <div className="font-display text-xl font-bold tracking-tight text-[#111827] dark:text-white">
+          DayOff
         </div>
-        <button
-          onClick={toggle}
-          className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all duration-300"
-        >
-          {isDark ? (
-            <Sun className="w-4 h-4 text-gray-700 dark:text-gray-200 transition-all duration-300" style={{ transform: 'rotate(0deg)' }} />
-          ) : (
-            <Moon className="w-4 h-4 text-gray-600 transition-all duration-300" style={{ transform: 'rotate(0deg)' }} />
-          )}
-        </button>
+        <div className="text-[10px] text-[#6B7280] dark:text-gray-400 mt-0.5 tracking-widest uppercase font-medium">
+          NAFTAL
+        </div>
       </div>
 
       {/* Navigation */}

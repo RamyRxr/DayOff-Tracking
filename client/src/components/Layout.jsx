@@ -1,12 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Moon, Sun } from 'lucide-react'
 import Sidebar from './Sidebar'
 import LanguageSelector from './LanguageSelector'
 import { useEmployees } from '../hooks/useEmployees'
+import { useDarkMode } from '../hooks/useDarkMode'
 
 export default function Layout({ currentAdmin, onLogout }) {
   const { t } = useTranslation()
+  const { isDark, toggle: toggleDarkMode } = useDarkMode()
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [readNotifications, setReadNotifications] = useState(new Set())
   const notifRef = useRef(null)
@@ -166,6 +169,19 @@ export default function Layout({ currentAdmin, onLogout }) {
               </div>
             )}
           </div>
+
+          {/* Dark/Light Mode Toggle */}
+          <button
+            onClick={toggleDarkMode}
+            className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all duration-200 mr-3"
+            title={isDark ? 'Mode clair' : 'Mode sombre'}
+          >
+            {isDark ? (
+              <Sun size={16} className="text-amber-500" />
+            ) : (
+              <Moon size={16} className="text-gray-600" />
+            )}
+          </button>
 
           {/* Language Selector */}
           <LanguageSelector />
