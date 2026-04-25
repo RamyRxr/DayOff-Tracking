@@ -4,9 +4,9 @@ import './index.css'
 import './i18n'
 import App from './App.jsx'
 
-// Apply dark mode immediately to prevent flash
-const savedTheme = localStorage.getItem('darkMode')
-if (savedTheme === 'true') {
+// Apply saved theme before React renders to prevent flash
+const savedTheme = localStorage.getItem('theme')
+if (savedTheme === 'dark') {
   document.documentElement.classList.add('dark')
 }
 

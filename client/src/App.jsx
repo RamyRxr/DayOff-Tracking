@@ -6,8 +6,10 @@ import EmployeesPage from './pages/EmployeesPage'
 import BlockedPage from './pages/BlockedPage'
 import CalendarPage from './pages/CalendarPage'
 import LoginPage from './pages/LoginPage'
+import { useDarkMode } from './hooks/useDarkMode'
 
 function App() {
+  const { isDark } = useDarkMode()
   const [currentAdmin, setCurrentAdmin] = useState(null)
 
   // Load admin from localStorage on mount
