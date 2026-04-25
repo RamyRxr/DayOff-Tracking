@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { X, ShieldAlert, AlertTriangle, ChevronLeft, Check } from 'lucide-react'
 import CustomSelect from './CustomSelect'
 
@@ -10,23 +10,12 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
   const [selectedAdmin, setSelectedAdmin] = useState(null)
   const [pin, setPin] = useState(['', '', '', ''])
   const [pinStatus, setPinStatus] = useState('idle')
-  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false)
-  const sentinelRef = useRef(null)
-
-  // IntersectionObserver for footer visibility
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setHasScrolledToBottom(true)
-      },
-      { threshold: 0.1 }
-    )
-    if (sentinelRef.current) observer.observe(sentinelRef.current)
-    return () => observer.disconnect()
-  }, [])
 
   // Early return AFTER all hooks
   if (!isOpen || !employee) return null
+
+  // Check if employee can be blocked
+  const canBlock = employee.daysUsed >= 15
 
   const handleClose = () => {
     setStep(1)
@@ -314,30 +303,45 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
               </div>
             </>
           )}
-
-          {/* Sentinel for IntersectionObserver */}
-          <div ref={sentinelRef} className="h-px" />
         </div>
 
-        {/* STICKY FOOTER with IntersectionObserver animation */}
-        <div className={`flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3 transition-all duration-300 ${
-          hasScrolledToBottom
-            ? 'opacity-100 translate-y-0'
-            : 'opacity-0 translate-y-4 pointer-events-none'
-        }`}>
+        {/* STICKY FOOTER - always visible */}
+        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3">
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all duration-200"
           >
             {step === 1 ? 'Annuler' : '← Retour'}
           </button>
-          <button
-            onClick={step === 1 ? () => setStep(2) : handleSubmit}
-            disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
-            className="flex-1 bg-status-red text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {step === 1 ? 'Suivant →' : 'Confirmer le blocage'}
-          </button>
+
+          {step === 1 ? (
+            <div className="flex-1 relative group">
+              <button
+                onClick={canBlock && reason ? () => setStep(2) : undefined}
+                disabled={!canBlock || !reason}
+                className={`w-full px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
+                  canBlock && reason
+                    ? 'bg-status-red text-white shadow-ambient hover:shadow-modal cursor-pointer'
+                    : 'bg-status-red text-white opacity-40 cursor-not-allowed'
+                }`}
+              >
+                Suivant →
+              </button>
+              {!canBlock && (
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[11px] rounded-lg px-3 py-1.5 whitespace-nowrap pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                  Blocage impossible — l'employé n'a pas atteint 15 jours de congé
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={handleSubmit}
+              disabled={!isStep2Valid}
+              className="flex-1 bg-status-red text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Confirmer le blocage
+            </button>
+          )}
         </div>
       </div>
     </div>
