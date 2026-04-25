@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X, Upload, Search, ChevronLeft, Check, AlertTriangle } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
@@ -26,6 +26,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const [selectedAdmin, setSelectedAdmin] = useState(null)
   const [pin, setPin] = useState(['', '', '', ''])
   const [pinStatus, setPinStatus] = useState('idle')
+  const typeSelectRef = useRef(null)
 
   const { employees, loading } = useEmployees()
   const { daysOff, addDayOff } = useDaysOff({ employeeId: selectedEmployee?.id })
@@ -714,19 +715,29 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
               </div>
 
               {/* Reason selector */}
-              <CustomSelect
-                label={t('typeConge')}
-                required
-                value={reason}
-                onChange={setReason}
-                placeholder={t('typeConge')}
-                options={[
-                  { value: 'annual', label: t('congeAnnuel') },
-                  { value: 'sick', label: t('congeMaladie') },
-                  { value: 'unpaid', label: t('congeSansSolde') },
-                  { value: 'other', label: t('autre') },
-                ]}
-              />
+              <div ref={typeSelectRef}>
+                <CustomSelect
+                  label={t('typeConge')}
+                  required
+                  value={reason}
+                  onChange={setReason}
+                  placeholder={t('typeConge')}
+                  options={[
+                    { value: 'annual', label: t('congeAnnuel') },
+                    { value: 'sick', label: t('congeMaladie') },
+                    { value: 'unpaid', label: t('congeSansSolde') },
+                    { value: 'other', label: t('autre') },
+                  ]}
+                  onOpen={() => {
+                    setTimeout(() => {
+                      typeSelectRef.current?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                      })
+                    }, 150)
+                  }}
+                />
+              </div>
             </>
           )}
 

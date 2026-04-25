@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X, Upload, AlertTriangle, ChevronLeft, Check } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
@@ -16,6 +16,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
   const [selectedAdmin, setSelectedAdmin] = useState(null)
   const [pin, setPin] = useState(['', '', '', ''])
   const [pinStatus, setPinStatus] = useState('idle') // idle | verifying | verified | error
+  const typeSelectRef = useRef(null)
 
   const { daysOff } = useDaysOff({ employeeId: employee?.id })
 
@@ -573,19 +574,29 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               </div>
 
               {/* Reason Selector */}
-              <CustomSelect
-                label="Type de congé"
-                required
-                value={reason}
-                onChange={(value) => setReason(value)}
-                placeholder="Sélectionnez un type"
-                options={[
-                  { value: 'Congé annuel', label: 'Congé annuel' },
-                  { value: 'Congé maladie', label: 'Congé maladie' },
-                  { value: 'Congé sans solde', label: 'Congé sans solde' },
-                  { value: 'Autre', label: 'Autre' },
-                ]}
-              />
+              <div ref={typeSelectRef}>
+                <CustomSelect
+                  label="Type de congé"
+                  required
+                  value={reason}
+                  onChange={(value) => setReason(value)}
+                  placeholder="Sélectionnez un type"
+                  options={[
+                    { value: 'Congé annuel', label: 'Congé annuel' },
+                    { value: 'Congé maladie', label: 'Congé maladie' },
+                    { value: 'Congé sans solde', label: 'Congé sans solde' },
+                    { value: 'Autre', label: 'Autre' },
+                  ]}
+                  onOpen={() => {
+                    setTimeout(() => {
+                      typeSelectRef.current?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                      })
+                    }, 150)
+                  }}
+                />
+              </div>
             </>
           ) : (
             <>
