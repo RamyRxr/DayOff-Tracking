@@ -4,11 +4,13 @@ import { X, Upload, AlertTriangle, ChevronLeft } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useDaysOff } from '../hooks/useDaysOff'
+import { useDarkMode } from '../hooks/useDarkMode'
 import CustomSelect from './CustomSelect'
 import AutorisationStep from './AutorisationStep'
 
 export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) {
   const navigate = useNavigate()
+  const { isDark } = useDarkMode()
   const [step, setStep] = useState(1)
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
@@ -222,36 +224,38 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
   const isStep2Valid = pinStatus === 'verified'
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+    <div className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
       <div
-        className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col h-[92vh] sm:max-h-[88vh] overflow-hidden"
-        style={{
+        className="bg-white dark:bg-[#16161E] rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col h-[92vh] sm:max-h-[88vh] overflow-hidden"
+        style={isDark ? {
+          boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 24px 64px rgba(0,0,0,0.6)'
+        } : {
           boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)'
         }}
       >
         {/* STICKY HEADER */}
-        <div className="flex-shrink-0 bg-white border-b border-gray-100 px-5 pt-5 pb-4 flex items-center justify-between">
+        <div className="flex-shrink-0 bg-white dark:bg-[#16161E] border-b border-gray-100 dark:border-white/[0.06] px-5 pt-5 pb-4 flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3">
               {step === 2 && (
                 <button
                   onClick={() => setStep(1)}
-                  className="p-1 hover:bg-black/5 rounded-lg transition-colors"
+                  className="p-1 hover:bg-black/5 dark:hover:bg-white/[0.06] rounded-lg transition-colors"
                 >
-                  <ChevronLeft className="w-5 h-5 text-[#6B7280]" />
+                  <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#8E8E93]" />
                 </button>
               )}
               <div>
-                <h2 className="text-[17px] font-semibold text-[#111827]">
+                <h2 className="text-[17px] font-semibold text-[#111827] dark:text-[#F2F2F7]">
                   {step === 1 ? 'Ajouter un Congé' : 'Autorisation'}
                 </h2>
                 {step === 1 && employee && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-[#8E8E93] mt-1">
                     {employee.name} · {employee.matricule}
                   </p>
                 )}
                 {step === 2 && startDate && endDate && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-[#8E8E93] mt-1">
                     {format(startDate, 'd', { locale: fr })}–{format(endDate, 'd MMM', { locale: fr })} · {workingDays} jours · {reason}
                   </p>
                 )}
@@ -259,14 +263,14 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="bg-gray-100 text-gray-500 text-xs rounded-full px-2 py-0.5">
+            <span className="bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-[#8E8E93] text-xs rounded-full px-2 py-0.5">
               Étape {step} / 2
             </span>
             <button
               onClick={handleClose}
-              className="w-8 h-8 rounded-lg hover:bg-black/5 flex items-center justify-center transition-colors"
+              className="w-8 h-8 rounded-lg hover:bg-black/5 dark:hover:bg-white/[0.06] flex items-center justify-center transition-colors"
             >
-              <X className="w-5 h-5 text-[#6B7280]" />
+              <X className="w-5 h-5 text-[#6B7280] dark:text-[#8E8E93]" />
             </button>
           </div>
         </div>
@@ -277,35 +281,38 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
             <>
               {/* Two-Month Calendar */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] mb-3">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-3">
                   Dates du congé
                 </label>
 
                 {/* CURRENT MONTH */}
                 <div className="mb-4">
-                  <div
-                    className="text-[11px] uppercase font-semibold mb-2 tracking-wider"
-                    style={{ color: '#6B7280' }}
-                  >
+                  <div className="text-[11px] uppercase font-semibold mb-2 tracking-wider text-[#6B7280] dark:text-[#636366]">
                     {format(currentMonthObj, 'MMMM', { locale: fr })}
                   </div>
 
-                  <div className="rounded-xl overflow-hidden" style={{
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-                    background: '#FFFFFF'
-                  }}>
+                  <div
+                    className="rounded-xl overflow-hidden bg-white dark:bg-[#1C1C28]"
+                    style={isDark ? {
+                      boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 1px 3px rgba(0,0,0,0.4)'
+                    } : {
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)'
+                    }}
+                  >
                     {/* Day headers */}
-                    <div className="grid grid-cols-7" style={{
-                      borderBottom: '1px solid rgba(0,0,0,0.08)',
-                      background: '#FAFAFA'
-                    }}>
+                    <div
+                      className="grid grid-cols-7 bg-[#FAFAFA] dark:bg-white/[0.04]"
+                      style={{
+                        borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(0,0,0,0.08)'
+                      }}
+                    >
                       {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
                         <div
                           key={i}
-                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 uppercase"
+                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 dark:text-[#8E8E93] uppercase"
                           style={{
                             letterSpacing: '0.5px',
-                            borderRight: i < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none'
+                            borderRight: i < 6 ? (isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)') : 'none'
                           }}
                         >
                           {day}
@@ -335,8 +342,8 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                         const isToday = isSameDay(day, today)
 
                         let cellStyle = {
-                          borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
-                          borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                          borderRight: !isLastCol ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
+                          borderBottom: !isLastRow ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
                         }
                         let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
 
@@ -358,7 +365,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                           cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,122,255,0.15)'
                           textClass += ' text-[#0055D4] font-medium'
                         } else if (isWeekend) {
-                          cellStyle.background = '#F2F2F7'
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7'
                           cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
                           textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else if (isToday && !isStart && !isEnd) {
@@ -370,9 +377,9 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                           cellStyle.opacity = 0.6
                           textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else {
-                          cellStyle.background = 'rgba(255,255,255,0.8)'
-                          cellStyle.boxShadow = 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
-                          textClass += ' text-[#374151] hover:bg-[#F2F2F7]'
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.8)'
+                          cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06), 0 0 0 1px rgba(255,255,255,0.04)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
+                          textClass += isDark ? ' text-[#C7C7CC] hover:bg-white/[0.06]' : ' text-[#374151] hover:bg-[#F2F2F7]'
                         }
 
                         return (
@@ -395,33 +402,36 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                 </div>
 
                 {/* SEPARATOR */}
-                <div className="w-full h-px my-4" style={{ background: '#E5E5EA' }} />
+                <div className="w-full h-px my-4 bg-[#E5E5EA] dark:bg-white/[0.06]" />
 
                 {/* NEXT MONTH */}
                 <div className="mb-3">
-                  <div
-                    className="text-[11px] uppercase font-semibold mb-2 tracking-wider"
-                    style={{ color: '#6B7280' }}
-                  >
+                  <div className="text-[11px] uppercase font-semibold mb-2 tracking-wider text-[#6B7280] dark:text-[#636366]">
                     {format(nextMonthObj, 'MMMM', { locale: fr })}
                   </div>
 
-                  <div className="rounded-xl overflow-hidden" style={{
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-                    background: '#FFFFFF'
-                  }}>
+                  <div
+                    className="rounded-xl overflow-hidden bg-white dark:bg-[#1C1C28]"
+                    style={isDark ? {
+                      boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 1px 3px rgba(0,0,0,0.4)'
+                    } : {
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)'
+                    }}
+                  >
                     {/* Day headers */}
-                    <div className="grid grid-cols-7" style={{
-                      borderBottom: '1px solid rgba(0,0,0,0.08)',
-                      background: '#FAFAFA'
-                    }}>
+                    <div
+                      className="grid grid-cols-7 bg-[#FAFAFA] dark:bg-white/[0.04]"
+                      style={{
+                        borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(0,0,0,0.08)'
+                      }}
+                    >
                       {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
                         <div
                           key={i}
-                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 uppercase"
+                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 dark:text-[#8E8E93] uppercase"
                           style={{
                             letterSpacing: '0.5px',
-                            borderRight: i < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none'
+                            borderRight: i < 6 ? (isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)') : 'none'
                           }}
                         >
                           {day}
@@ -451,8 +461,8 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                         const isToday = isSameDay(day, today)
 
                         let cellStyle = {
-                          borderRight: !isLastCol ? '1px solid rgba(0,0,0,0.06)' : 'none',
-                          borderBottom: !isLastRow ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                          borderRight: !isLastCol ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
+                          borderBottom: !isLastRow ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
                         }
                         let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
 
@@ -474,7 +484,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                           cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,122,255,0.15)'
                           textClass += ' text-[#0055D4] font-medium'
                         } else if (isWeekend) {
-                          cellStyle.background = '#F2F2F7'
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7'
                           cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
                           textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else if (isToday && !isStart && !isEnd) {
@@ -486,9 +496,9 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                           cellStyle.opacity = 0.6
                           textClass += ' text-[#C7C7CC] cursor-not-allowed'
                         } else {
-                          cellStyle.background = 'rgba(255,255,255,0.8)'
-                          cellStyle.boxShadow = 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
-                          textClass += ' text-[#374151] hover:bg-[#F2F2F7]'
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.8)'
+                          cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06), 0 0 0 1px rgba(255,255,255,0.04)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
+                          textClass += isDark ? ' text-[#C7C7CC] hover:bg-white/[0.06]' : ' text-[#374151] hover:bg-[#F2F2F7]'
                         }
 
                         return (
@@ -512,8 +522,8 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
 
                 {/* Summary chip */}
                 {startDate && endDate && (
-                  <div className="bg-navy/5 border border-navy/10 rounded-xl p-3">
-                    <div className="text-sm font-semibold text-navy">
+                  <div className="bg-navy/5 dark:bg-[#2C4A6F]/10 border border-navy/10 dark:border-[#2C4A6F]/20 rounded-xl p-3">
+                    <div className="text-sm font-semibold text-navy dark:text-[#5E9FFF]">
                       {workingDays} jours ouvrables · {totalCalendarDays} jours calendaires
                     </div>
                   </div>
@@ -521,9 +531,9 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
 
                 {/* Sandwich warning */}
                 {hasSandwich && (
-                  <div className="flex gap-2 p-3 bg-status-amber/10 border border-status-amber/20 rounded-xl mt-2">
-                    <AlertTriangle className="w-4 h-4 text-status-amber flex-shrink-0 mt-0.5" />
-                    <div className="text-xs text-status-amber">
+                  <div className="flex gap-2 p-3 bg-status-amber/10 dark:bg-[rgba(255,159,10,0.15)] border border-status-amber/20 dark:border-[rgba(255,159,10,0.2)] rounded-xl mt-2">
+                    <AlertTriangle className="w-4 h-4 text-status-amber dark:text-[#FF9F0A] flex-shrink-0 mt-0.5" />
+                    <div className="text-xs text-status-amber dark:text-[#FF9F0A]">
                       ⚠ Détection sandwich — Jours réels: {totalCalendarDays} · Déclarés: {workingDays}
                     </div>
                   </div>
@@ -532,36 +542,36 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
 
               {/* File Upload */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] mb-2">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
                   Pièce justificative
-                  <span className="text-[#6B7280] font-normal ml-1">(optionnel)</span>
+                  <span className="text-[#6B7280] dark:text-[#8E8E93] font-normal ml-1">(optionnel)</span>
                 </label>
 
                 {uploadedFile ? (
-                  <div className="flex items-center justify-between p-3 bg-warm-gray-200 rounded-xl">
+                  <div className="flex items-center justify-between p-3 bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl">
                     <div className="flex items-center gap-2">
-                      <Upload className="w-4 h-4 text-navy" />
+                      <Upload className="w-4 h-4 text-navy dark:text-[#5E9FFF]" />
                       <div>
-                        <div className="text-sm font-medium text-[#111827]">{uploadedFile.name}</div>
-                        <div className="text-xs text-[#6B7280]">
+                        <div className="text-sm font-medium text-[#111827] dark:text-[#F2F2F7]">{uploadedFile.name}</div>
+                        <div className="text-xs text-[#6B7280] dark:text-[#8E8E93]">
                           {(uploadedFile.size / 1024).toFixed(0)} Ko
                         </div>
                       </div>
                     </div>
                     <button
                       onClick={() => setUploadedFile(null)}
-                      className="text-sm text-status-red hover:underline"
+                      className="text-sm text-status-red dark:text-[#FF6B6B] hover:underline"
                     >
                       ×
                     </button>
                   </div>
                 ) : (
-                  <label className="block border-2 border-dashed border-warm-gray-400 rounded-xl p-6 text-center cursor-pointer hover:border-navy/40 transition-colors">
-                    <Upload className="w-8 h-8 text-[#6B7280] mx-auto mb-2" />
-                    <div className="text-sm text-[#6B7280]">
+                  <label className="block border-2 border-dashed border-warm-gray-400 dark:border-white/[0.12] rounded-xl p-6 text-center cursor-pointer hover:border-navy/40 dark:hover:border-[#2C4A6F]/40 transition-colors">
+                    <Upload className="w-8 h-8 text-[#6B7280] dark:text-[#636366] mx-auto mb-2" />
+                    <div className="text-sm text-[#6B7280] dark:text-[#636366]">
                       Glisser ou cliquer
                     </div>
-                    <div className="text-xs text-[#9CA3AF] mt-1">
+                    <div className="text-xs text-[#9CA3AF] dark:text-[#636366] mt-1">
                       PDF, JPG, PNG · max 5 Mo
                     </div>
                     <input
@@ -616,10 +626,10 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
         </div>
 
         {/* STICKY FOOTER */}
-        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3">
+        <div className="flex-shrink-0 bg-white dark:bg-[#16161E] border-t border-gray-100 dark:border-white/[0.06] px-5 py-4 flex gap-3">
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
-            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all duration-200"
+            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#8E8E93] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
           >
             {step === 1 ? 'Annuler' : '← Retour'}
           </button>
@@ -627,17 +637,32 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
             onClick={step === 1 ? () => setStep(2) : handleSubmit}
             disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
-            style={{
-              backgroundColor: (step === 1 ? isStep1Valid : isStep2Valid) ? '#1A2F4F' : '#9CA3AF',
-              color: 'white'
-            }}
+            style={
+              (step === 1 ? isStep1Valid : isStep2Valid)
+                ? (isDark ? {
+                    background: 'linear-gradient(145deg, #1A2F4F, #0F1F35)',
+                    color: 'white',
+                    boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+                  } : {
+                    backgroundColor: '#1A2F4F',
+                    color: 'white'
+                  })
+                : {
+                    backgroundColor: '#9CA3AF',
+                    color: 'white'
+                  }
+            }
             onMouseEnter={(e) => {
               if ((step === 1 ? isStep1Valid : isStep2Valid)) {
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,47,79,0.3)'
               }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
+              if ((step === 1 ? isStep1Valid : isStep2Valid)) {
+                e.currentTarget.style.boxShadow = isDark
+                  ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+                  : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
+              }
             }}
           >
             {step === 1 ? 'Suivant →' : 'Confirmer le congé'}
