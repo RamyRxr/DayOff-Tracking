@@ -290,7 +290,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
 
           {/* Calendar */}
           <div className="bg-white rounded-2xl p-4" style={{
-            boxShadow: '0 0 0 1px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.06)'
+            boxShadow: '0 0 0 1px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04)'
           }}>
             {/* Month header */}
             <div className="flex items-center justify-between mb-4">
@@ -307,19 +307,24 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               </div>
             </div>
 
-            {/* Split Calendar - First Half (20-30) */}
+            {/* Inner calendar area */}
+            <div className="rounded-xl p-3" style={{
+              background: '#FAFAFA',
+              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04)'
+            }}>
+              {/* Split Calendar - First Half (20-30) */}
             <div className="mb-4">
               <div className="text-[11px] uppercase tracking-wider text-gray-400 mb-2 ml-1">Avril</div>
 
               {/* Day name header */}
-              <div className="grid grid-cols-7 gap-0.5 border-b border-gray-100 pb-1 mb-1">
-                <div className="text-[10px] font-medium text-gray-400 text-center py-1">D</div>
-                <div className="text-[10px] font-medium text-gray-400 text-center py-1">L</div>
-                <div className="text-[10px] font-medium text-gray-400 text-center py-1">M</div>
-                <div className="text-[10px] font-medium text-gray-400 text-center py-1">M</div>
-                <div className="text-[10px] font-medium text-gray-400 text-center py-1">J</div>
-                <div className="text-[10px] font-medium text-gray-300 text-center py-1">V</div>
-                <div className="text-[10px] font-medium text-gray-300 text-center py-1">S</div>
+              <div className="grid grid-cols-7 gap-0.5 pb-1 mb-1" style={{ borderBottom: '0.5px solid #E5E5EA' }}>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>D</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>L</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>M</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>M</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>J</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>V</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>S</div>
               </div>
 
               <div className="grid grid-cols-7 gap-0.5">
@@ -349,29 +354,37 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                       onClick={isDayOff ? handleClick : undefined}
                       className={`w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
                         isDayOff
-                          ? 'text-white font-semibold cursor-pointer hover:opacity-90'
+                          ? 'cursor-pointer hover:opacity-90'
                           : isWeekend
-                            ? 'text-[#C7C7CC] cursor-not-allowed'
+                            ? 'cursor-not-allowed'
                             : isToday
-                              ? 'text-[#007AFF] font-semibold'
-                              : 'text-[#1C1C1E] hover:bg-[#F2F2F7]'
+                              ? ''
+                              : ''
                       }`}
                       style={{
                         background: isDayOff
-                          ? 'linear-gradient(145deg, #FF3B30, #C0392B)'
+                          ? 'linear-gradient(135deg, rgba(255,59,48,0.15), rgba(192,57,43,0.1))'
                           : isWeekend
                             ? '#F2F2F7'
                             : isToday
                               ? 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
                               : '#FAFAFA',
                         boxShadow: isDayOff
-                          ? 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                          ? 'inset 0 1px 0 rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,59,48,0.2)'
                           : isWeekend
                             ? 'inset 0 1px 2px rgba(0,0,0,0.04)'
                             : isToday
                               ? '0 0 0 1.5px #007AFF'
-                              : 'inset 0 1px 2px rgba(0,0,0,0.03)',
-                        opacity: isDayOff ? 0.85 : 1,
+                              : 'inset 0 1px 1px rgba(255,255,255,0.9)',
+                        border: isDayOff || isWeekend || isToday ? 'none' : '1px solid rgba(0,0,0,0.04)',
+                        color: isDayOff
+                          ? '#C0392B'
+                          : isWeekend
+                            ? '#C7C7CC'
+                            : isToday
+                              ? '#007AFF'
+                              : '#374151',
+                        fontWeight: isDayOff ? 600 : isToday ? 600 : 'inherit',
                       }}
                     >
                       {dayData.day}
@@ -389,14 +402,14 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               <div className="text-[11px] uppercase tracking-wider text-gray-400 mb-2 ml-1">Mai</div>
 
               {/* Day name header */}
-              <div className="grid grid-cols-7 gap-0.5 border-b border-gray-100 pb-1 mb-1">
-                <div className="text-[10px] font-medium text-gray-400 text-center py-1">D</div>
-                <div className="text-[10px] font-medium text-gray-400 text-center py-1">L</div>
-                <div className="text-[10px] font-medium text-gray-400 text-center py-1">M</div>
-                <div className="text-[10px] font-medium text-gray-400 text-center py-1">M</div>
-                <div className="text-[10px] font-medium text-gray-400 text-center py-1">J</div>
-                <div className="text-[10px] font-medium text-gray-300 text-center py-1">V</div>
-                <div className="text-[10px] font-medium text-gray-300 text-center py-1">S</div>
+              <div className="grid grid-cols-7 gap-0.5 pb-1 mb-1" style={{ borderBottom: '0.5px solid #E5E5EA' }}>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>D</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>L</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>M</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>M</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#8E8E93' }}>J</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>V</div>
+                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>S</div>
               </div>
 
               <div className="grid grid-cols-7 gap-0.5">
@@ -426,29 +439,37 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                       onClick={isDayOff ? handleClick : undefined}
                       className={`w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
                         isDayOff
-                          ? 'text-white font-semibold cursor-pointer hover:opacity-90'
+                          ? 'cursor-pointer hover:opacity-90'
                           : isWeekend
-                            ? 'text-[#C7C7CC] cursor-not-allowed'
+                            ? 'cursor-not-allowed'
                             : isToday
-                              ? 'text-[#007AFF] font-semibold'
-                              : 'text-[#1C1C1E] hover:bg-[#F2F2F7]'
+                              ? ''
+                              : ''
                       }`}
                       style={{
                         background: isDayOff
-                          ? 'linear-gradient(145deg, #FF3B30, #C0392B)'
+                          ? 'linear-gradient(135deg, rgba(255,59,48,0.15), rgba(192,57,43,0.1))'
                           : isWeekend
                             ? '#F2F2F7'
                             : isToday
                               ? 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
                               : '#FAFAFA',
                         boxShadow: isDayOff
-                          ? 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
+                          ? 'inset 0 1px 0 rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,59,48,0.2)'
                           : isWeekend
                             ? 'inset 0 1px 2px rgba(0,0,0,0.04)'
                             : isToday
                               ? '0 0 0 1.5px #007AFF'
-                              : 'inset 0 1px 2px rgba(0,0,0,0.03)',
-                        opacity: isDayOff ? 0.85 : 1,
+                              : 'inset 0 1px 1px rgba(255,255,255,0.9)',
+                        border: isDayOff || isWeekend || isToday ? 'none' : '1px solid rgba(0,0,0,0.04)',
+                        color: isDayOff
+                          ? '#C0392B'
+                          : isWeekend
+                            ? '#C7C7CC'
+                            : isToday
+                              ? '#007AFF'
+                              : '#374151',
+                        fontWeight: isDayOff ? 600 : isToday ? 600 : 'inherit',
                       }}
                     >
                       {dayData.day}
@@ -456,6 +477,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                   )
                 })}
               </div>
+            </div>
             </div>
 
             {/* Legend */}
