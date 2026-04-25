@@ -351,22 +351,27 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                         isDayOff
                           ? 'text-white font-semibold cursor-pointer hover:opacity-90'
                           : isWeekend
-                            ? 'text-[#8E8E93] cursor-not-allowed'
-                            : 'text-[#1C1C1E] hover:bg-[#F2F2F7]'
+                            ? 'text-[#C7C7CC] cursor-not-allowed'
+                            : isToday
+                              ? 'text-[#007AFF] font-semibold'
+                              : 'text-[#1C1C1E] hover:bg-[#F2F2F7]'
                       }`}
                       style={{
                         background: isDayOff
-                          ? 'linear-gradient(135deg, #FF3B30, #C0392B)'
+                          ? 'linear-gradient(145deg, #FF3B30, #C0392B)'
                           : isWeekend
-                            ? '#E5E5EA'
+                            ? '#F2F2F7'
                             : isToday
-                              ? 'rgba(0,122,255,0.08)'
+                              ? 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
                               : '#FAFAFA',
                         boxShadow: isDayOff
                           ? 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
-                          : isToday
-                            ? '0 0 0 1.5px #007AFF'
-                            : 'inset 0 1px 2px rgba(0,0,0,0.03)',
+                          : isWeekend
+                            ? 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                            : isToday
+                              ? '0 0 0 1.5px #007AFF'
+                              : 'inset 0 1px 2px rgba(0,0,0,0.03)',
+                        opacity: isDayOff ? 0.85 : 1,
                       }}
                     >
                       {dayData.day}
@@ -423,22 +428,27 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                         isDayOff
                           ? 'text-white font-semibold cursor-pointer hover:opacity-90'
                           : isWeekend
-                            ? 'text-[#8E8E93] cursor-not-allowed'
-                            : 'text-[#1C1C1E] hover:bg-[#F2F2F7]'
+                            ? 'text-[#C7C7CC] cursor-not-allowed'
+                            : isToday
+                              ? 'text-[#007AFF] font-semibold'
+                              : 'text-[#1C1C1E] hover:bg-[#F2F2F7]'
                       }`}
                       style={{
                         background: isDayOff
-                          ? 'linear-gradient(135deg, #FF3B30, #C0392B)'
+                          ? 'linear-gradient(145deg, #FF3B30, #C0392B)'
                           : isWeekend
-                            ? '#E5E5EA'
+                            ? '#F2F2F7'
                             : isToday
-                              ? 'rgba(0,122,255,0.08)'
+                              ? 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
                               : '#FAFAFA',
                         boxShadow: isDayOff
                           ? 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)'
-                          : isToday
-                            ? '0 0 0 1.5px #007AFF'
-                            : 'inset 0 1px 2px rgba(0,0,0,0.03)',
+                          : isWeekend
+                            ? 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                            : isToday
+                              ? '0 0 0 1.5px #007AFF'
+                              : 'inset 0 1px 2px rgba(0,0,0,0.03)',
+                        opacity: isDayOff ? 0.85 : 1,
                       }}
                     >
                       {dayData.day}
