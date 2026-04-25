@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { X, UserPlus, RefreshCw, ChevronLeft, Check } from "lucide-react";
+import { X, UserPlus, RefreshCw, ChevronLeft } from "lucide-react";
 import { useEmployees } from "../hooks/useEmployees";
 import { useAdmins, useAdminPin } from "../hooks/useAdmins";
 import CustomSelect from "./CustomSelect";
+import AutorisationStep from "./AutorisationStep";
 
 const DEPARTMENTS = [
   "Production",
@@ -453,112 +454,28 @@ export default function AddEmployeeModal({
             </>
           ) : (
             <>
-              {/* Admin Selector */}
-              <div>
-                <label className="block text-sm font-medium text-[#111827] mb-3">
-                  {t('administrateur')}
-                </label>
-                <div className="space-y-2">
-                  {admins.map((admin) => (
-                    <button
-                      key={admin.id}
-                      onClick={() => {
-                        if (selectedAdmin?.id === admin.id) return;
-                        setSelectedAdmin(admin);
-                        setPin(["", "", "", ""]);
-                        setPinStatus("idle");
-                      }}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                        selectedAdmin?.id === admin.id
-                          ? "border-navy bg-navy/5"
-                          : "border-warm-gray-400 hover:border-navy/40"
-                      }`}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center text-sm font-semibold text-navy">
-                        {admin.name
-                          .split(" ")
-                          .filter(Boolean)
-                          .map((part) => part[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase()}
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-semibold text-[#111827]">
-                          {admin.name}
-                        </div>
-                        <div className="text-xs text-[#6B7280]">
-                          {admin.role}
-                        </div>
-                      </div>
-                      {selectedAdmin?.id === admin.id && (
-                        <Check className="w-5 h-5 text-navy" />
-                      )}
-                    </button>
-                  ))}
-                  {admins.length === 0 && (
-                    <p className="text-xs text-[#6B7280]">
-                      {t('aucunAdministrateur')}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* PIN Input */}
-              <div>
-                <label className="block text-sm font-medium text-[#111827] mb-3">
-                  {t('codePIN')}
-                </label>
-                <div className="flex justify-center gap-3">
-                  {[0, 1, 2, 3].map((index) => (
-                    <input
-                      key={index}
-                      id={`emp-pin-${index}`}
-                      type="password"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={1}
-                      value={pin[index]}
-                      onChange={(e) => handlePinChange(index, e.target.value)}
-                      disabled={
-                        !selectedAdmin ||
-                        pinStatus === "verifying" ||
-                        pinStatus === "verified" ||
-                        verifying
-                      }
-                      className={`w-14 h-14 text-center text-xl font-semibold rounded-xl border-2 transition-all shadow-inner focus:outline-none ${
-                        pinStatus === "error"
-                          ? "border-status-red bg-status-red/5"
-                          : pinStatus === "verified"
-                            ? "border-status-green bg-status-green/5"
-                            : pin[index]
-                              ? "border-navy bg-warm-gray-200"
-                              : "border-transparent bg-warm-gray-200 focus:border-navy"
-                      }`}
-                    />
-                  ))}
-                </div>
-                {!selectedAdmin && (
-                  <p className="text-xs text-[#6B7280] text-center mt-2">
-                    {t('selectionnerAdminDabord')}
-                  </p>
-                )}
-                {pinStatus === "verifying" && (
-                  <p className="text-xs text-navy text-center mt-2">
-                    {t('verification')}
-                  </p>
-                )}
-                {pinStatus === "error" && (
-                  <p className="text-xs text-status-red text-center mt-2">
-                    {t('codeIncorrect')}
-                  </p>
-                )}
-                {pinStatus === "verified" && (
-                  <p className="text-xs text-status-green text-center mt-2">
-                    {t('codeCorrect')}
-                  </p>
-                )}
-              </div>
+              <AutorisationStep
+                admins={admins.map(admin => ({
+                  ...admin,
+                  initials: admin.name
+                    .split(" ")
+                    .filter(Boolean)
+                    .map((part) => part[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase()
+                }))}
+                selectedAdmin={selectedAdmin}
+                onAdminSelect={(admin) => {
+                  setSelectedAdmin(admin);
+                  setPin(["", "", "", ""]);
+                  setPinStatus("idle");
+                }}
+                pin={pin}
+                onPinChange={handlePinChange}
+                pinStatus={pinStatus}
+                pinIdPrefix="emp-pin"
+              />
 
               {submissionError && (
                 <p className="text-xs text-status-red text-center">
@@ -573,17 +490,29 @@ export default function AddEmployeeModal({
         </div>
 
         {/* STICKY FOOTER */}
-        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex items-center justify-end gap-3">
+        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3">
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
-            className="px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all"
+            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all duration-200"
           >
             {step === 1 ? t('annuler') : t('retourFleche')}
           </button>
           <button
             onClick={step === 1 ? handleStep1Submit : handleFinalSubmit}
             disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
-            className="bg-navy text-white px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
+            style={{
+              backgroundColor: (step === 1 ? isStep1Valid : isStep2Valid) ? '#1A2F4F' : '#9CA3AF',
+              color: 'white'
+            }}
+            onMouseEnter={(e) => {
+              if (step === 1 ? isStep1Valid : isStep2Valid) {
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,47,79,0.3)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
+            }}
           >
             {step === 1 ? t('suivantFleche') : t('creerEmploye')}
           </button>

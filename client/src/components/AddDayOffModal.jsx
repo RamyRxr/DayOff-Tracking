@@ -1,10 +1,11 @@
 import { useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { X, Upload, AlertTriangle, ChevronLeft, Check } from 'lucide-react'
+import { X, Upload, AlertTriangle, ChevronLeft } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useDaysOff } from '../hooks/useDaysOff'
 import CustomSelect from './CustomSelect'
+import AutorisationStep from './AutorisationStep'
 
 export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) {
   const navigate = useNavigate()
@@ -599,81 +600,15 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               </div>
             </>
           ) : (
-            <>
-              {/* Admin Selector */}
-              <div>
-                <label className="block text-sm font-medium text-[#111827] mb-3">
-                  Administrateur
-                </label>
-                <div className="space-y-2">
-                  {admins.map(admin => (
-                    <button
-                      key={admin.id}
-                      onClick={() => setSelectedAdmin(admin)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                        selectedAdmin?.id === admin.id
-                          ? 'border-navy bg-navy/5'
-                          : 'border-warm-gray-400 hover:border-navy/40'
-                      }`}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center text-sm font-semibold text-navy">
-                        {admin.initials}
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-semibold text-[#111827]">{admin.name}</div>
-                        <div className="text-xs text-[#6B7280]">{admin.role}</div>
-                      </div>
-                      {selectedAdmin?.id === admin.id && (
-                        <Check className="w-5 h-5 text-navy" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* PIN Input */}
-              <div>
-                <label className="block text-sm font-medium text-[#111827] mb-3">
-                  Code PIN à 4 chiffres
-                </label>
-                <div className="flex justify-center gap-3">
-                  {[0, 1, 2, 3].map(index => (
-                    <input
-                      key={index}
-                      id={`pin-${index}`}
-                      type="password"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={1}
-                      value={pin[index]}
-                      onChange={(e) => handlePinChange(index, e.target.value)}
-                      disabled={pinStatus === 'verifying' || pinStatus === 'verified'}
-                      className={`w-12 h-14 text-center text-xl font-semibold rounded-xl transition-all focus:outline-none ${
-                        pinStatus === 'error'
-                          ? 'border-2 border-red-400 bg-red-50 ring-2 ring-red-400'
-                          : pinStatus === 'verified'
-                          ? 'border-2 border-green-400 bg-green-50 ring-2 ring-green-400'
-                          : pin[index]
-                          ? 'border-2 border-[#1B3A6B]/40 bg-white ring-2 ring-[#1B3A6B]/40'
-                          : 'bg-gray-50 focus:ring-2 focus:ring-[#1B3A6B]/40 focus:bg-white'
-                      }`}
-                      style={{
-                        boxShadow: pinStatus === 'error' || pinStatus === 'verified' ? undefined : 'inset 0 1px 2px rgba(0,0,0,0.06)'
-                      }}
-                    />
-                  ))}
-                </div>
-                {pinStatus === 'verifying' && (
-                  <p className="text-xs text-navy text-center mt-2">Vérification...</p>
-                )}
-                {pinStatus === 'error' && (
-                  <p className="text-xs text-status-red text-center mt-2">Code incorrect</p>
-                )}
-                {pinStatus === 'verified' && (
-                  <p className="text-xs text-status-green text-center mt-2">✓ Code correct</p>
-                )}
-              </div>
-            </>
+            <AutorisationStep
+              admins={admins}
+              selectedAdmin={selectedAdmin}
+              onAdminSelect={(admin) => setSelectedAdmin(admin)}
+              pin={pin}
+              onPinChange={handlePinChange}
+              pinStatus={pinStatus}
+              pinIdPrefix="pin"
+            />
           )}
 
           {/* Extra padding at bottom so last field not hidden */}
@@ -681,17 +616,29 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
         </div>
 
         {/* STICKY FOOTER */}
-        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex items-center justify-end gap-3">
+        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3">
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
-            className="px-4 py-2.5 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all"
+            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] hover:bg-black/5 transition-all duration-200"
           >
             {step === 1 ? 'Annuler' : '← Retour'}
           </button>
           <button
             onClick={step === 1 ? () => setStep(2) : handleSubmit}
             disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
-            className="px-6 py-2.5 rounded-xl font-medium text-sm bg-navy text-white shadow-ambient hover:shadow-modal transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
+            style={{
+              backgroundColor: (step === 1 ? isStep1Valid : isStep2Valid) ? '#1A2F4F' : '#9CA3AF',
+              color: 'white'
+            }}
+            onMouseEnter={(e) => {
+              if ((step === 1 ? isStep1Valid : isStep2Valid)) {
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,47,79,0.3)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
+            }}
           >
             {step === 1 ? 'Suivant →' : 'Confirmer le congé'}
           </button>
