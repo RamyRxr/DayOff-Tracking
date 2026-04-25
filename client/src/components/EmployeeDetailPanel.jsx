@@ -24,6 +24,9 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
 
   if (!isOpen || !employee) return null
 
+  // Dark mode detection
+  const isDark = document.documentElement.classList.contains('dark')
+
   const handleAddDayOffSubmit = async (dayOffData) => {
     try {
       const result = await addDayOff(dayOffData)
@@ -170,48 +173,52 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 transition-opacity animate-fade-in flex items-center justify-center p-6"
+        className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md z-40 transition-opacity animate-fade-in flex items-center justify-center p-6"
         onClick={onClose}
       >
         {/* Centered Modal */}
         <div
-          className="bg-white rounded-2xl w-full max-w-4xl flex flex-col h-[92vh] max-h-[88vh] overflow-hidden animate-scale-in"
-          style={{ boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)' }}
+          className="bg-white dark:bg-[#16161E] rounded-2xl w-full max-w-4xl flex flex-col h-[92vh] max-h-[88vh] overflow-hidden animate-scale-in"
+          style={isDark ? {
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 24px 64px rgba(0,0,0,0.6)'
+          } : {
+            boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)'
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* STICKY HEADER */}
-          <div className="flex-shrink-0 bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between">
-              <h2 className="font-display text-2xl font-bold text-[#111827]">
+          <div className="flex-shrink-0 bg-white dark:bg-[#16161E] border-b border-gray-100 dark:border-white/[0.07] px-8 py-5 flex items-center justify-between">
+              <h2 className="font-display text-2xl font-bold text-[#111827] dark:text-[#F2F2F7]">
                 Détails de l'employé
               </h2>
               <button
                 onClick={onClose}
-                className="w-10 h-10 rounded-xl hover:bg-black/5 active:scale-95 flex items-center justify-center transition-all duration-200"
+                className="w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/[0.06] active:scale-95 flex items-center justify-center transition-all duration-200"
               >
-                <X className="w-6 h-6 text-[#6B7280]" />
+                <X className="w-6 h-6 text-[#6B7280] dark:text-[#8E8E93]" />
               </button>
             </div>
 
           {/* SCROLLABLE BODY */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-6 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+          <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-6 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
           {/* Employee info card */}
-          <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-ambient">
+          <div className="bg-white/80 dark:bg-white/[0.06] backdrop-blur-xl rounded-2xl p-6 shadow-ambient border border-transparent dark:border-white/[0.07]">
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-full bg-warm-gray-200 flex items-center justify-center text-xl font-semibold text-[#374151] flex-shrink-0">
+              <div className="w-16 h-16 rounded-full bg-warm-gray-200 dark:bg-white/[0.08] flex items-center justify-center text-xl font-semibold text-[#374151] dark:text-[#8E8E93] flex-shrink-0">
                 {employee.avatar}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-semibold text-[#111827]">
+                <h3 className="text-xl font-semibold text-[#111827] dark:text-[#F2F2F7]">
                   {employee.name}
                 </h3>
-                <p className="text-sm font-mono text-[#6B7280] mt-1">
+                <p className="text-sm font-mono text-[#6B7280] dark:text-[#8E8E93] mt-1">
                   {employee.matricule}
                 </p>
                 <div className="flex items-center gap-2 mt-3">
-                  <span className="px-3 py-1 bg-warm-gray-300 text-[#374151] text-xs rounded-lg">
+                  <span className="px-3 py-1 bg-warm-gray-300 dark:bg-white/[0.08] text-[#374151] dark:text-[#8E8E93] text-xs rounded-lg">
                     {employee.department}
                   </span>
-                  <span className="px-3 py-1 bg-warm-gray-300 text-[#374151] text-xs rounded-lg">
+                  <span className="px-3 py-1 bg-warm-gray-300 dark:bg-white/[0.08] text-[#374151] dark:text-[#8E8E93] text-xs rounded-lg">
                     {employee.position}
                   </span>
                 </div>
@@ -224,17 +231,17 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
 
                 {/* Contact & Start Date Info Pills */}
                 <div className="flex items-center gap-2 mt-3 flex-wrap">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 rounded-lg">
-                    <Mail className="w-3.5 h-3.5 text-[#6B7280]" />
-                    <span className="text-xs text-[#6B7280]">{getEmail()}</span>
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 dark:bg-white/[0.06] rounded-lg">
+                    <Mail className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#8E8E93]" />
+                    <span className="text-xs text-[#6B7280] dark:text-[#8E8E93]">{getEmail()}</span>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 rounded-lg">
-                    <Phone className="w-3.5 h-3.5 text-[#6B7280]" />
-                    <span className="text-xs text-[#6B7280]">{employee.phone || '—'}</span>
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 dark:bg-white/[0.06] rounded-lg">
+                    <Phone className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#8E8E93]" />
+                    <span className="text-xs text-[#6B7280] dark:text-[#8E8E93]">{employee.phone || '—'}</span>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 rounded-lg">
-                    <CalendarIcon className="w-3.5 h-3.5 text-[#6B7280]" />
-                    <span className="text-xs text-[#6B7280]">{getStartDate()}</span>
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 dark:bg-white/[0.06] rounded-lg">
+                    <CalendarIcon className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#8E8E93]" />
+                    <span className="text-xs text-[#6B7280] dark:text-[#8E8E93]">{getStartDate()}</span>
                   </div>
                 </div>
               </div>
@@ -244,45 +251,51 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
           {/* Stats - Compact chips */}
           <div className="flex gap-2">
             <div
-              className="flex-1 bg-white border border-black/[0.06] rounded-xl px-4 py-3 flex flex-col gap-0.5"
-              style={{
+              className="flex-1 bg-white dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.07] rounded-xl px-4 py-3 flex flex-col gap-0.5"
+              style={isDark ? {
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.3)'
+              } : {
                 boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.04)'
               }}
             >
-              <div className="text-xl font-bold text-gray-900">
+              <div className="text-xl font-bold text-gray-900 dark:text-[#F2F2F7]">
                 {totalDayOffDays}
               </div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#8E8E93] font-medium">
                 Jours de congé
               </div>
             </div>
             <div
-              className="flex-1 bg-white border border-black/[0.06] rounded-xl px-4 py-3 flex flex-col gap-0.5"
-              style={{
+              className="flex-1 bg-white dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.07] rounded-xl px-4 py-3 flex flex-col gap-0.5"
+              style={isDark ? {
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.3)'
+              } : {
                 boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.04)'
               }}
             >
-              <div className="text-xl font-bold text-gray-900">
+              <div className="text-xl font-bold text-gray-900 dark:text-[#F2F2F7]">
                 {workingDaysElapsed}
               </div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#8E8E93] font-medium">
                 Jours travaillés
               </div>
             </div>
             <div
-              className="flex-1 bg-white border border-black/[0.06] rounded-xl px-4 py-3 flex flex-col gap-0.5"
-              style={{
+              className="flex-1 bg-white dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.07] rounded-xl px-4 py-3 flex flex-col gap-0.5"
+              style={isDark ? {
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.3)'
+              } : {
                 boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.04)'
               }}
             >
               <div className={`text-xl font-bold ${
-                daysAvailable <= 0 ? 'text-red-600' :
-                daysAvailable <= 4 ? 'text-amber-600' :
-                'text-gray-900'
+                daysAvailable <= 0 ? 'text-red-600 dark:text-[#FF6B6B]' :
+                daysAvailable <= 4 ? 'text-amber-600 dark:text-[#FF9F0A]' :
+                'text-gray-900 dark:text-[#F2F2F7]'
               }`}>
                 {daysAvailable}
               </div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#8E8E93] font-medium">
                 Jours disponibles
               </div>
             </div>
