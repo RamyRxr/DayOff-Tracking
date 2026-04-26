@@ -204,8 +204,8 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
               {/* Description field */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
-                  Description
-                  <span className="text-[#6B7280] dark:text-[#8E8E93] font-normal ml-1">(optionnel)</span>
+                  {t('description')}
+                  <span className="text-[#6B7280] dark:text-[#8E8E93] font-normal ml-1">({t('optionnel')})</span>
                 </label>
                 <textarea
                   value={description}

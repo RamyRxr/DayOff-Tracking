@@ -331,8 +331,8 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               {/* File Upload */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
-                  Pièce justificative
-                  <span className="text-[#6B7280] dark:text-[#8E8E93] font-normal ml-1">(optionnel)</span>
+                  {t('pieceJustificative')}
+                  <span className="text-[#6B7280] dark:text-[#8E8E93] font-normal ml-1">({t('optionnel')})</span>
                 </label>
 
                 {uploadedFile ? (
