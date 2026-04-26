@@ -7,6 +7,7 @@ export default function CalendarGrid({
   isDark,
   dayOffDates = new Set(),
   renderCellContent,
+  renderCell,
 }) {
   const dayNames = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
 
@@ -43,6 +44,12 @@ export default function CalendarGrid({
             return <div key={`empty-${i}`} className="w-9 h-9" />
           }
 
+          // If custom cell renderer provided, use it
+          if (renderCell) {
+            return renderCell(date, i, { isDark })
+          }
+
+          // Default rendering
           const dayNum = date.getDate()
           const timestamp = date.getTime()
           const isSelected = selectedDates.has(timestamp)
