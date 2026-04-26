@@ -5,11 +5,11 @@ import { Moon, Sun } from 'lucide-react'
 import Sidebar from './Sidebar'
 import LanguageSelector from './LanguageSelector'
 import { useEmployees } from '../hooks/useEmployees'
-import { useDarkMode } from '../hooks/useDarkMode'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function Layout({ currentAdmin, onLogout }) {
   const { t } = useTranslation()
-  const { isDark, toggle: toggleDarkMode } = useDarkMode()
+  const { isDark, toggle: toggleDarkMode } = useTheme()
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [readNotifications, setReadNotifications] = useState(new Set())
   const notifRef = useRef(null)

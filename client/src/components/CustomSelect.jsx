@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
-import { useDarkMode } from '../hooks/useDarkMode'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function CustomSelect({ options, value, onChange, placeholder = 'Sélectionner...', label, required = false, onOpen }) {
-  const { isDark } = useDarkMode()
+  const { isDark } = useTheme()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
 

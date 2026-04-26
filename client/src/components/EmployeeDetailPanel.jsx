@@ -2,16 +2,19 @@ import { X, Mail, Phone, Calendar as CalendarIcon, ChevronLeft, ChevronRight } f
 import { useState } from 'react'
 import { format, isBefore, isAfter, startOfDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { useTranslation } from 'react-i18next'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useBlocks } from '../hooks/useBlocks'
-import { useDarkMode } from '../hooks/useDarkMode'
+import { useTheme } from '../contexts/ThemeContext'
 import AddDayOffModal from './AddDayOffModal'
 import BlockEmployeeModal from './BlockEmployeeModal'
 import UnblockModal from './UnblockModal'
 import DayOffDetailsPopup from './DayOffDetailsPopup'
+import SplitCalendar from './SplitCalendar'
 
 export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdate }) {
-  const { isDark } = useDarkMode()
+  const { t } = useTranslation()
+  const { isDark } = useTheme()
   const [showAddDayOff, setShowAddDayOff] = useState(false)
   const [showBlock, setShowBlock] = useState(false)
   const [showUnblock, setShowUnblock] = useState(false)
@@ -135,35 +138,36 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
   }
 
   // Generate calendar for current period (20th to 19th)
-  // Create set of day-off dates for quick lookup
+  // Create set of day-off dates for quick lookup (using timestamps)
   const dayOffDates = new Set()
   daysOff.forEach((dayOff) => {
     const start = new Date(dayOff.startDate)
     const end = new Date(dayOff.endDate)
 
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      dayOffDates.add(d.toISOString().split('T')[0])
+      const dateObj = new Date(d)
+      dayOffDates.add(dateObj.setHours(0, 0, 0, 0))
     }
   })
 
-  // Generate all days in period
-  const periodDays = []
-  const current = new Date(periodStart)
-  while (current <= periodEnd) {
-    const dateString = current.toISOString().split('T')[0]
-    periodDays.push({
-      date: new Date(current),
-      day: current.getDate(),
-      isWeekend: current.getDay() === 5 || current.getDay() === 6, // Friday or Saturday
-      isDayOff: dayOffDates.has(dateString), // Real day-off data
-    })
-    current.setDate(current.getDate() + 1)
+  // Handler for clicking on day-off cells
+  const handleDayOffClick = (date, e) => {
+    // Find the day-off record for this day
+    const dayOffRecord = employee?.daysOff?.find(d =>
+      !isBefore(date, startOfDay(new Date(d.startDate))) &&
+      !isAfter(date, startOfDay(new Date(d.endDate)))
+    )
+
+    if (dayOffRecord) {
+      setSelectedDayOff(dayOffRecord)
+      setPopupPosition({ x: e.clientX, y: e.clientY })
+    }
   }
 
   const statusConfig = {
-    actif: { label: 'Actif', color: 'text-status-green', bg: 'bg-status-green/10' },
-    risque: { label: 'À risque', color: 'text-status-amber', bg: 'bg-status-amber/10' },
-    bloqué: { label: 'Bloqué', color: 'text-status-red', bg: 'bg-status-red/10' },
+    actif: { label: t('actif'), color: 'text-status-green', bg: 'bg-status-green/10' },
+    risque: { label: t('aRisque'), color: 'text-status-amber', bg: 'bg-status-amber/10' },
+    bloqué: { label: t('bloque'), color: 'text-status-red', bg: 'bg-status-red/10' },
   }
 
   const status = statusConfig[employee.status] || statusConfig.actif
@@ -188,7 +192,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
           {/* STICKY HEADER */}
           <div className="flex-shrink-0 bg-white dark:bg-[#16161E] border-b border-gray-100 dark:border-white/[0.07] px-8 py-5 flex items-center justify-between">
               <h2 className="font-display text-2xl font-bold text-[#111827] dark:text-[#F2F2F7]">
-                Détails de l'employé
+                {t('detailsEmploye')}
               </h2>
               <button
                 onClick={onClose}
@@ -261,7 +265,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                 {totalDayOffDays}
               </div>
               <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#8E8E93] font-medium">
-                Jours de congé
+                {t('joursCongeLabel')}
               </div>
             </div>
             <div
@@ -276,7 +280,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                 {workingDaysElapsed}
               </div>
               <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#8E8E93] font-medium">
-                Jours travaillés
+                {t('joursTravaillesLabel')}
               </div>
             </div>
             <div
@@ -295,7 +299,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                 {daysAvailable}
               </div>
               <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#8E8E93] font-medium">
-                Jours disponibles
+                {t('joursDisponiblesLabel')}
               </div>
             </div>
           </div>
@@ -324,194 +328,13 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               </div>
             </div>
 
-            {/* Inner calendar area */}
-            <div
-              className="rounded-xl p-3"
-              style={isDark ? {
-                background: 'rgba(255,255,255,0.02)',
-                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.3)'
-              } : {
-                background: '#FAFAFA',
-                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04)'
-              }}
-            >
-              {/* Split Calendar - First Half (20-30) */}
-            <div className="mb-4">
-              <div className="text-[11px] uppercase tracking-wider text-gray-400 dark:text-[#636366] mb-2 ml-1">Avril</div>
-
-              {/* Day name header */}
-              <div
-                className="grid grid-cols-7 gap-0.5 pb-1 mb-1"
-                style={{
-                  borderBottom: isDark ? '0.5px solid rgba(255,255,255,0.06)' : '0.5px solid #E5E5EA'
-                }}
-              >
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>D</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>L</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>M</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>M</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>J</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>V</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>S</div>
-              </div>
-
-              <div className="grid grid-cols-7 gap-0.5">
-                {periodDays.filter(d => d.day >= 20 && d.date.getMonth() === periodStart.getMonth()).map((dayData, i) => {
-                  const isDayOff = dayData.isDayOff
-                  const isWeekend = dayData.isWeekend
-                  const isToday = dayData.date.toDateString() === new Date().toDateString()
-
-                  // Find the day-off record for this day
-                  const dayOffRecord = employee?.daysOff?.find(d =>
-                    !isBefore(dayData.date, startOfDay(new Date(d.startDate))) &&
-                    !isAfter(dayData.date, startOfDay(new Date(d.endDate)))
-                  )
-
-                  const handleClick = (e) => {
-                    if (dayOffRecord) {
-                      setSelectedDayOff(dayOffRecord)
-                      setPopupPosition({ x: e.clientX, y: e.clientY })
-                    }
-                  }
-
-                  const Element = isDayOff ? 'button' : 'div'
-
-                  return (
-                    <Element
-                      key={i}
-                      onClick={isDayOff ? handleClick : undefined}
-                      className={`w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
-                        isDayOff
-                          ? 'cursor-pointer hover:opacity-90'
-                          : isWeekend
-                            ? 'cursor-not-allowed'
-                            : isToday
-                              ? ''
-                              : ''
-                      }`}
-                      style={{
-                        background: isDayOff
-                          ? 'linear-gradient(135deg, rgba(255,59,48,0.15), rgba(192,57,43,0.1))'
-                          : isWeekend
-                            ? (isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7')
-                            : isToday
-                              ? 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
-                              : (isDark ? 'rgba(255,255,255,0.04)' : '#FAFAFA'),
-                        boxShadow: isDayOff
-                          ? 'inset 0 1px 0 rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,59,48,0.2)'
-                          : isWeekend
-                            ? (isDark ? 'inset 0 1px 2px rgba(0,0,0,0.2)' : 'inset 0 1px 2px rgba(0,0,0,0.04)')
-                            : isToday
-                              ? '0 0 0 1.5px #007AFF'
-                              : (isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06)' : 'inset 0 1px 1px rgba(255,255,255,0.9)'),
-                        border: isDayOff || isWeekend || isToday ? 'none' : (isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)'),
-                        color: isDayOff
-                          ? '#C0392B'
-                          : isWeekend
-                            ? '#C7C7CC'
-                            : isToday
-                              ? '#007AFF'
-                              : (isDark ? '#C7C7CC' : '#374151'),
-                        fontWeight: isDayOff ? 600 : isToday ? 600 : 'inherit',
-                      }}
-                    >
-                      {dayData.day}
-                    </Element>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Month Separator */}
-            <div className="w-full h-px bg-gray-100 dark:bg-white/[0.06] my-3" />
-
-            {/* Split Calendar - Second Half (1-19) */}
-            <div className="mt-2">
-              <div className="text-[11px] uppercase tracking-wider text-gray-400 dark:text-[#636366] mb-2 ml-1">Mai</div>
-
-              {/* Day name header */}
-              <div
-                className="grid grid-cols-7 gap-0.5 pb-1 mb-1"
-                style={{
-                  borderBottom: isDark ? '0.5px solid rgba(255,255,255,0.06)' : '0.5px solid #E5E5EA'
-                }}
-              >
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>D</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>L</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>M</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>M</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: isDark ? '#8E8E93' : '#8E8E93' }}>J</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>V</div>
-                <div className="text-[10px] font-medium text-center py-1" style={{ color: '#C7C7CC' }}>S</div>
-              </div>
-
-              <div className="grid grid-cols-7 gap-0.5">
-                {periodDays.filter(d => d.day <= 19 && d.date.getMonth() !== periodStart.getMonth()).map((dayData, i) => {
-                  const isDayOff = dayData.isDayOff
-                  const isWeekend = dayData.isWeekend
-                  const isToday = dayData.date.toDateString() === new Date().toDateString()
-
-                  // Find the day-off record for this day
-                  const dayOffRecord = employee?.daysOff?.find(d =>
-                    !isBefore(dayData.date, startOfDay(new Date(d.startDate))) &&
-                    !isAfter(dayData.date, startOfDay(new Date(d.endDate)))
-                  )
-
-                  const handleClick = (e) => {
-                    if (dayOffRecord) {
-                      setSelectedDayOff(dayOffRecord)
-                      setPopupPosition({ x: e.clientX, y: e.clientY })
-                    }
-                  }
-
-                  const Element = isDayOff ? 'button' : 'div'
-
-                  return (
-                    <Element
-                      key={i}
-                      onClick={isDayOff ? handleClick : undefined}
-                      className={`w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
-                        isDayOff
-                          ? 'cursor-pointer hover:opacity-90'
-                          : isWeekend
-                            ? 'cursor-not-allowed'
-                            : isToday
-                              ? ''
-                              : ''
-                      }`}
-                      style={{
-                        background: isDayOff
-                          ? 'linear-gradient(135deg, rgba(255,59,48,0.15), rgba(192,57,43,0.1))'
-                          : isWeekend
-                            ? (isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7')
-                            : isToday
-                              ? 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
-                              : (isDark ? 'rgba(255,255,255,0.04)' : '#FAFAFA'),
-                        boxShadow: isDayOff
-                          ? 'inset 0 1px 0 rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,59,48,0.2)'
-                          : isWeekend
-                            ? (isDark ? 'inset 0 1px 2px rgba(0,0,0,0.2)' : 'inset 0 1px 2px rgba(0,0,0,0.04)')
-                            : isToday
-                              ? '0 0 0 1.5px #007AFF'
-                              : (isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06)' : 'inset 0 1px 1px rgba(255,255,255,0.9)'),
-                        border: isDayOff || isWeekend || isToday ? 'none' : (isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)'),
-                        color: isDayOff
-                          ? '#C0392B'
-                          : isWeekend
-                            ? '#C7C7CC'
-                            : isToday
-                              ? '#007AFF'
-                              : (isDark ? '#C7C7CC' : '#374151'),
-                        fontWeight: isDayOff ? 600 : isToday ? 600 : 'inherit',
-                      }}
-                    >
-                      {dayData.day}
-                    </Element>
-                  )
-                })}
-              </div>
-            </div>
-            </div>
+            {/* Split Calendar */}
+            <SplitCalendar
+              currentPeriod={periodStart}
+              dayOffDates={dayOffDates}
+              onDayOffClick={handleDayOffClick}
+              isDark={isDark}
+            />
 
             {/* Legend */}
             <div
@@ -522,15 +345,15 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             >
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-amber-500" />
-                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">Congé</span>
+                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">{t('congeLegend')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-600" />
-                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">Week-end</span>
+                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">{t('weekend')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">Bloqué</span>
+                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">{t('bloqueLegend')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-blue-500" />
@@ -557,14 +380,14 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                 boxShadow: '0 4px 12px rgba(26,47,79,0.4)'
               } : {}}
             >
-              + Ajouter un congé
+              {t('ajouterUnConge')}
             </button>
             {employee.status !== 'bloqué' && (
               <button
                 onClick={() => setShowBlock(true)}
                 className="px-4 py-3 border border-status-red/20 dark:border-[#FF6B6B]/20 text-status-red dark:text-[#FF6B6B] rounded-xl font-medium text-sm hover:bg-status-red/5 dark:hover:bg-[rgba(255,107,107,0.1)] transition-all duration-200"
               >
-                Bloquer
+                {t('bloquer')}
               </button>
             )}
             {employee.status === 'bloqué' && (
@@ -572,7 +395,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                 onClick={() => setShowUnblock(true)}
                 className="px-4 py-3 border border-status-green/20 dark:border-[#34C759]/20 text-status-green dark:text-[#34C759] rounded-xl font-medium text-sm hover:bg-status-green/5 dark:hover:bg-[rgba(52,199,89,0.1)] transition-all duration-200"
               >
-                Débloquer
+                {t('debloquer')}
               </button>
             )}
         </div>

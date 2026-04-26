@@ -6,10 +6,9 @@ import EmployeesPage from './pages/EmployeesPage'
 import BlockedPage from './pages/BlockedPage'
 import CalendarPage from './pages/CalendarPage'
 import LoginPage from './pages/LoginPage'
-import { useDarkMode } from './hooks/useDarkMode'
+import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
-  const { isDark } = useDarkMode()
   const [currentAdmin, setCurrentAdmin] = useState(null)
 
   // Load admin from localStorage on mount
@@ -36,20 +35,26 @@ function App() {
 
   // Show login page if not authenticated
   if (!currentAdmin) {
-    return <LoginPage onLoginSuccess={handleLoginSuccess} />
+    return (
+      <ThemeProvider>
+        <LoginPage onLoginSuccess={handleLoginSuccess} />
+      </ThemeProvider>
+    )
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout currentAdmin={currentAdmin} onLogout={handleLogout} />}>
-          <Route index element={<HomePage />} />
-          <Route path="employees" element={<EmployeesPage />} />
-          <Route path="blocked" element={<BlockedPage />} />
-          <Route path="calendar" element={<CalendarPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout currentAdmin={currentAdmin} onLogout={handleLogout} />}>
+            <Route index element={<HomePage />} />
+            <Route path="employees" element={<EmployeesPage />} />
+            <Route path="blocked" element={<BlockedPage />} />
+            <Route path="calendar" element={<CalendarPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 
