@@ -194,7 +194,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
 
               {/* Unblock reason dropdown */}
               <CustomSelect
-                label="Motif du déblocage"
+                label={t('motifDeblocage')}
                 required
                 value={unblockReason}
                 onChange={(value) => setUnblockReason(value)}
