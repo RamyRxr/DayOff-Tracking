@@ -198,12 +198,12 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
                 required
                 value={unblockReason}
                 onChange={(value) => setUnblockReason(value)}
-                placeholder="Sélectionnez un motif"
+                placeholder={t('selectionnezMotif')}
                 options={[
-                  { value: 'Erreur administrative', label: 'Erreur administrative' },
-                  { value: 'Justification acceptée', label: 'Justification acceptée' },
-                  { value: 'Décision hiérarchique', label: 'Décision hiérarchique' },
-                  { value: 'Autre', label: 'Autre' },
+                  { value: t('erreurAdministrative'), label: t('erreurAdministrative') },
+                  { value: t('justificationAcceptee'), label: t('justificationAcceptee') },
+                  { value: t('decisionHierarchique'), label: t('decisionHierarchique') },
+                  { value: t('autre'), label: t('autre') },
                 ]}
               />
 
@@ -216,7 +216,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Remarques sur le déblocage..."
+                  placeholder={t('remarquesDeblocage')}
                   rows={3}
                   className="w-full px-4 py-3 bg-white dark:bg-white/[0.06] border border-warm-gray-400 dark:border-white/[0.07] rounded-xl text-[#111827] dark:text-[#F2F2F7] placeholder:text-[#6B7280] dark:placeholder:text-[#48484A] text-sm resize-none focus:outline-none focus:ring-2 focus:ring-status-green/20 dark:focus:ring-[#34C759]/20 focus:border-status-green dark:focus:border-[#34C759] transition-all"
                 />

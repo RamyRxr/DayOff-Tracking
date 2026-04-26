@@ -379,7 +379,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                   required
                   value={reason}
                   onChange={(value) => setReason(value)}
-                  placeholder="Sélectionnez un type"
+                  placeholder={t('selectionnezType')}
                   options={[
                     { value: t('congeAnnuel'), label: t('congeAnnuel') },
                     { value: t('congeMaladie'), label: t('congeMaladie') },

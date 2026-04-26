@@ -130,5 +130,12 @@
   "joursDisponiblesLabel": "Jours disponibles",
   "absencesNonJustifiees": "Absences non justifiées",
   "depassementQuota": "Dépassement du quota de congés",
-  "nonRespectProcedures": "Non-respect des procédures"
+  "nonRespectProcedures": "Non-respect des procédures",
+  "selectionnezType": "Sélectionnez un type",
+  "selectionnezMotif": "Sélectionnez un motif",
+  "detailsSupplementaires": "Détails supplémentaires...",
+  "remarquesDeblocage": "Remarques sur le déblocage...",
+  "erreurAdministrative": "Erreur administrative",
+  "justificationAcceptee": "Justification acceptée",
+  "decisionHierarchique": "Décision hiérarchique"
 }
