@@ -137,5 +137,6 @@
   "remarquesDeblocage": "Remarques sur le déblocage...",
   "erreurAdministrative": "Erreur administrative",
   "justificationAcceptee": "Justification acceptée",
-  "decisionHierarchique": "Décision hiérarchique"
+  "decisionHierarchique": "Décision hiérarchique",
+  "motifDeblocage": "Motif du déblocage"
 }

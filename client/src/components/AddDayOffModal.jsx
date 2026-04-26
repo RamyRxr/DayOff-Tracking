@@ -375,7 +375,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               {/* Reason Selector */}
               <div ref={typeSelectRef}>
                 <CustomSelect
-                  label="Type de congé"
+                  label={t('typeConge')}
                   required
                   value={reason}
                   onChange={(value) => setReason(value)}

@@ -188,7 +188,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
 
               {/* Reason selector */}
               <CustomSelect
-                label="Motif du blocage"
+                label={t('motifBlocage')}
                 required
                 value={reason}
                 onChange={(value) => setReason(value)}
