@@ -192,7 +192,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
                 required
                 value={reason}
                 onChange={(value) => setReason(value)}
-                placeholder="Sélectionnez un motif"
+                placeholder={t('selectionnezMotif')}
                 options={[
                   { value: t('absencesNonJustifiees'), label: t('absencesNonJustifiees') },
                   { value: t('depassementQuota'), label: t('depassementQuota') },
@@ -210,7 +210,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Détails supplémentaires..."
+                  placeholder={t('detailsSupplementaires')}
                   rows={3}
                   className="w-full px-4 py-3 bg-white dark:bg-white/[0.06] border border-warm-gray-400 dark:border-white/[0.07] rounded-xl text-[#111827] dark:text-[#F2F2F7] placeholder:text-[#6B7280] dark:placeholder:text-[#48484A] text-sm resize-none focus:outline-none focus:ring-2 focus:ring-navy/20 dark:focus:ring-[#2C4A6F]/20 focus:border-navy dark:focus:border-[#2C4A6F] transition-all"
                 />
