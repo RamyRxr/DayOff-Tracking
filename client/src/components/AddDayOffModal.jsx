@@ -381,10 +381,10 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                   onChange={(value) => setReason(value)}
                   placeholder="Sélectionnez un type"
                   options={[
-                    { value: 'Congé annuel', label: 'Congé annuel' },
-                    { value: 'Congé maladie', label: 'Congé maladie' },
-                    { value: 'Congé sans solde', label: 'Congé sans solde' },
-                    { value: 'Autre', label: 'Autre' },
+                    { value: t('congeAnnuel'), label: t('congeAnnuel') },
+                    { value: t('congeMaladie'), label: t('congeMaladie') },
+                    { value: t('congeSansSolde'), label: t('congeSansSolde') },
+                    { value: t('autre'), label: t('autre') },
                   ]}
                   onOpen={() => {
                     setTimeout(() => {
