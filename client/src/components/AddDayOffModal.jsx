@@ -4,13 +4,14 @@ import { X, Upload, AlertTriangle, ChevronLeft } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useDaysOff } from '../hooks/useDaysOff'
-import { useDarkMode } from '../hooks/useDarkMode'
+import { useTheme } from '../contexts/ThemeContext'
 import CustomSelect from './CustomSelect'
 import AutorisationStep from './AutorisationStep'
+import SplitCalendar from './SplitCalendar'
 
 export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) {
   const navigate = useNavigate()
-  const { isDark } = useDarkMode()
+  const { isDark } = useTheme()
   const [step, setStep] = useState(1)
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)

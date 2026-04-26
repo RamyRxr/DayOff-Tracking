@@ -1,14 +1,16 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, Unlock, CheckCircle2, ChevronLeft, Check } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { useDarkMode } from '../hooks/useDarkMode'
+import { useTheme } from '../contexts/ThemeContext'
 import CustomSelect from './CustomSelect'
 import { useAdmins } from '../hooks/useAdmins'
 
 export default function UnblockModal({ employee, activeBlock, isOpen, onClose, onSubmit }) {
   // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
-  const { isDark } = useDarkMode()
+  const { t } = useTranslation()
+  const { isDark } = useTheme()
   const [step, setStep] = useState(1)
   const [unblockReason, setUnblockReason] = useState('')
   const [description, setDescription] = useState('')
@@ -126,7 +128,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
             </div>
             <div>
               <h2 className="font-display text-xl font-bold text-[#111827] dark:text-[#F2F2F7]">
-                {step === 1 ? 'Débloquer l\'Employé' : 'Autorisation requise'}
+                {step === 1 ? t('debloquerEmploye') : t('autorisationRequise')}
               </h2>
               <p className="text-xs text-[#6B7280] dark:text-[#8E8E93] mt-0.5">
                 Étape {step} sur 2
@@ -181,7 +183,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#6B7280] dark:text-[#8E8E93]">Bloqué par</span>
+                    <span className="text-[#6B7280] dark:text-[#8E8E93]">{t('bloquePar')}</span>
                     <span className="text-[#111827] dark:text-[#F2F2F7] font-medium">
                       {activeBlock?.blockedBy?.name || '—'}
                       {activeBlock?.blockedBy?.role && ` — ${activeBlock.blockedBy.role}`}

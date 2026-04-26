@@ -6,13 +6,13 @@ import { fr } from 'date-fns/locale'
 import { useEmployees } from '../hooks/useEmployees'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useAdmins, useAdminPin } from '../hooks/useAdmins'
-import { useDarkMode } from '../hooks/useDarkMode'
+import { useTheme } from '../contexts/ThemeContext'
 import CustomSelect from './CustomSelect'
 import AutorisationStep from './AutorisationStep'
 
 export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const { t } = useTranslation()
-  const { isDark } = useDarkMode()
+  const { isDark } = useTheme()
   const [step, setStep] = useState(1)
 
   // Step 1: Employee selection

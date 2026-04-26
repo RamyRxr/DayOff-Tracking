@@ -1,12 +1,14 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, ShieldAlert, AlertTriangle, ChevronLeft } from 'lucide-react'
-import { useDarkMode } from '../hooks/useDarkMode'
+import { useTheme } from '../contexts/ThemeContext'
 import CustomSelect from './CustomSelect'
 import AutorisationStep from './AutorisationStep'
 
 export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit }) {
   // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
-  const { isDark } = useDarkMode()
+  const { t } = useTranslation()
+  const { isDark } = useTheme()
   const [step, setStep] = useState(1)
   const [reason, setReason] = useState('')
   const [description, setDescription] = useState('')
@@ -119,7 +121,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
             </div>
             <div>
               <h2 className="font-display text-xl font-bold text-[#111827] dark:text-[#F2F2F7]">
-                {step === 1 ? 'Bloquer l\'employé' : 'Autorisation requise'}
+                {step === 1 ? t('bloquerEmploye') : t('autorisationRequise')}
               </h2>
               <p className="text-xs text-[#6B7280] dark:text-[#8E8E93] mt-0.5">
                 Étape {step} sur 2
@@ -176,11 +178,10 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
                 <AlertTriangle className="w-5 h-5 text-status-amber dark:text-[#FF9F0A] flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <div className="font-semibold text-status-amber dark:text-[#FF9F0A] text-sm">
-                    Minimum de jours ouvrables non respecté
+                    {t('minJoursNonRespect')}
                   </div>
                   <p className="text-xs text-[#374151] dark:text-[#8E8E93] mt-1">
-                    L'employé a utilisé trop de jours de congé. Le minimum requis est de 16 jours
-                    ouvrables par période.
+                    {t('tropJoursCongeMessage')}
                   </p>
                 </div>
               </div>
