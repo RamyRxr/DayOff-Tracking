@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X, Upload, Search, ChevronLeft, AlertTriangle } from 'lucide-react'
-import { format, isSameDay } from 'date-fns'
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useEmployees } from '../hooks/useEmployees'
 import { useDaysOff } from '../hooks/useDaysOff'
@@ -9,7 +9,6 @@ import { useAdmins, useAdminPin } from '../hooks/useAdmins'
 import { useTheme } from '../contexts/ThemeContext'
 import CustomSelect from './CustomSelect'
 import AutorisationStep from './AutorisationStep'
-import SplitCalendar from './SplitCalendar'
 
 export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const { t } = useTranslation()
@@ -452,13 +451,243 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
 
           {step === 2 && (
             <>
-              {/* Calendar */}
-              <SplitCalendar
-                currentPeriod={new Date()}
-                isDark={isDark}
-                renderCell={renderCalendarCell}
-              />
+              {/* Two-Month Calendar */}
+              <div>
+                {/* CURRENT MONTH */}
+                <div className="mb-4">
+                  <div className="text-[11px] uppercase font-semibold mb-2 tracking-wider text-[#6B7280] dark:text-[#636366]">
+                    {format(currentMonthObj, 'MMMM', { locale: fr })}
+                  </div>
 
+                  <div
+                    className="rounded-xl overflow-hidden bg-white dark:bg-[#1C1C28]"
+                    style={isDark ? {
+                      boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 1px 3px rgba(0,0,0,0.4)'
+                    } : {
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)'
+                    }}
+                  >
+                    {/* Day headers */}
+                    <div
+                      className="grid grid-cols-7 bg-[#FAFAFA] dark:bg-white/[0.04]"
+                      style={{
+                        borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(0,0,0,0.08)'
+                      }}
+                    >
+                      {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
+                        <div
+                          key={i}
+                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 dark:text-[#8E8E93] uppercase"
+                          style={{
+                            letterSpacing: '0.5px',
+                            borderRight: i < 6 ? (isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)') : 'none'
+                          }}
+                        >
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Day cells grid */}
+                    <div className="grid grid-cols-7">
+                      {currentMonthDays.map((day, i) => {
+                        // Empty cell for padding
+                        if (!day) {
+                          return <div key={i} className="w-full aspect-square" />
+                        }
+
+                        const dayStr = day.toISOString().split('T')[0]
+                        const isWeekend = day.getDay() === 5 || day.getDay() === 6
+                        const today = new Date()
+                        today.setHours(0, 0, 0, 0)
+                        const isPast = day < today
+                        const isExisting = existingDates.has(dayStr)
+                        const isStart = startDate && day.toDateString() === startDate.toDateString()
+                        const isEnd = endDate && day.toDateString() === endDate.toDateString()
+                        const isInRange = startDate && endDate && day > startDate && day < endDate
+                        const isCurrentMonth = isSameMonth(day, currentMonthObj)
+                        const isToday = isSameDay(day, today)
+
+                        // Grid positioning
+                        const col = i % 7
+                        const isLastCol = col === 6
+                        const isLastRow = i >= currentMonthDays.length - 7
+
+                        let cellStyle = {
+                          borderRight: !isLastCol ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
+                          borderBottom: !isLastRow ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
+                        }
+                        let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
+
+                        // APPLE-STYLE SHINY GRADIENT COLORS
+                        if (isExisting) {
+                          cellStyle.background = 'linear-gradient(145deg, rgba(255,59,48,0.12), rgba(192,57,43,0.08))'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.85), inset 0 0 0 1px rgba(255,59,48,0.18)'
+                          textClass += ' text-[#C0392B] font-semibold cursor-not-allowed'
+                        } else if (isStart || isEnd) {
+                          cellStyle.background = 'linear-gradient(145deg, #007AFF, #0055D4)'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(0,122,255,0.35)'
+                          textClass += ' text-white font-bold'
+                        } else if (isInRange) {
+                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.1), rgba(0,122,255,0.06))'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,122,255,0.15)'
+                          textClass += ' text-[#0055D4] font-medium'
+                        } else if (isWeekend) {
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7'
+                          cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                          textClass += ' text-[#C7C7CC] cursor-not-allowed'
+                        } else if (isToday && !isStart && !isEnd) {
+                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
+                          cellStyle.boxShadow = '0 0 0 1.5px #007AFF, inset 0 1px 0 rgba(255,255,255,0.9)'
+                          textClass += ' text-[#007AFF] font-semibold'
+                        } else if (isPast) {
+                          cellStyle.background = 'transparent'
+                          cellStyle.opacity = 0.6
+                          textClass += ' text-[#C7C7CC] cursor-not-allowed'
+                        } else {
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.8)'
+                          cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06), 0 0 0 1px rgba(255,255,255,0.04)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
+                          textClass += isDark ? ' text-[#C7C7CC] hover:bg-white/[0.06]' : ' text-[#374151] hover:bg-[#F2F2F7]'
+                        }
+
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => handleDayClick(day)}
+                            disabled={isWeekend || isPast || isExisting}
+                            className={textClass}
+                            style={{
+                              fontSize: '13px',
+                              ...cellStyle
+                            }}
+                          >
+                            {format(day, 'd')}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* SEPARATOR */}
+                <div className="w-full h-px my-4 bg-[#E5E5EA] dark:bg-white/[0.06]" />
+
+                {/* NEXT MONTH */}
+                <div className="mb-3">
+                  <div className="text-[11px] uppercase font-semibold mb-2 tracking-wider text-[#6B7280] dark:text-[#636366]">
+                    {format(nextMonthObj, 'MMMM', { locale: fr })}
+                  </div>
+
+                  <div
+                    className="rounded-xl overflow-hidden bg-white dark:bg-[#1C1C28]"
+                    style={isDark ? {
+                      boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 1px 3px rgba(0,0,0,0.4)'
+                    } : {
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)'
+                    }}
+                  >
+                    {/* Day headers */}
+                    <div
+                      className="grid grid-cols-7 bg-[#FAFAFA] dark:bg-white/[0.04]"
+                      style={{
+                        borderBottom: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(0,0,0,0.08)'
+                      }}
+                    >
+                      {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, i) => (
+                        <div
+                          key={i}
+                          className="h-8 flex items-center justify-center text-[10px] font-semibold text-gray-600 dark:text-[#8E8E93] uppercase"
+                          style={{
+                            letterSpacing: '0.5px',
+                            borderRight: i < 6 ? (isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)') : 'none'
+                          }}
+                        >
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Day cells grid */}
+                    <div className="grid grid-cols-7">
+                      {nextMonthDays.map((day, i) => {
+                        // Empty cell for padding
+                        if (!day) {
+                          return <div key={i} className="w-full aspect-square" />
+                        }
+
+                        const dayStr = day.toISOString().split('T')[0]
+                        const isWeekend = day.getDay() === 5 || day.getDay() === 6
+                        const today = new Date()
+                        today.setHours(0, 0, 0, 0)
+                        const isPast = day < today
+                        const isExisting = existingDates.has(dayStr)
+                        const isStart = startDate && day.toDateString() === startDate.toDateString()
+                        const isEnd = endDate && day.toDateString() === endDate.toDateString()
+                        const isInRange = startDate && endDate && day > startDate && day < endDate
+                        const isCurrentMonth = isSameMonth(day, nextMonthObj)
+                        const isToday = isSameDay(day, today)
+
+                        // Grid positioning
+                        const col = i % 7
+                        const isLastCol = col === 6
+                        const isLastRow = i >= nextMonthDays.length - 7
+
+                        let cellStyle = {
+                          borderRight: !isLastCol ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
+                          borderBottom: !isLastRow ? (isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)') : 'none',
+                        }
+                        let textClass = 'w-full aspect-square flex items-center justify-center transition-all duration-150 rounded-lg'
+
+                        // APPLE-STYLE SHINY GRADIENT COLORS
+                        if (isExisting) {
+                          cellStyle.background = 'linear-gradient(145deg, rgba(255,59,48,0.12), rgba(192,57,43,0.08))'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.85), inset 0 0 0 1px rgba(255,59,48,0.18)'
+                          textClass += ' text-[#C0392B] font-semibold cursor-not-allowed'
+                        } else if (isStart || isEnd) {
+                          cellStyle.background = 'linear-gradient(145deg, #007AFF, #0055D4)'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(0,122,255,0.35)'
+                          textClass += ' text-white font-bold'
+                        } else if (isInRange) {
+                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.1), rgba(0,122,255,0.06))'
+                          cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,122,255,0.15)'
+                          textClass += ' text-[#0055D4] font-medium'
+                        } else if (isWeekend) {
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7'
+                          cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
+                          textClass += ' text-[#C7C7CC] cursor-not-allowed'
+                        } else if (isToday && !isStart && !isEnd) {
+                          cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
+                          cellStyle.boxShadow = '0 0 0 1.5px #007AFF, inset 0 1px 0 rgba(255,255,255,0.9)'
+                          textClass += ' text-[#007AFF] font-semibold'
+                        } else if (isPast) {
+                          cellStyle.background = 'transparent'
+                          cellStyle.opacity = 0.6
+                          textClass += ' text-[#C7C7CC] cursor-not-allowed'
+                        } else {
+                          cellStyle.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.8)'
+                          cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06), 0 0 0 1px rgba(255,255,255,0.04)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
+                          textClass += isDark ? ' text-[#C7C7CC] hover:bg-white/[0.06]' : ' text-[#374151] hover:bg-[#F2F2F7]'
+                        }
+
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => handleDayClick(day)}
+                            disabled={isWeekend || isPast || isExisting}
+                            className={textClass}
+                            style={{
+                              fontSize: '13px',
+                              ...cellStyle
+                            }}
+                          >
+                            {format(day, 'd')}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {/* Date summary */}
               {startDate && endDate && (
