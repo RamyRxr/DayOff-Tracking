@@ -219,20 +219,20 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
               {/* Impact notice */}
               <div className="bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl p-4">
                 <h4 className="text-sm font-semibold text-[#111827] dark:text-[#F2F2F7] mb-2">
-                  Conséquences du blocage
+                  {t('consequencesBlocage')}
                 </h4>
                 <ul className="space-y-1.5 text-xs text-[#374151] dark:text-[#8E8E93]">
                   <li className="flex gap-2">
                     <span className="text-status-red dark:text-[#FF6B6B]">•</span>
-                    <span>L'employé ne pourra plus demander de congés</span>
+                    <span>{t('employeNePourra')}</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-status-red dark:text-[#FF6B6B]">•</span>
-                    <span>Son statut sera marqué comme "Bloqué"</span>
+                    <span>{t('statutBloqueMessage')}</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-status-red dark:text-[#FF6B6B]">•</span>
-                    <span>Un admin RH pourra le débloquer manuellement</span>
+                    <span>{t('adminPourraDebloquer')}</span>
                   </li>
                 </ul>
               </div>

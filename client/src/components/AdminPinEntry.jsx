@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Lock, CheckCircle2, XCircle, Loader2, Check } from "lucide-react";
 import { useAdmins, useAdminPin } from "../hooks/useAdmins";
+import { useTranslation } from 'react-i18next';
 
 /**
  * AdminPinEntry Component
@@ -12,6 +13,7 @@ export default function AdminPinEntry({
   onSuccess,
   actionLabel,
 }) {
+  const { t } = useTranslation();
   const { admins, loading: adminsLoading, error: adminsError } = useAdmins();
   const { verify, verifying, reset } = useAdminPin();
 
@@ -38,7 +40,7 @@ export default function AdminPinEntry({
 
   async function handleValidate(pinValue = pinDigits.join("")) {
     if (!selectedAdminId) {
-      setLocalError("Sélectionnez un administrateur");
+      setLocalError(t('selectionnerAdminDabord'));
       return;
     }
 
@@ -156,33 +158,33 @@ export default function AdminPinEntry({
       icon: Lock,
       iconColor: "text-gray-400",
       message: selectedAdminId
-        ? "Entrez votre code PIN"
-        : "Sélectionnez un administrateur",
+        ? t('entrezCodePIN')
+        : t('selectionnerAdminDabord'),
       dotColor: "bg-warm-gray-300",
     },
     entering: {
       icon: Lock,
       iconColor: "text-navy",
-      message: "Entrez votre code PIN",
+      message: t('entrezCodePIN'),
       dotColor: "bg-navy",
     },
     validating: {
       icon: Loader2,
       iconColor: "text-navy",
-      message: "Vérification...",
+      message: t('verification'),
       dotColor: "bg-navy",
       spin: true,
     },
     success: {
       icon: CheckCircle2,
       iconColor: "text-apple-green",
-      message: "Code correct",
+      message: t('codeCorrect'),
       dotColor: "bg-apple-green",
     },
     error: {
       icon: XCircle,
       iconColor: "text-apple-red",
-      message: "Code incorrect",
+      message: t('codeIncorrect'),
       dotColor: "bg-apple-red",
     },
   };
@@ -224,7 +226,7 @@ export default function AdminPinEntry({
 
           {/* Title */}
           <h3 className="text-center text-xl font-semibold text-gray-900 mb-2">
-            {actionLabel || "Confirmation requise"}
+            {actionLabel || t('confirmationRequise')}
           </h3>
 
           {/* Message */}

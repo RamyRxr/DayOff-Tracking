@@ -138,5 +138,10 @@
   "erreurAdministrative": "Erreur administrative",
   "justificationAcceptee": "Justification acceptée",
   "decisionHierarchique": "Décision hiérarchique",
-  "motifDeblocage": "Motif du déblocage"
+  "motifDeblocage": "Motif du déblocage",
+  "consequencesBlocage": "Conséquences du blocage",
+  "employeNePourra": "L'employé ne pourra plus demander de congés",
+  "adminPourraDebloquer": "Un admin RH pourra le débloquer manuellement",
+  "confirmationRequise": "Confirmation requise",
+  "entrezCodePIN": "Entrez votre code PIN"
 }
