@@ -1,8 +1,10 @@
 import { X, Calendar as CalendarIcon, Tag, MessageSquare, Paperclip } from 'lucide-react'
 import { format, differenceInDays, eachDayOfInterval } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { useTranslation } from 'react-i18next'
 
 export default function DayOffDetailsPopup({ dayOff, position, onClose }) {
+  const { t } = useTranslation()
   if (!dayOff) return null
 
   // Calculate working days and calendar days
@@ -48,7 +50,7 @@ export default function DayOffDetailsPopup({ dayOff, position, onClose }) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-red-500" />
-            <span className="text-[11px] uppercase text-gray-500 font-semibold tracking-wide">Congé</span>
+            <span className="text-[11px] uppercase text-gray-500 font-semibold tracking-wide">{t('congeTitle')}</span>
           </div>
           <button
             onClick={onClose}
@@ -66,7 +68,7 @@ export default function DayOffDetailsPopup({ dayOff, position, onClose }) {
               {startFormatted} → {endFormatted}
             </div>
             <div className="text-xs text-gray-500 mt-0.5">
-              {workingDays} jours ouvrables · {calendarDays} jours calendaires
+              {workingDays} {t('joursOuvrablesLong')} · {calendarDays} {t('joursCalendairesLong')}
             </div>
           </div>
         </div>
@@ -74,7 +76,7 @@ export default function DayOffDetailsPopup({ dayOff, position, onClose }) {
         {/* Type */}
         <div className="flex items-center gap-2 mb-3">
           <Tag className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-          <span className="text-sm text-gray-700">{dayOff.type || 'Congé annuel'}</span>
+          <span className="text-sm text-gray-700">{dayOff.type || t('congeAnnuel')}</span>
         </div>
 
         {/* Reason (optional) */}

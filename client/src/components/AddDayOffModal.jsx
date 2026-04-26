@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { X, Upload, AlertTriangle, ChevronLeft } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -10,6 +11,7 @@ import AutorisationStep from './AutorisationStep'
 import SplitCalendar from './SplitCalendar'
 
 export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { isDark } = useTheme()
   const [step, setStep] = useState(1)
@@ -252,7 +254,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               )}
               <div>
                 <h2 className="text-[17px] font-semibold text-[#111827] dark:text-[#F2F2F7]">
-                  {step === 1 ? 'Ajouter un Congé' : 'Autorisation'}
+                  {step === 1 ? t('ajouterCongeTitle') : t('autorisationTitle')}
                 </h2>
                 {step === 1 && employee && (
                   <p className="text-xs text-gray-500 dark:text-[#8E8E93] mt-1">
@@ -287,7 +289,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               {/* Two-Month Calendar */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-3">
-                  Dates du congé
+                  {t('datesConge')}
                 </label>
 
                 {/* CURRENT MONTH */}
@@ -531,7 +533,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                 {startDate && endDate && (
                   <div className="bg-navy/5 dark:bg-[#2C4A6F]/10 border border-navy/10 dark:border-[#2C4A6F]/20 rounded-xl p-3">
                     <div className="text-sm font-semibold text-navy dark:text-[#5E9FFF]">
-                      {workingDays} jours ouvrables · {totalCalendarDays} jours calendaires
+                      {workingDays} {t('joursOuvrablesLong')} · {totalCalendarDays} {t('joursCalendairesLong')}
                     </div>
                   </div>
                 )}
