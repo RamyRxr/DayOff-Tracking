@@ -194,10 +194,10 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
                 onChange={(value) => setReason(value)}
                 placeholder="Sélectionnez un motif"
                 options={[
-                  { value: 'Absences non justifiées', label: 'Absences non justifiées' },
-                  { value: 'Dépassement du quota de congés', label: 'Dépassement du quota de congés' },
-                  { value: 'Non-respect des procédures', label: 'Non-respect des procédures' },
-                  { value: 'Autre', label: 'Autre' },
+                  { value: t('absencesNonJustifiees'), label: t('absencesNonJustifiees') },
+                  { value: t('depassementQuota'), label: t('depassementQuota') },
+                  { value: t('nonRespectProcedures'), label: t('nonRespectProcedures') },
+                  { value: t('autre'), label: t('autre') },
                 ]}
               />
 
