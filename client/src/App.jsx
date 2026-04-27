@@ -9,20 +9,16 @@ import LoginPage from './pages/LoginPage'
 import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
-  const [currentAdmin, setCurrentAdmin] = useState(null)
-
-  // Load admin from localStorage on mount
-  useEffect(() => {
+  const [currentAdmin, setCurrentAdmin] = useState(() => {
     const savedAdmin = localStorage.getItem('currentAdmin')
-    if (savedAdmin) {
-      try {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- initializing from localStorage on mount
-        setCurrentAdmin(JSON.parse(savedAdmin))
-      } catch {
-        localStorage.removeItem('currentAdmin')
-      }
+    if (!savedAdmin) return null
+    try {
+      return JSON.parse(savedAdmin)
+    } catch {
+      localStorage.removeItem('currentAdmin')
+      return null
     }
-  }, [])
+  })
 
   const handleLoginSuccess = (admin) => {
     setCurrentAdmin(admin)
