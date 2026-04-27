@@ -83,7 +83,6 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
   const currentMonth = currentDate.getMonth()
   const currentYear = currentDate.getFullYear()
   const periodStart = new Date(currentYear, currentMonth, 20)
-  const periodEnd = new Date(currentYear, currentMonth + 1, 19)
 
   // Calculate total day-off days taken from actual records
   const totalDayOffDays = daysOff.reduce((sum, dayOff) => {

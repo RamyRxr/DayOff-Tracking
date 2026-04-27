@@ -92,7 +92,6 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
     handleClose()
   }
 
-  const isStep1Valid = reason !== ''
   const isStep2Valid = pinStatus === 'verified'
 
   return (

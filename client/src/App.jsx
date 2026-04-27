@@ -16,8 +16,9 @@ function App() {
     const savedAdmin = localStorage.getItem('currentAdmin')
     if (savedAdmin) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- initializing from localStorage on mount
         setCurrentAdmin(JSON.parse(savedAdmin))
-      } catch (err) {
+      } catch {
         localStorage.removeItem('currentAdmin')
       }
     }

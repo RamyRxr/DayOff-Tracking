@@ -22,7 +22,7 @@ export default function LoginPage({ onLoginSuccess }) {
     try {
       const admin = await verify(selectedAdminId, pin)
       onLoginSuccess(admin)
-    } catch (err) {
+    } catch {
       // Error is handled by hook
       setPin('')
     }
