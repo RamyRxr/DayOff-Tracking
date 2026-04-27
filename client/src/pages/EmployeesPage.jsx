@@ -252,8 +252,6 @@ export default function EmployeesPage() {
           <tbody className="divide-y divide-warm-gray-300 dark:divide-white/[0.06]">
             {sortedEmployees.map((employee) => {
               const status = statusConfig[employee.status]
-              const progressPercent =
-                (employee.daysUsed / employee.daysTotal) * 100
 
               return (
                 <tr
