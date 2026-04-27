@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { X, Upload, AlertTriangle, ChevronLeft } from 'lucide-react'
@@ -111,7 +111,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
   const hasSandwich = totalCalendarDays > workingDays
 
   // Custom cell renderer for range selection
-  const renderCalendarCell = (day, index) => {
+  const renderCalendarCell = useCallback((day, index) => {
     const dayStr = day.toISOString().split('T')[0]
     const isWeekend = day.getDay() === 5 || day.getDay() === 6
     const isPast = day < new Date(new Date().setHours(0, 0, 0, 0))
@@ -166,7 +166,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
         {format(day, 'd')}
       </button>
     )
-  }
+  }, [isDark, startDate, endDate, existingDates, handleDayClick])
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0]
