@@ -130,29 +130,29 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
       cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.85), inset 0 0 0 1px rgba(255,59,48,0.18)'
       textClass += ' text-[#C0392B] font-semibold cursor-not-allowed'
     } else if (isStart || isEnd) {
-      cellStyle.background = 'linear-gradient(145deg, #007AFF, #0055D4)'
-      cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(0,122,255,0.35)'
+      cellStyle.background = isDark ? 'linear-gradient(145deg, #639DFF, #4A7FCC)' : 'linear-gradient(145deg, #007AFF, #0055D4)'
+      cellStyle.boxShadow = isDark ? 'inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 8px rgba(99,157,255,0.4)' : 'inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(0,122,255,0.35)'
       textClass += ' text-white font-bold'
     } else if (isInRange) {
-      cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.1), rgba(0,122,255,0.06))'
-      cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,122,255,0.15)'
-      textClass += ' text-[#0055D4] font-medium'
+      cellStyle.background = isDark ? 'linear-gradient(145deg, rgba(99,157,255,0.15), rgba(99,157,255,0.08))' : 'linear-gradient(145deg, rgba(0,122,255,0.1), rgba(0,122,255,0.06))'
+      cellStyle.boxShadow = isDark ? 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 0 1px rgba(99,157,255,0.2)' : 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,122,255,0.15)'
+      textClass += isDark ? ' text-[#639DFF] font-medium' : ' text-[#0055D4] font-medium'
     } else if (isWeekend) {
-      cellStyle.background = isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7'
-      cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)'
-      textClass += ' text-[#C7C7CC] cursor-not-allowed'
+      cellStyle.background = isDark ? 'rgba(99,157,255,0.03)' : '#F2F2F7'
+      cellStyle.boxShadow = isDark ? 'inset 0 1px 2px rgba(0,0,0,0.2)' : 'inset 0 1px 2px rgba(0,0,0,0.04)'
+      textClass += isDark ? ' text-[#4A6A8A] cursor-not-allowed' : ' text-[#C7C7CC] cursor-not-allowed'
     } else if (isToday && !isStart && !isEnd) {
-      cellStyle.background = 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
-      cellStyle.boxShadow = '0 0 0 1.5px #007AFF, inset 0 1px 0 rgba(255,255,255,0.9)'
-      textClass += ' text-[#007AFF] font-semibold'
+      cellStyle.background = isDark ? 'linear-gradient(145deg, rgba(99,157,255,0.12), rgba(99,157,255,0.06))' : 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
+      cellStyle.boxShadow = isDark ? '0 0 0 1.5px #639DFF, inset 0 1px 0 rgba(255,255,255,0.06)' : '0 0 0 1.5px #007AFF, inset 0 1px 0 rgba(255,255,255,0.9)'
+      textClass += isDark ? ' text-[#639DFF] font-semibold' : ' text-[#007AFF] font-semibold'
     } else if (isPast) {
       cellStyle.background = 'transparent'
       cellStyle.opacity = 0.6
-      textClass += ' text-[#C7C7CC] cursor-not-allowed'
+      textClass += isDark ? ' text-[#4A6A8A] cursor-not-allowed' : ' text-[#C7C7CC] cursor-not-allowed'
     } else {
-      cellStyle.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.8)'
-      cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06), 0 0 0 1px rgba(255,255,255,0.04)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
-      textClass += isDark ? ' text-[#C7C7CC] hover:bg-white/[0.06]' : ' text-[#374151] hover:bg-[#F2F2F7]'
+      cellStyle.background = isDark ? 'rgba(99,157,255,0.05)' : 'rgba(255,255,255,0.8)'
+      cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.04), 0 0 0 1px rgba(99,157,255,0.08)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
+      textClass += isDark ? ' text-[#7A9CC4] hover:bg-white/[0.06]' : ' text-[#374151] hover:bg-[#F2F2F7]'
     }
 
     return (
@@ -241,38 +241,64 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
   const isStep2Valid = pinStatus === 'verified'
 
   return (
-    <div className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+    <div
+      className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
+      style={isDark ? {
+        backgroundColor: 'rgba(0,0,0,0.75)'
+      } : {}}
+    >
       <div
         className="bg-white dark:bg-[#16161E] rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col h-[92vh] sm:max-h-[88vh] overflow-hidden"
         style={isDark ? {
-          boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 24px 64px rgba(0,0,0,0.6)'
+          backgroundColor: '#0B1120',
+          border: '1px solid rgba(99,157,255,0.15)',
+          boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 24px 64px rgba(0,0,0,0.6)'
         } : {
           boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)'
         }}
       >
         {/* STICKY HEADER */}
-        <div className="flex-shrink-0 bg-white dark:bg-[#16161E] border-b border-gray-100 dark:border-white/[0.06] px-5 pt-5 pb-4 flex items-center justify-between">
+        <div
+          className="flex-shrink-0 bg-white dark:bg-[#16161E] border-b border-gray-100 dark:border-white/[0.06] px-5 pt-5 pb-4 flex items-center justify-between"
+          style={isDark ? {
+            backgroundColor: '#0B1120',
+            borderColor: 'rgba(99,157,255,0.12)'
+          } : {}}
+        >
           <div className="flex-1">
             <div className="flex items-center gap-3">
               {step === 2 && (
                 <button
                   onClick={() => setStep(1)}
                   className="p-1 hover:bg-black/5 dark:hover:bg-white/[0.06] rounded-lg transition-colors"
+                  style={isDark ? {
+                    backgroundColor: 'transparent'
+                  } : {}}
+                  onMouseEnter={(e) => {
+                    if (isDark) {
+                      e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isDark) {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
                 >
-                  <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#8E8E93]" />
+                  <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4]" />
                 </button>
               )}
               <div>
-                <h2 className="text-[17px] font-semibold text-[#111827] dark:text-[#F2F2F7]">
+                <h2 className="text-[17px] font-semibold text-[#111827] dark:text-[#E8EFF8]">
                   {step === 1 ? t('ajouterCongeTitle') : t('autorisationTitle')}
                 </h2>
                 {step === 1 && employee && (
-                  <p className="text-xs text-gray-500 dark:text-[#8E8E93] mt-1">
+                  <p className="text-xs text-gray-500 dark:text-[#7A9CC4] mt-1">
                     {employee.name} · {employee.matricule}
                   </p>
                 )}
                 {step === 2 && startDate && endDate && (
-                  <p className="text-xs text-gray-500 dark:text-[#8E8E93] mt-1">
+                  <p className="text-xs text-gray-500 dark:text-[#7A9CC4] mt-1">
                     {format(startDate, 'd', { locale: fr })}–{format(endDate, 'd MMM', { locale: fr })} · {workingDays} jours · {reason}
                   </p>
                 )}
@@ -280,14 +306,33 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-[#8E8E93] text-xs rounded-full px-2 py-0.5">
+            <span
+              className="bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-[#8E8E93] text-xs rounded-full px-2 py-0.5"
+              style={isDark ? {
+                backgroundColor: 'rgba(99,157,255,0.1)',
+                color: '#7A9CC4'
+              } : {}}
+            >
               Étape {step} / 2
             </span>
             <button
               onClick={handleClose}
               className="w-8 h-8 rounded-lg hover:bg-black/5 dark:hover:bg-white/[0.06] flex items-center justify-center transition-colors"
+              style={isDark ? {
+                backgroundColor: 'transparent'
+              } : {}}
+              onMouseEnter={(e) => {
+                if (isDark) {
+                  e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (isDark) {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }
+              }}
             >
-              <X className="w-5 h-5 text-[#6B7280] dark:text-[#8E8E93]" />
+              <X className="w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4]" />
             </button>
           </div>
         </div>
@@ -298,7 +343,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
             <>
               {/* Calendar */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-3">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-3">
                   {t('datesConge')}
                 </label>
 
@@ -310,8 +355,14 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
 
                 {/* Summary chip */}
                 {startDate && endDate && (
-                  <div className="bg-navy/5 dark:bg-[#2C4A6F]/10 border border-navy/10 dark:border-[#2C4A6F]/20 rounded-xl p-3 mt-4">
-                    <div className="text-sm font-semibold text-navy dark:text-[#5E9FFF]">
+                  <div
+                    className="bg-navy/5 dark:bg-[#2C4A6F]/10 border border-navy/10 dark:border-[#2C4A6F]/20 rounded-xl p-3 mt-4"
+                    style={isDark ? {
+                      backgroundColor: 'rgba(99,157,255,0.1)',
+                      borderColor: 'rgba(99,157,255,0.2)'
+                    } : {}}
+                  >
+                    <div className="text-sm font-semibold text-navy dark:text-[#639DFF]">
                       {workingDays} {t('joursOuvrablesLong')} · {totalCalendarDays} {t('joursCalendairesLong')}
                     </div>
                   </div>
@@ -330,18 +381,24 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
 
               {/* File Upload */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
                   {t('pieceJustificative')}
-                  <span className="text-[#6B7280] dark:text-[#8E8E93] font-normal ml-1">({t('optionnel')})</span>
+                  <span className="text-[#6B7280] dark:text-[#7A9CC4] font-normal ml-1">({t('optionnel')})</span>
                 </label>
 
                 {uploadedFile ? (
-                  <div className="flex items-center justify-between p-3 bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl">
+                  <div
+                    className="flex items-center justify-between p-3 bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl"
+                    style={isDark ? {
+                      backgroundColor: 'rgba(99,157,255,0.08)',
+                      border: '1px solid rgba(99,157,255,0.12)'
+                    } : {}}
+                  >
                     <div className="flex items-center gap-2">
-                      <Upload className="w-4 h-4 text-navy dark:text-[#5E9FFF]" />
+                      <Upload className="w-4 h-4 text-navy dark:text-[#639DFF]" />
                       <div>
-                        <div className="text-sm font-medium text-[#111827] dark:text-[#F2F2F7]">{uploadedFile.name}</div>
-                        <div className="text-xs text-[#6B7280] dark:text-[#8E8E93]">
+                        <div className="text-sm font-medium text-[#111827] dark:text-[#E8EFF8]">{uploadedFile.name}</div>
+                        <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">
                           {(uploadedFile.size / 1024).toFixed(0)} Ko
                         </div>
                       </div>
@@ -354,12 +411,17 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                     </button>
                   </div>
                 ) : (
-                  <label className="block border-2 border-dashed border-warm-gray-400 dark:border-white/[0.12] rounded-xl p-6 text-center cursor-pointer hover:border-navy/40 dark:hover:border-[#2C4A6F]/40 transition-colors">
-                    <Upload className="w-8 h-8 text-[#6B7280] dark:text-[#636366] mx-auto mb-2" />
-                    <div className="text-sm text-[#6B7280] dark:text-[#636366]">
+                  <label
+                    className="block border-2 border-dashed border-warm-gray-400 dark:border-white/[0.12] rounded-xl p-6 text-center cursor-pointer hover:border-navy/40 dark:hover:border-[#2C4A6F]/40 transition-colors"
+                    style={isDark ? {
+                      borderColor: 'rgba(99,157,255,0.2)'
+                    } : {}}
+                  >
+                    <Upload className="w-8 h-8 text-[#6B7280] dark:text-[#7A9CC4] mx-auto mb-2" />
+                    <div className="text-sm text-[#6B7280] dark:text-[#7A9CC4]">
                       Glisser ou cliquer
                     </div>
-                    <div className="text-xs text-[#9CA3AF] dark:text-[#636366] mt-1">
+                    <div className="text-xs text-[#9CA3AF] dark:text-[#7A9CC4] mt-1">
                       PDF, JPG, PNG · max 5 Mo
                     </div>
                     <input
@@ -414,10 +476,29 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
         </div>
 
         {/* STICKY FOOTER */}
-        <div className="flex-shrink-0 bg-white dark:bg-[#16161E] border-t border-gray-100 dark:border-white/[0.06] px-5 py-4 flex gap-3">
+        <div
+          className="flex-shrink-0 bg-white dark:bg-[#16161E] border-t border-gray-100 dark:border-white/[0.06] px-5 py-4 flex gap-3"
+          style={isDark ? {
+            backgroundColor: '#0B1120',
+            borderColor: 'rgba(99,157,255,0.12)'
+          } : {}}
+        >
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
-            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#8E8E93] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
+            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#7A9CC4] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
+            style={isDark ? {
+              backgroundColor: 'transparent'
+            } : {}}
+            onMouseEnter={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
           >
             {step === 1 ? 'Annuler' : '← Retour'}
           </button>
@@ -428,9 +509,10 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
             style={
               (step === 1 ? isStep1Valid : isStep2Valid)
                 ? (isDark ? {
-                    background: 'linear-gradient(145deg, #1A2F4F, #0F1F35)',
+                    background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
                     color: 'white',
-                    boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+                    border: '1px solid rgba(99,157,255,0.2)',
+                    boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
                   } : {
                     backgroundColor: '#1A2F4F',
                     color: 'white'
@@ -441,14 +523,14 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                   }
             }
             onMouseEnter={(e) => {
-              if ((step === 1 ? isStep1Valid : isStep2Valid)) {
+              if ((step === 1 ? isStep1Valid : isStep2Valid) && !isDark) {
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,47,79,0.3)'
               }
             }}
             onMouseLeave={(e) => {
               if ((step === 1 ? isStep1Valid : isStep2Valid)) {
                 e.currentTarget.style.boxShadow = isDark
-                  ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+                  ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
                   : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
               }
             }}
