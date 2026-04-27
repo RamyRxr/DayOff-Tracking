@@ -14,7 +14,7 @@ export default function CalendarGrid({
   return (
     <div>
       {/* Month label */}
-      <div className="text-[11px] uppercase tracking-wider text-gray-400 dark:text-[#636366] mb-2 ml-1">
+      <div className="text-[11px] uppercase tracking-wider text-gray-400 dark:text-[#7A9CC4] mb-2 ml-1">
         {monthLabel}
       </div>
 
@@ -22,14 +22,14 @@ export default function CalendarGrid({
       <div
         className="grid grid-cols-7 gap-0.5 pb-1 mb-1"
         style={{
-          borderBottom: isDark ? '0.5px solid rgba(255,255,255,0.06)' : '0.5px solid #E5E5EA'
+          borderBottom: isDark ? '0.5px solid rgba(99,157,255,0.15)' : '0.5px solid #E5E5EA'
         }}
       >
         {dayNames.map((day, i) => (
           <div
             key={i}
             className="text-[10px] font-medium text-center py-1"
-            style={{ color: i >= 5 ? '#C7C7CC' : (isDark ? '#8E8E93' : '#8E8E93') }}
+            style={{ color: i >= 5 ? (isDark ? '#4A6A8A' : '#C7C7CC') : (isDark ? '#7A9CC4' : '#8E8E93') }}
           >
             {day}
           </div>
@@ -87,31 +87,31 @@ export default function CalendarGrid({
                 background: isDayOff
                   ? 'linear-gradient(135deg, rgba(255,59,48,0.15), rgba(192,57,43,0.1))'
                   : isWeekend
-                    ? (isDark ? 'rgba(255,255,255,0.02)' : '#F2F2F7')
+                    ? (isDark ? 'rgba(99,157,255,0.03)' : '#F2F2F7')
                     : isSelected
-                      ? 'linear-gradient(135deg, rgba(0,122,255,0.12), rgba(0,122,255,0.08))'
+                      ? (isDark ? 'linear-gradient(135deg, rgba(99,157,255,0.15), rgba(99,157,255,0.1))' : 'linear-gradient(135deg, rgba(0,122,255,0.12), rgba(0,122,255,0.08))')
                       : isToday
-                        ? 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
-                        : (isDark ? 'rgba(255,255,255,0.04)' : '#FAFAFA'),
+                        ? (isDark ? 'linear-gradient(145deg, rgba(99,157,255,0.12), rgba(99,157,255,0.06))' : 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))')
+                        : (isDark ? 'rgba(99,157,255,0.05)' : '#FAFAFA'),
                 boxShadow: isDayOff
                   ? 'inset 0 1px 0 rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,59,48,0.2)'
                   : isWeekend
                     ? (isDark ? 'inset 0 1px 2px rgba(0,0,0,0.2)' : 'inset 0 1px 2px rgba(0,0,0,0.04)')
                     : isSelected
-                      ? '0 0 0 2px #007AFF'
+                      ? (isDark ? '0 0 0 2px #639DFF' : '0 0 0 2px #007AFF')
                       : isToday
-                        ? '0 0 0 1.5px #007AFF'
-                        : (isDark ? 'inset 0 1px 1px rgba(255,255,255,0.06)' : 'inset 0 1px 1px rgba(255,255,255,0.9)'),
-                border: isDayOff || isWeekend || isToday || isSelected ? 'none' : (isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)'),
+                        ? (isDark ? '0 0 0 1.5px #639DFF' : '0 0 0 1.5px #007AFF')
+                        : (isDark ? 'inset 0 1px 1px rgba(255,255,255,0.04), 0 0 0 1px rgba(99,157,255,0.08)' : 'inset 0 1px 1px rgba(255,255,255,0.9)'),
+                border: isDayOff || isWeekend || isToday || isSelected ? 'none' : (isDark ? '1px solid rgba(99,157,255,0.08)' : '1px solid rgba(0,0,0,0.04)'),
                 color: isDayOff
                   ? '#C0392B'
                   : isWeekend
-                    ? '#C7C7CC'
+                    ? (isDark ? '#4A6A8A' : '#C7C7CC')
                     : isSelected
-                      ? '#007AFF'
+                      ? (isDark ? '#639DFF' : '#007AFF')
                       : isToday
-                        ? '#007AFF'
-                        : (isDark ? '#C7C7CC' : '#374151'),
+                        ? (isDark ? '#639DFF' : '#007AFF')
+                        : (isDark ? '#7A9CC4' : '#374151'),
                 fontWeight: isDayOff || isSelected || isToday ? 600 : 'inherit',
               }}
             >
