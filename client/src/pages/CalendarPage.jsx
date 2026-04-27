@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Filter, Loader2, AlertCircle } from 'lucide-react'
 import { useDaysOff } from '../hooks/useDaysOff'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function CalendarPage() {
+  const { isDark } = useTheme()
   const [currentDate, setCurrentDate] = useState(new Date(2026, 3, 1)) // April 2026
   const [selectedDate, setSelectedDate] = useState(null)
   const { daysOff, loading, error, refetch } = useDaysOff()
@@ -88,7 +90,7 @@ export default function CalendarPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 text-navy animate-spin" />
+        <Loader2 className="w-8 h-8 text-navy dark:text-[#639DFF] animate-spin" />
       </div>
     )
   }
@@ -96,15 +98,21 @@ export default function CalendarPage() {
   // Error state
   if (error) {
     return (
-      <div className="bg-apple-red/10 border border-apple-red/20 rounded-2xl p-6">
+      <div
+        className="bg-apple-red/10 border border-apple-red/20 rounded-2xl p-6"
+        style={isDark ? {
+          backgroundColor: 'rgba(192,57,43,0.15)',
+          borderColor: 'rgba(255,59,48,0.2)'
+        } : {}}
+      >
         <div className="flex items-center gap-3">
-          <AlertCircle className="w-6 h-6 text-apple-red" />
+          <AlertCircle className="w-6 h-6 text-apple-red dark:text-[#FF6B6B]" />
           <div>
-            <div className="font-semibold text-apple-red">Erreur de chargement</div>
-            <p className="text-sm text-gray-700 mt-1">{error}</p>
+            <div className="font-semibold text-apple-red dark:text-[#FF6B6B]">Erreur de chargement</div>
+            <p className="text-sm text-gray-700 dark:text-[#7A9CC4] mt-1">{error}</p>
             <button
               onClick={refetch}
-              className="text-sm text-navy hover:underline mt-2"
+              className="text-sm text-navy dark:text-[#639DFF] hover:underline mt-2"
             >
               Réessayer
             </button>
@@ -119,43 +127,91 @@ export default function CalendarPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-[#E8EFF8]">
             Calendrier des Congés
           </h1>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">
             Vue calendrier de tous les congés
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-lg hover:bg-black/5 transition-colors">
-            <Filter className="w-5 h-5 text-gray-600" />
+          <button
+            className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/[0.06] transition-colors"
+            style={isDark ? {
+              backgroundColor: 'transparent'
+            } : {}}
+            onMouseEnter={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
+          >
+            <Filter className="w-5 h-5 text-gray-600 dark:text-[#7A9CC4]" />
           </button>
         </div>
       </div>
 
       {/* Calendar card */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-ambient p-6">
+      <div
+        className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-ambient p-6"
+        style={isDark ? {
+          backgroundColor: '#0B1120',
+          border: '1px solid rgba(99,157,255,0.12)',
+          boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
+        } : {}}
+      >
         {/* Month navigation */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={previousMonth}
-            className="p-2 rounded-lg hover:bg-warm-gray-200 transition-colors"
+            className="p-2 rounded-lg hover:bg-warm-gray-200 dark:hover:bg-white/[0.06] transition-colors"
+            style={isDark ? {
+              backgroundColor: 'transparent'
+            } : {}}
+            onMouseEnter={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
           >
-            <ChevronLeft className="w-5 h-5 text-gray-700" />
+            <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-[#7A9CC4]" />
           </button>
 
           <div className="flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-navy" />
-            <h2 className="text-lg font-semibold text-gray-900 capitalize">
+            <CalendarIcon className="w-5 h-5 text-navy dark:text-[#639DFF]" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-[#E8EFF8] capitalize">
               {monthName}
             </h2>
           </div>
 
           <button
             onClick={nextMonth}
-            className="p-2 rounded-lg hover:bg-warm-gray-200 transition-colors"
+            className="p-2 rounded-lg hover:bg-warm-gray-200 dark:hover:bg-white/[0.06] transition-colors"
+            style={isDark ? {
+              backgroundColor: 'transparent'
+            } : {}}
+            onMouseEnter={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
           >
-            <ChevronRight className="w-5 h-5 text-gray-700" />
+            <ChevronRight className="w-5 h-5 text-gray-700 dark:text-[#7A9CC4]" />
           </button>
         </div>
 
@@ -167,7 +223,7 @@ export default function CalendarPage() {
               <div
                 key={i}
                 className={`text-center text-xs font-semibold ${
-                  i >= 4 && i <= 5 ? 'text-gray-500' : 'text-gray-700'
+                  i >= 4 && i <= 5 ? 'text-gray-500 dark:text-[#4A6A8A]' : 'text-gray-700 dark:text-[#7A9CC4]'
                 }`}
               >
                 {day}
@@ -185,17 +241,36 @@ export default function CalendarPage() {
                   !day
                     ? 'pointer-events-none'
                     : day.isWeekend
-                    ? 'bg-warm-gray-200'
-                    : 'bg-warm-gray-200/50 hover:bg-warm-gray-300'
+                    ? 'bg-warm-gray-200 dark:bg-white/[0.04]'
+                    : 'bg-warm-gray-200/50 dark:bg-white/[0.06] hover:bg-warm-gray-300 dark:hover:bg-white/[0.08]'
                 } ${
                   day?.isToday
-                    ? 'ring-2 ring-navy ring-offset-2'
+                    ? 'ring-2 ring-navy dark:ring-[#639DFF] ring-offset-2 dark:ring-offset-[#080C14]'
                     : ''
                 } ${
                   day?.date === selectedDate
-                    ? 'bg-navy/10 ring-2 ring-navy/20'
+                    ? 'bg-navy/10 dark:bg-[rgba(99,157,255,0.12)] ring-2 ring-navy/20 dark:ring-[rgba(99,157,255,0.3)]'
                     : ''
                 }`}
+                style={isDark && day ? (
+                  day.isWeekend
+                    ? {
+                        backgroundColor: 'rgba(99,157,255,0.03)'
+                      }
+                    : {
+                        backgroundColor: 'rgba(99,157,255,0.06)'
+                      }
+                ) : {}}
+                onMouseEnter={(e) => {
+                  if (isDark && day && !day.isWeekend) {
+                    e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.1)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (isDark && day && !day.isWeekend) {
+                    e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.06)'
+                  }
+                }}
               >
                 {day && (
                   <div className="h-full p-2 flex flex-col">
@@ -203,10 +278,10 @@ export default function CalendarPage() {
                     <div
                       className={`text-sm font-semibold mb-1 ${
                         day.isToday
-                          ? 'text-navy'
+                          ? 'text-navy dark:text-[#639DFF]'
                           : day.isWeekend
-                          ? 'text-gray-500'
-                          : 'text-gray-900'
+                          ? 'text-gray-500 dark:text-[#4A6A8A]'
+                          : 'text-gray-900 dark:text-[#E8EFF8]'
                       }`}
                     >
                       {day.day}
@@ -217,17 +292,19 @@ export default function CalendarPage() {
                       {day.dayOffs.slice(0, 3).map((dayOff, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center gap-1 px-1.5 py-0.5 bg-navy/80 rounded text-white text-[9px] font-medium truncate"
+                          className="flex items-center gap-1 px-1.5 py-0.5 bg-navy/80 dark:bg-[rgba(99,157,255,0.3)] rounded text-white text-[9px] font-medium truncate"
                           title={dayOff.employeeName}
                         >
-                          <div className="w-3 h-3 rounded-full bg-white/20 flex items-center justify-center text-[7px] flex-shrink-0">
+                          <div
+                            className="w-3 h-3 rounded-full bg-white/20 dark:bg-white/30 flex items-center justify-center text-[7px] flex-shrink-0"
+                          >
                             {dayOff.avatar[0]}
                           </div>
                           <span className="truncate">{dayOff.employeeName.split(' ')[0]}</span>
                         </div>
                       ))}
                       {day.dayOffs.length > 3 && (
-                        <div className="text-[9px] text-gray-600 font-medium px-1.5">
+                        <div className="text-[9px] text-gray-600 dark:text-[#7A9CC4] font-medium px-1.5">
                           +{day.dayOffs.length - 3} autre{day.dayOffs.length - 3 > 1 ? 's' : ''}
                         </div>
                       )}
@@ -240,26 +317,50 @@ export default function CalendarPage() {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-6 mt-6 pt-6 border-t border-warm-gray-400">
+        <div
+          className="flex items-center gap-6 mt-6 pt-6 border-t border-warm-gray-400"
+          style={isDark ? {
+            borderColor: 'rgba(99,157,255,0.12)'
+          } : {}}
+        >
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-navy/80" />
-            <span className="text-xs text-gray-700">Congé</span>
+            <div
+              className="w-4 h-4 rounded bg-navy/80 dark:bg-[rgba(99,157,255,0.3)]"
+            />
+            <span className="text-xs text-gray-700 dark:text-[#7A9CC4]">Congé</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-warm-gray-200 border-2 border-navy" />
-            <span className="text-xs text-gray-700">Aujourd'hui</span>
+            <div
+              className="w-4 h-4 rounded bg-warm-gray-200 border-2 border-navy dark:border-[#639DFF]"
+              style={isDark ? {
+                backgroundColor: 'rgba(99,157,255,0.06)'
+              } : {}}
+            />
+            <span className="text-xs text-gray-700 dark:text-[#7A9CC4]">Aujourd'hui</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-warm-gray-200" />
-            <span className="text-xs text-gray-700">Weekend</span>
+            <div
+              className="w-4 h-4 rounded bg-warm-gray-200"
+              style={isDark ? {
+                backgroundColor: 'rgba(99,157,255,0.03)'
+              } : {}}
+            />
+            <span className="text-xs text-gray-700 dark:text-[#7A9CC4]">Weekend</span>
           </div>
         </div>
       </div>
 
       {/* Selected day details */}
       {selectedDate && selectedDayOffs.length > 0 && (
-        <div className="mt-6 bg-white/80 backdrop-blur-xl rounded-2xl shadow-ambient p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div
+          className="mt-6 bg-white/80 backdrop-blur-xl rounded-2xl shadow-ambient p-6"
+          style={isDark ? {
+            backgroundColor: '#0B1120',
+            border: '1px solid rgba(99,157,255,0.12)',
+            boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
+          } : {}}
+        >
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E8EFF8] mb-4">
             Congés du{' '}
             {new Date(selectedDate).toLocaleDateString('fr-DZ', {
               day: 'numeric',
@@ -271,18 +372,26 @@ export default function CalendarPage() {
             {selectedDayOffs.map((dayOff) => (
               <div
                 key={dayOff.id}
-                className="flex items-center gap-3 p-3 bg-warm-gray-200 rounded-xl"
+                className="flex items-center gap-3 p-3 bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl"
+                style={isDark ? {
+                  backgroundColor: 'rgba(99,157,255,0.06)'
+                } : {}}
               >
-                <div className="w-10 h-10 rounded-full bg-warm-gray-400 flex items-center justify-center text-sm font-semibold text-gray-700">
+                <div
+                  className="w-10 h-10 rounded-full bg-warm-gray-400 dark:bg-white/[0.08] flex items-center justify-center text-sm font-semibold text-gray-700 dark:text-[#7A9CC4]"
+                  style={isDark ? {
+                    backgroundColor: 'rgba(99,157,255,0.15)'
+                  } : {}}
+                >
                   {dayOff.avatar}
                 </div>
                 <div className="flex-1">
-                  <div className="font-semibold text-gray-900">
+                  <div className="font-semibold text-gray-900 dark:text-[#E8EFF8]">
                     {dayOff.employeeName}
                   </div>
-                  <div className="text-xs text-gray-600">En congé</div>
+                  <div className="text-xs text-gray-600 dark:text-[#7A9CC4]">En congé</div>
                 </div>
-                <button className="text-xs font-medium text-navy hover:text-navy/80 transition-colors px-3 py-1.5">
+                <button className="text-xs font-medium text-navy dark:text-[#639DFF] hover:text-navy/80 dark:hover:text-[#639DFF]/80 transition-colors px-3 py-1.5">
                   Détails
                 </button>
               </div>
@@ -293,25 +402,46 @@ export default function CalendarPage() {
 
       {/* Stats summary */}
       <div className="mt-6 grid grid-cols-3 gap-4">
-        <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-          <div className="text-2xl font-bold text-navy">
+        <div
+          className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient"
+          style={isDark ? {
+            backgroundColor: '#0B1120',
+            border: '1px solid rgba(99,157,255,0.12)',
+            boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
+          } : {}}
+        >
+          <div className="text-2xl font-bold text-navy dark:text-[#639DFF]">
             {transformedDaysOff.filter(d => d.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length}
           </div>
-          <div className="text-sm text-gray-600 mt-1">Congés ce mois</div>
+          <div className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">Congés ce mois</div>
         </div>
-        <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-          <div className="text-2xl font-bold text-navy">
+        <div
+          className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient"
+          style={isDark ? {
+            backgroundColor: '#0B1120',
+            border: '1px solid rgba(99,157,255,0.12)',
+            boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
+          } : {}}
+        >
+          <div className="text-2xl font-bold text-navy dark:text-[#639DFF]">
             {new Set(transformedDaysOff.map(d => d.employeeId)).size}
           </div>
-          <div className="text-sm text-gray-600 mt-1">Employés en congé</div>
+          <div className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">Employés en congé</div>
         </div>
-        <div className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient">
-          <div className="text-2xl font-bold text-navy">
+        <div
+          className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient"
+          style={isDark ? {
+            backgroundColor: '#0B1120',
+            border: '1px solid rgba(99,157,255,0.12)',
+            boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
+          } : {}}
+        >
+          <div className="text-2xl font-bold text-navy dark:text-[#639DFF]">
             {transformedDaysOff.length > 0
               ? Math.round((transformedDaysOff.filter(d => d.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length / 30) * 100)
               : 0}%
           </div>
-          <div className="text-sm text-gray-600 mt-1">Taux d'utilisation</div>
+          <div className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">Taux d'utilisation</div>
         </div>
       </div>
     </div>
