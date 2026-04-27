@@ -31,11 +31,13 @@ export default function AutorisationStep({
     return 'pin-empty'
   }
 
+  const isDark = document.documentElement.classList.contains('dark')
+
   return (
     <>
       {/* Admin Selector */}
       <div>
-        <label className="block text-sm font-medium text-[#111827] mb-3">
+        <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-3">
           Administrateur
         </label>
         <div className="space-y-2">
@@ -48,16 +50,32 @@ export default function AutorisationStep({
                   ? 'border-navy bg-navy/5'
                   : 'border-warm-gray-400 hover:border-navy/40'
               }`}
+              style={isDark ? (
+                selectedAdmin?.id === admin.id
+                  ? {
+                      borderColor: 'rgba(99,157,255,0.3)',
+                      backgroundColor: 'rgba(99,157,255,0.08)'
+                    }
+                  : {
+                      borderColor: 'rgba(99,157,255,0.12)'
+                    }
+              ) : {}}
             >
-              <div className="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center text-sm font-semibold text-navy">
+              <div
+                className="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center text-sm font-semibold text-navy"
+                style={isDark ? {
+                  backgroundColor: 'rgba(99,157,255,0.15)',
+                  color: '#639DFF'
+                } : {}}
+              >
                 {admin.initials}
               </div>
               <div className="flex-1 text-left">
-                <div className="font-semibold text-[#111827]">{admin.name}</div>
-                <div className="text-xs text-[#6B7280]">{admin.role}</div>
+                <div className="font-semibold text-[#111827] dark:text-[#E8EFF8]">{admin.name}</div>
+                <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{admin.role}</div>
               </div>
               {selectedAdmin?.id === admin.id && (
-                <Check className="w-5 h-5 text-navy" />
+                <Check className="w-5 h-5 text-navy dark:text-[#639DFF]" />
               )}
             </button>
           ))}
@@ -66,7 +84,7 @@ export default function AutorisationStep({
 
       {/* PIN Input */}
       <div>
-        <label className="block text-sm font-medium text-[#111827] mb-3">
+        <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-3">
           Code PIN
         </label>
         <div className="flex justify-center gap-3">
@@ -86,13 +104,13 @@ export default function AutorisationStep({
           ))}
         </div>
         {pinStatus === 'verifying' && (
-          <p className="text-[12px] text-navy text-center mt-2">Vérification...</p>
+          <p className="text-[12px] text-navy dark:text-[#639DFF] text-center mt-2">Vérification...</p>
         )}
         {pinStatus === 'error' && (
-          <p className="text-[12px] text-status-red text-center mt-2">Code incorrect</p>
+          <p className="text-[12px] text-status-red dark:text-[#FF6B6B] text-center mt-2">Code incorrect</p>
         )}
         {pinStatus === 'verified' && (
-          <p className="text-[12px] text-status-green text-center mt-2">✓ Code correct</p>
+          <p className="text-[12px] text-status-green dark:text-[#34C759] text-center mt-2">✓ Code correct</p>
         )}
       </div>
     </>
