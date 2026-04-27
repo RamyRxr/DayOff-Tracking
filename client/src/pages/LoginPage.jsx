@@ -62,12 +62,21 @@ export default function LoginPage({ onLoginSuccess }) {
   }
 
   return (
-    <div className="min-h-screen bg-warm-gray-200 dark:bg-gray-950 flex items-center justify-center p-4">
+    <div
+      className="min-h-screen bg-warm-gray-200 dark:bg-gray-950 flex items-center justify-center p-4"
+      style={isDark ? {
+        backgroundColor: '#080C14'
+      } : {}}
+    >
       {/* Dark/Light Mode Toggle */}
       <div className="fixed top-4 right-4 z-50">
         <button
           onClick={toggleDarkMode}
           className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200"
+          style={isDark ? {
+            backgroundColor: 'rgba(13,21,38,0.9)',
+            borderColor: 'rgba(99,157,255,0.2)'
+          } : {}}
           title={isDark ? 'Mode clair' : 'Mode sombre'}
         >
           {isDark ? (
@@ -79,28 +88,37 @@ export default function LoginPage({ onLoginSuccess }) {
       </div>
 
       {/* Login Card */}
-      <div className="bg-white/95 dark:bg-gray-900 dark:border dark:border-gray-800 backdrop-blur-2xl rounded-3xl shadow-modal w-full max-w-md p-8">
+      <div
+        className="bg-white/95 dark:bg-gray-900 dark:border dark:border-gray-800 backdrop-blur-2xl rounded-3xl shadow-modal w-full max-w-md p-8"
+        style={isDark ? {
+          backgroundColor: '#0B1120',
+          border: '1px solid rgba(99,157,255,0.15)',
+          boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 24px 64px rgba(0,0,0,0.6)'
+        } : {}}
+      >
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full bg-navy/10 flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8 text-navy" strokeWidth={2} />
+          <div
+            className="w-16 h-16 rounded-full bg-navy/10 dark:bg-[rgba(99,157,255,0.15)] flex items-center justify-center mx-auto mb-4"
+          >
+            <Lock className="w-8 h-8 text-navy dark:text-[#639DFF]" strokeWidth={2} />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-[#E8EFF8]">
             DayOff Tracking
           </h1>
-          <p className="text-sm text-gray-600 mt-1">NAFTAL - Connexion Admin</p>
+          <p className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">NAFTAL - Connexion Admin</p>
         </div>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Admin Selection - Custom Dropdown */}
           <div className="relative" ref={dropdownRef}>
-            <label className="block text-sm font-medium text-[#111827] mb-2">
+            <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
               Administrateur
             </label>
             {adminsLoading ? (
               <div className="flex items-center justify-center py-4">
-                <Loader2 className="w-5 h-5 text-navy animate-spin" />
+                <Loader2 className="w-5 h-5 text-navy dark:text-[#639DFF] animate-spin" />
               </div>
             ) : (
               <>
@@ -108,30 +126,37 @@ export default function LoginPage({ onLoginSuccess }) {
                 <button
                   type="button"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="w-full px-4 py-3 bg-warm-gray-200 rounded-xl text-left flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all"
+                  className="w-full px-4 py-3 bg-warm-gray-200 dark:bg-[rgba(13,21,38,0.75)] rounded-xl text-left flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-navy/20 dark:focus:ring-[rgba(99,157,255,0.3)] transition-all border border-transparent dark:border-[rgba(99,157,255,0.12)]"
                 >
                   {selectedAdmin ? (
                     <>
-                      <div className="w-10 h-10 rounded-full bg-warm-gray-200 flex items-center justify-center text-sm font-semibold text-[#374151]">
+                      <div
+                        className="w-10 h-10 rounded-full bg-warm-gray-200 dark:bg-[rgba(99,157,255,0.15)] flex items-center justify-center text-sm font-semibold text-[#374151] dark:text-[#7A9CC4]"
+                      >
                         {getAdminInitials(selectedAdmin.name)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-[#111827]">{selectedAdmin.name}</div>
-                        <div className="text-xs text-[#6B7280]">{selectedAdmin.role}</div>
+                        <div className="font-semibold text-[#111827] dark:text-[#E8EFF8]">{selectedAdmin.name}</div>
+                        <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{selectedAdmin.role}</div>
                       </div>
-                      <ChevronDown className={`w-5 h-5 text-[#6B7280] transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4] transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
                     </>
                   ) : (
                     <>
-                      <div className="flex-1 text-[#6B7280]">Sélectionner un admin</div>
-                      <ChevronDown className={`w-5 h-5 text-[#6B7280] transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                      <div className="flex-1 text-[#6B7280] dark:text-[#7A9CC4]">Sélectionner un admin</div>
+                      <ChevronDown className={`w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4] transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
                     </>
                   )}
                 </button>
 
                 {/* Dropdown Panel */}
                 {dropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white/90 backdrop-blur-xl rounded-xl border border-black/6 shadow-ambient overflow-hidden z-10 animate-in">
+                  <div
+                    className="absolute top-full left-0 right-0 mt-2 bg-white/90 dark:bg-[#0F1A2E] backdrop-blur-xl rounded-xl border border-black/6 dark:border-[rgba(99,157,255,0.15)] shadow-ambient overflow-hidden z-10 animate-in"
+                    style={isDark ? {
+                      boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 16px 48px rgba(0,0,0,0.6)'
+                    } : {}}
+                  >
                     <div className="p-2 space-y-1 max-h-64 overflow-y-auto">
                       {admins.map((admin) => {
                         const isSelected = selectedAdmin?.id === admin.id
@@ -145,19 +170,21 @@ export default function LoginPage({ onLoginSuccess }) {
                             }}
                             className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-150 ${
                               isSelected
-                                ? 'bg-white shadow-ambient border-0.5 border-navy'
-                                : 'bg-warm-gray-200 hover:bg-white/50 hover:shadow-sm'
+                                ? 'bg-white dark:bg-[rgba(99,157,255,0.12)] shadow-ambient border-0.5 border-navy dark:border-[rgba(99,157,255,0.3)]'
+                                : 'bg-warm-gray-200 dark:bg-[rgba(99,157,255,0.06)] hover:bg-white/50 dark:hover:bg-[rgba(99,157,255,0.1)] hover:shadow-sm'
                             }`}
                           >
-                            <div className="w-10 h-10 rounded-full bg-warm-gray-200 flex items-center justify-center text-sm font-semibold text-[#374151]">
+                            <div
+                              className="w-10 h-10 rounded-full bg-warm-gray-200 dark:bg-[rgba(99,157,255,0.15)] flex items-center justify-center text-sm font-semibold text-[#374151] dark:text-[#7A9CC4]"
+                            >
                               {getAdminInitials(admin.name)}
                             </div>
                             <div className="flex-1 text-left min-w-0">
-                              <div className="font-semibold text-[#111827]">{admin.name}</div>
-                              <div className="text-xs text-[#6B7280]">{admin.role}</div>
+                              <div className="font-semibold text-[#111827] dark:text-[#E8EFF8]">{admin.name}</div>
+                              <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{admin.role}</div>
                             </div>
                             {isSelected && (
-                              <Check className="w-5 h-5 text-navy flex-shrink-0" strokeWidth={2.5} />
+                              <Check className="w-5 h-5 text-navy dark:text-[#639DFF] flex-shrink-0" strokeWidth={2.5} />
                             )}
                           </button>
                         )
@@ -171,7 +198,7 @@ export default function LoginPage({ onLoginSuccess }) {
 
           {/* PIN Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">
+            <label className="block text-sm font-medium text-gray-900 dark:text-[#E8EFF8] mb-2">
               Code PIN (4 chiffres)
             </label>
             <input
@@ -183,15 +210,17 @@ export default function LoginPage({ onLoginSuccess }) {
               placeholder="••••"
               required
               maxLength={4}
-              className="w-full px-4 py-3 bg-warm-gray-200 rounded-xl text-gray-900 text-center text-2xl font-semibold tracking-widest focus:outline-none focus:ring-2 focus:ring-navy/20 transition-all"
+              className="w-full px-4 py-3 bg-warm-gray-200 dark:bg-[rgba(13,21,38,0.75)] rounded-xl text-gray-900 dark:text-[#E8EFF8] text-center text-2xl font-semibold tracking-widest focus:outline-none focus:ring-2 focus:ring-navy/20 dark:focus:ring-[rgba(99,157,255,0.3)] transition-all border border-transparent dark:border-[rgba(99,157,255,0.12)]"
             />
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-apple-red/10 border border-apple-red/20 rounded-xl">
-              <AlertCircle className="w-5 h-5 text-apple-red flex-shrink-0" />
-              <p className="text-sm text-apple-red">
+            <div
+              className="flex items-center gap-2 p-3 bg-apple-red/10 dark:bg-[rgba(192,57,43,0.15)] border border-apple-red/20 dark:border-[rgba(255,59,48,0.2)] rounded-xl"
+            >
+              <AlertCircle className="w-5 h-5 text-apple-red dark:text-[#FF6B6B] flex-shrink-0" />
+              <p className="text-sm text-apple-red dark:text-[#FF6B6B]">
                 Code PIN incorrect. Veuillez réessayer.
               </p>
             </div>
@@ -201,7 +230,15 @@ export default function LoginPage({ onLoginSuccess }) {
           <button
             type="submit"
             disabled={!selectedAdminId || pin.length !== 4 || verifying}
-            className="w-full bg-navy text-white px-4 py-3 rounded-xl font-medium shadow-ambient hover:shadow-modal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-navy dark:bg-transparent text-white px-4 py-3 rounded-xl font-medium shadow-ambient hover:shadow-modal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            style={isDark && !(!selectedAdminId || pin.length !== 4 || verifying) ? {
+              background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
+              border: '1px solid rgba(99,157,255,0.2)',
+              boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
+            } : (isDark ? {
+              backgroundColor: 'rgba(99,157,255,0.15)',
+              color: '#7A9CC4'
+            } : {})}
           >
             {verifying ? (
               <>
@@ -216,7 +253,7 @@ export default function LoginPage({ onLoginSuccess }) {
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-[#7A9CC4]">
             Code PIN par défaut pour Mohammed Saïd : 1234
           </p>
         </div>
