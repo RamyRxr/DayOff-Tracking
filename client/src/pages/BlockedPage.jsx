@@ -15,7 +15,7 @@ export default function BlockedPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 text-navy dark:text-[#2C4A6F] animate-spin" />
+        <Loader2 className="w-8 h-8 text-navy dark:text-[#639DFF] animate-spin" />
       </div>
     )
   }
@@ -23,9 +23,15 @@ export default function BlockedPage() {
   // Error state
   if (error) {
     return (
-      <div className="bg-apple-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-apple-red/20 dark:border-[rgba(255,59,48,0.2)] rounded-2xl p-6">
+      <div
+        className="bg-apple-red/10 border border-apple-red/20 rounded-2xl p-6"
+        style={isDark ? {
+          backgroundColor: 'rgba(192,57,43,0.15)',
+          borderColor: 'rgba(255,59,48,0.2)'
+        } : {}}
+      >
         <div className="font-semibold text-apple-red dark:text-[#FF6B6B] mb-2">Erreur</div>
-        <p className="text-sm text-gray-700 dark:text-[#8E8E93]">{error}</p>
+        <p className="text-sm text-gray-700 dark:text-[#7A9CC4]">{error}</p>
       </div>
     )
   }
@@ -178,18 +184,31 @@ Jours de congé:   ${block.daysUsed} / 15
             <div className="w-10 h-10 rounded-full bg-apple-red/10 dark:bg-[rgba(192,57,43,0.2)] flex items-center justify-center">
               <ShieldAlert className="w-5 h-5 text-apple-red dark:text-[#FF6B6B]" strokeWidth={2} />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-[#F2F2F7]">
+            <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-[#E8EFF8]">
               Employés Bloqués
             </h1>
           </div>
-          <p className="text-sm text-gray-600 dark:text-[#8E8E93]">
+          <p className="text-sm text-gray-600 dark:text-[#7A9CC4]">
             Liste des employés bloqués pour dépassement de quota
           </p>
         </div>
         {mockBlockedEmployees.length > 0 && (
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm text-navy dark:text-[#5E9FFF] border border-navy/20 dark:border-white/[0.12] hover:bg-navy/5 dark:hover:bg-white/[0.04] transition-all"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm text-navy dark:text-[#639DFF] border border-navy/20 dark:border-white/[0.12] hover:bg-navy/5 dark:hover:bg-white/[0.04] transition-all"
+            style={isDark ? {
+              borderColor: 'rgba(99,157,255,0.2)'
+            } : {}}
+            onMouseEnter={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
           >
             <Download className="w-4 h-4" />
             Exporter les données
@@ -206,7 +225,7 @@ Jours de congé:   ${block.daysUsed} / 15
               {mockBlockedEmployees.length} employé
               {mockBlockedEmployees.length > 1 ? 's bloqués' : ' bloqué'}
             </div>
-            <p className="text-xs text-gray-700 dark:text-[#8E8E93] mt-1">
+            <p className="text-xs text-gray-700 dark:text-[#7A9CC4] mt-1">
               Ces employés ne peuvent plus demander de congés. Vous pouvez les
               débloquer manuellement après vérification.
             </p>
@@ -221,8 +240,9 @@ Jours de congé:   ${block.daysUsed} / 15
             key={employee.id}
             className="bg-white/80 backdrop-blur-xl rounded-2xl transition-all duration-200 overflow-hidden border border-black/6 dark:border-white/[0.07]"
             style={isDark ? {
-              backgroundColor: '#16161E',
-              boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset'
+              backgroundColor: '#0B1120',
+              border: '1px solid rgba(99,157,255,0.12)',
+              boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
             } : {
               boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
             }}
@@ -231,7 +251,13 @@ Jours de congé:   ${block.daysUsed} / 15
               {/* Top section */}
               <div className="flex items-start gap-4 mb-4">
                 {/* Avatar */}
-                <div className="w-12 h-12 rounded-full bg-warm-gray-400 dark:bg-white/[0.06] flex items-center justify-center text-sm font-semibold text-gray-700 dark:text-[#8E8E93] flex-shrink-0">
+                <div
+                  className="w-12 h-12 rounded-full bg-warm-gray-400 dark:bg-white/[0.06] flex items-center justify-center text-sm font-semibold text-gray-700 dark:text-[#8E8E93] flex-shrink-0"
+                  style={isDark ? {
+                    backgroundColor: 'rgba(99,157,255,0.1)',
+                    color: '#7A9CC4'
+                  } : {}}
+                >
                   {employee.avatar}
                 </div>
 
@@ -239,18 +265,24 @@ Jours de congé:   ${block.daysUsed} / 15
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-semibold text-gray-900 dark:text-[#F2F2F7] truncate">
+                      <h3 className="text-base font-semibold text-gray-900 dark:text-[#E8EFF8] truncate">
                         {employee.name}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs font-mono text-gray-600 dark:text-[#8E8E93]">
+                        <span className="text-xs font-mono text-gray-600 dark:text-[#7A9CC4]">
                           {employee.matricule}
                         </span>
-                        <span className="px-2 py-0.5 bg-warm-gray-300 dark:bg-white/[0.06] text-gray-700 dark:text-[#8E8E93] text-[11px] rounded-md">
+                        <span
+                          className="px-2 py-0.5 bg-warm-gray-300 dark:bg-white/[0.06] text-gray-700 dark:text-[#8E8E93] text-[11px] rounded-md"
+                          style={isDark ? {
+                            backgroundColor: 'rgba(99,157,255,0.08)',
+                            color: '#7A9CC4'
+                          } : {}}
+                        >
                           {employee.department}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-[#8E8E93] mt-1">
+                      <div className="text-xs text-gray-600 dark:text-[#7A9CC4] mt-1">
                         {employee.position}
                       </div>
                     </div>
@@ -267,14 +299,20 @@ Jours de congé:   ${block.daysUsed} / 15
               </div>
 
               {/* Reason section */}
-              <div className="bg-warm-gray-200 dark:bg-white/[0.04] rounded-xl p-3 mb-4">
-                <div className="text-xs font-semibold text-gray-700 dark:text-[#8E8E93] mb-1">
+              <div
+                className="bg-warm-gray-200 dark:bg-white/[0.04] rounded-xl p-3 mb-4"
+                style={isDark ? {
+                  backgroundColor: 'rgba(99,157,255,0.06)',
+                  border: '1px solid rgba(99,157,255,0.08)'
+                } : {}}
+              >
+                <div className="text-xs font-semibold text-gray-700 dark:text-[#7A9CC4] mb-1">
                   Raison du blocage
                 </div>
-                <div className="text-sm text-gray-900 dark:text-[#F2F2F7]">
+                <div className="text-sm text-gray-900 dark:text-[#E8EFF8]">
                   {employee.blockedReason}
                 </div>
-                <div className="text-xs text-gray-600 dark:text-[#8E8E93] mt-2">
+                <div className="text-xs text-gray-600 dark:text-[#7A9CC4] mt-2">
                   Bloqué le {formatDate(employee.blockedAt)} par{' '}
                   {employee.blockedBy}
                 </div>
@@ -284,13 +322,40 @@ Jours de congé:   ${block.daysUsed} / 15
               <div className="flex gap-3">
                 <button
                   onClick={() => setSelectedEmployee(employee)}
-                  className="flex-1 px-4 py-2.5 rounded-xl font-medium text-sm text-gray-600 dark:text-[#8E8E93] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
+                  className="flex-1 px-4 py-2.5 rounded-xl font-medium text-sm text-gray-600 dark:text-[#7A9CC4] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
+                  style={isDark ? {
+                    backgroundColor: 'transparent'
+                  } : {}}
+                  onMouseEnter={(e) => {
+                    if (isDark) {
+                      e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isDark) {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
                 >
                   Voir détails
                 </button>
                 <button
                   onClick={(e) => handleDownloadBlockDetails(employee, employee.blockData, e)}
-                  className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl font-medium text-sm text-navy dark:text-[#5E9FFF] border border-navy/20 dark:border-white/[0.12] hover:bg-navy/5 dark:hover:bg-white/[0.04] transition-all duration-200"
+                  className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl font-medium text-sm text-navy dark:text-[#639DFF] border border-navy/20 dark:border-white/[0.12] hover:bg-navy/5 dark:hover:bg-white/[0.04] transition-all duration-200"
+                  style={isDark ? {
+                    borderColor: 'rgba(99,157,255,0.2)',
+                    backgroundColor: 'transparent'
+                  } : {}}
+                  onMouseEnter={(e) => {
+                    if (isDark) {
+                      e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isDark) {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
                 >
                   <Download className="w-3.5 h-3.5" />
                   Télécharger
@@ -298,6 +363,19 @@ Jours de congé:   ${block.daysUsed} / 15
                 <button
                   onClick={(e) => handleUnblockClick(employee, employee.blockData, e)}
                   className="flex items-center justify-center gap-2 border border-status-green/30 dark:border-[rgba(52,199,89,0.2)] text-status-green dark:text-[#34C759] px-4 py-2.5 rounded-xl font-medium text-sm hover:bg-status-green/5 dark:hover:bg-[rgba(52,199,89,0.1)] transition-all duration-200"
+                  style={isDark ? {
+                    backgroundColor: 'transparent'
+                  } : {}}
+                  onMouseEnter={(e) => {
+                    if (isDark) {
+                      e.currentTarget.style.backgroundColor = 'rgba(52,199,89,0.1)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isDark) {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
                 >
                   <Unlock className="w-4 h-4" strokeWidth={2} />
                   Débloquer
@@ -313,8 +391,9 @@ Jours de congé:   ${block.daysUsed} / 15
         <div
           className="bg-white/80 backdrop-blur-xl rounded-2xl p-16 text-center border border-black/6 dark:border-white/[0.07]"
           style={isDark ? {
-            backgroundColor: '#16161E',
-            boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset'
+            backgroundColor: '#0B1120',
+            border: '1px solid rgba(99,157,255,0.12)',
+            boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
           } : {
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
           }}
@@ -322,10 +401,10 @@ Jours de congé:   ${block.daysUsed} / 15
           <div className="w-16 h-16 rounded-full bg-apple-green/10 dark:bg-[rgba(52,199,89,0.15)] flex items-center justify-center mx-auto mb-4">
             <ShieldAlert className="w-8 h-8 text-apple-green dark:text-[#34C759]" strokeWidth={2} />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-[#F2F2F7] mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E8EFF8] mb-2">
             Aucun employé bloqué
           </h3>
-          <p className="text-sm text-gray-600 dark:text-[#8E8E93]">
+          <p className="text-sm text-gray-600 dark:text-[#7A9CC4]">
             Tous les employés respectent le quota minimum de jours ouvrables.
           </p>
         </div>
