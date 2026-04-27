@@ -66,7 +66,8 @@ export default function SplitCalendar({
     <div
       className="rounded-xl p-4 bg-white dark:bg-[#1C1C28]"
       style={isDark ? {
-        background: 'rgba(255,255,255,0.02)',
+        backgroundColor: 'rgba(13,21,38,0.5)',
+        border: '1px solid rgba(99,157,255,0.1)',
         boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.3)'
       } : {
         background: '#FAFAFA',
@@ -79,17 +80,43 @@ export default function SplitCalendar({
           <button
             onClick={() => onNavigate('prev')}
             className="p-2 hover:bg-black/5 dark:hover:bg-white/[0.04] rounded-lg transition-colors"
+            style={isDark ? {
+              backgroundColor: 'transparent'
+            } : {}}
+            onMouseEnter={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
           >
-            <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#8E8E93]" />
+            <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4]" />
           </button>
-          <div className="text-sm font-medium text-[#111827] dark:text-[#F2F2F7]">
+          <div className="text-sm font-medium text-[#111827] dark:text-[#E8EFF8]">
             {t('periodeTravail')}
           </div>
           <button
             onClick={() => onNavigate('next')}
             className="p-2 hover:bg-black/5 dark:hover:bg-white/[0.04] rounded-lg transition-colors"
+            style={isDark ? {
+              backgroundColor: 'transparent'
+            } : {}}
+            onMouseEnter={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (isDark) {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
           >
-            <ChevronRight className="w-5 h-5 text-[#6B7280] dark:text-[#8E8E93]" />
+            <ChevronRight className="w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4]" />
           </button>
         </div>
       )}
@@ -110,7 +137,12 @@ export default function SplitCalendar({
       </div>
 
       {/* Separator */}
-      <div className="w-full h-px bg-gray-100 dark:bg-white/[0.06] my-3" />
+      <div
+        className="w-full h-px bg-gray-100 dark:bg-white/[0.06] my-3"
+        style={isDark ? {
+          backgroundColor: 'rgba(99,157,255,0.15)'
+        } : {}}
+      />
 
       {/* Second half (1-19) */}
       <div className="mt-2">
