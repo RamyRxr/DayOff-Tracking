@@ -86,7 +86,7 @@ export default function EmployeesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 text-navy dark:text-[#2C4A6F] animate-spin" />
+        <Loader2 className="w-8 h-8 text-navy dark:text-[#639DFF] animate-spin" />
       </div>
     )
   }
@@ -94,11 +94,16 @@ export default function EmployeesPage() {
   // Error state
   if (error) {
     return (
-      <div className="bg-status-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-status-red/20 dark:border-[rgba(255,59,48,0.2)] rounded-2xl p-6">
+      <div className="bg-status-red/10 border border-status-red/20 rounded-2xl p-6"
+        style={isDark ? {
+          backgroundColor: 'rgba(192,57,43,0.15)',
+          borderColor: 'rgba(255,59,48,0.2)'
+        } : {}}
+      >
         <div className="font-semibold text-status-red dark:text-[#FF6B6B] mb-2">
           Erreur de chargement
         </div>
-        <p className="text-sm text-[#374151] dark:text-[#8E8E93]">{error}</p>
+        <p className="text-sm text-[#374151] dark:text-[#7A9CC4]">{error}</p>
       </div>
     )
   }
@@ -108,19 +113,20 @@ export default function EmployeesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 animate-fade-up">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-[#111827] dark:text-[#F2F2F7]">
+          <h1 className="font-display text-3xl font-bold tracking-tight text-[#111827] dark:text-[#E8EFF8]">
             Employés
           </h1>
-          <p className="text-sm text-[#6B7280] dark:text-[#8E8E93] mt-2 font-medium">
+          <p className="text-sm text-[#6B7280] dark:text-[#7A9CC4] mt-2 font-medium">
             Gérez tous les employés et leurs congés
           </p>
         </div>
         <button
           onClick={() => setShowAddEmployeeModal(true)}
-          className="flex items-center gap-2 bg-navy dark:bg-transparent text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200"
+          className="flex items-center gap-2 bg-navy text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200"
           style={isDark ? {
-            background: 'linear-gradient(145deg, #2C4A6F, #1A2F4F)',
-            boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+            background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
+            border: '1px solid rgba(99,157,255,0.2)',
+            boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
           } : {
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
           }}
@@ -132,10 +138,12 @@ export default function EmployeesPage() {
 
       {/* Filters */}
       <div
-        className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 mb-6 border border-black/6 dark:border-white/[0.07]"
+        className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 mb-6 border border-black/6"
         style={isDark ? {
-          backgroundColor: '#16161E',
-          boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset'
+          backgroundColor: 'rgba(13,21,38,0.85)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(99,157,255,0.12)',
+          boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
         } : {
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
         }}
@@ -143,26 +151,30 @@ export default function EmployeesPage() {
         <div className="flex gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280] dark:text-[#8E8E93] pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4] pointer-events-none" />
             <input
               type="text"
               placeholder="Rechercher par nom, matricule ou département..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl text-[#111827] dark:text-[#F2F2F7] placeholder-[#6B7280] dark:placeholder-[#48484A] focus:outline-none transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-warm-gray-200 rounded-xl text-[#111827] placeholder-[#6B7280] focus:outline-none transition-all"
               style={isDark ? {
-                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.06)'
+                backgroundColor: 'rgba(13,21,38,0.75)',
+                color: '#E8EFF8',
+                borderColor: 'rgba(99,157,255,0.12)',
+                border: '1px solid',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.4)'
               } : {}}
               onFocus={(e) => {
                 if (isDark) {
-                  e.target.style.boxShadow = '0 0 0 2px #2C4A6F, inset 0 1px 3px rgba(0,0,0,0.2)'
-                  e.target.style.background = 'rgba(255,255,255,0.08)'
+                  e.target.style.boxShadow = '0 0 0 2px rgba(99,157,255,0.3), inset 0 1px 3px rgba(0,0,0,0.2)'
+                  e.target.style.backgroundColor = 'rgba(13,21,38,0.9)'
                 }
               }}
               onBlur={(e) => {
                 if (isDark) {
-                  e.target.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.06)'
-                  e.target.style.background = 'rgba(255,255,255,0.06)'
+                  e.target.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.4)'
+                  e.target.style.backgroundColor = 'rgba(13,21,38,0.75)'
                 }
               }}
             />
@@ -184,48 +196,68 @@ export default function EmployeesPage() {
       </div>
 
       {/* Results count */}
-      <div className="text-xs text-[#6B7280] dark:text-[#8E8E93] mb-3">
+      <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4] mb-3">
         {sortedEmployees.length} employé{sortedEmployees.length > 1 ? 's' : ''}{' '}
         {statusFilter !== 'tous' && `(${statusConfig[statusFilter]?.label})`}
       </div>
 
       {/* Table */}
       <div
-        className="bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden border border-black/6 dark:border-white/[0.07]"
+        className="bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden border border-black/6"
         style={isDark ? {
-          backgroundColor: '#16161E',
-          boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset'
+          backgroundColor: 'rgba(13,21,38,0.85)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(99,157,255,0.12)',
+          boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
         } : {
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
         }}
       >
         <table className="w-full">
-          <thead className="bg-warm-gray-200 dark:bg-white/[0.04] border-b border-warm-gray-400 dark:border-white/[0.06]">
+          <thead
+            className="bg-warm-gray-200 border-b border-warm-gray-400"
+            style={isDark ? {
+              backgroundColor: 'rgba(99,157,255,0.06)',
+              borderColor: 'rgba(99,157,255,0.12)'
+            } : {}}
+          >
             <tr>
               <th
                 onClick={() => handleSort('name')}
-                className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider cursor-pointer hover:bg-warm-gray-300 dark:hover:bg-white/[0.06] transition-colors"
+                className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider cursor-pointer hover:bg-warm-gray-300 transition-colors"
+                onMouseEnter={(e) => {
+                  if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                }}
+                onMouseLeave={(e) => {
+                  if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+                }}
               >
                 <div className="flex items-center gap-2">
                   Employé
                   {sortField === 'name' && (
-                    <span className="text-navy dark:text-[#5E9FFF]">
+                    <span className="text-navy dark:text-[#639DFF]">
                       {sortDirection === 'asc' ? '↑' : '↓'}
                     </span>
                   )}
                 </div>
               </th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
+              <th className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
                 Département
               </th>
               <th
                 onClick={() => handleSort('daysUsed')}
-                className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider cursor-pointer hover:bg-warm-gray-300 dark:hover:bg-white/[0.06] transition-colors"
+                className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider cursor-pointer hover:bg-warm-gray-300 transition-colors"
+                onMouseEnter={(e) => {
+                  if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                }}
+                onMouseLeave={(e) => {
+                  if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+                }}
               >
                 <div className="flex items-center gap-2">
                   Congés
                   {sortField === 'daysUsed' && (
-                    <span className="text-navy dark:text-[#5E9FFF]">
+                    <span className="text-navy dark:text-[#639DFF]">
                       {sortDirection === 'asc' ? '↑' : '↓'}
                     </span>
                   )}
@@ -233,52 +265,73 @@ export default function EmployeesPage() {
               </th>
               <th
                 onClick={() => handleSort('status')}
-                className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider cursor-pointer hover:bg-warm-gray-300 dark:hover:bg-white/[0.06] transition-colors"
+                className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider cursor-pointer hover:bg-warm-gray-300 transition-colors"
+                onMouseEnter={(e) => {
+                  if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                }}
+                onMouseLeave={(e) => {
+                  if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+                }}
               >
                 <div className="flex items-center gap-2">
                   Statut
                   {sortField === 'status' && (
-                    <span className="text-navy dark:text-[#5E9FFF]">
+                    <span className="text-navy dark:text-[#639DFF]">
                       {sortDirection === 'asc' ? '↑' : '↓'}
                     </span>
                   )}
                 </div>
               </th>
-              <th className="text-right px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
+              <th className="text-right px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-warm-gray-300 dark:divide-white/[0.06]">
+          <tbody
+            className="divide-y divide-warm-gray-300"
+            style={isDark ? { borderColor: 'rgba(99,157,255,0.08)' } : {}}
+          >
             {sortedEmployees.map((employee) => {
               const status = statusConfig[employee.status]
 
               return (
                 <tr
                   key={employee.id}
-                  className="hover:bg-warm-gray-200/50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer"
+                  className="hover:bg-warm-gray-200/50 transition-colors cursor-pointer"
                   onClick={() => setSelectedEmployee(employee)}
+                  onMouseEnter={(e) => {
+                    if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.04)'
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-warm-gray-200 dark:bg-white/[0.06] flex items-center justify-center text-sm font-semibold text-[#374151] dark:text-[#8E8E93] flex-shrink-0">
+                      <div
+                        className="w-10 h-10 rounded-full bg-warm-gray-200 flex items-center justify-center text-sm font-semibold text-[#374151] flex-shrink-0"
+                        style={isDark ? {
+                          backgroundColor: 'rgba(99,157,255,0.08)',
+                          color: '#7A9CC4'
+                        } : {}}
+                      >
                         {employee.avatar}
                       </div>
                       <div>
-                        <div className="font-semibold text-[#111827] dark:text-[#F2F2F7]">
+                        <div className="font-semibold text-[#111827] dark:text-[#E8EFF8]">
                           {employee.name}
                         </div>
-                        <div className="text-xs font-mono text-[#6B7280] dark:text-[#8E8E93]">
+                        <div className="text-xs font-mono text-[#6B7280] dark:text-[#7A9CC4]">
                           {employee.matricule}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-[#111827] dark:text-[#F2F2F7]">
+                    <div className="text-sm text-[#111827] dark:text-[#E8EFF8]">
                       {employee.department}
                     </div>
-                    <div className="text-xs text-[#6B7280] dark:text-[#8E8E93]">
+                    <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">
                       {employee.position}
                     </div>
                   </td>
@@ -288,20 +341,26 @@ export default function EmployeesPage() {
                         ? 'text-red-600 dark:text-[#FF6B6B]'
                         : employee.daysUsed >= 11
                           ? 'text-amber-600 dark:text-[#FF9F0A]'
-                          : 'text-gray-700 dark:text-[#F2F2F7]'
+                          : 'text-gray-700 dark:text-[#E8EFF8]'
                     }`}>
                       {employee.daysUsed} / 15 jours
                     </div>
-                    <div className="w-24 h-1.5 bg-warm-gray-300 dark:bg-white/[0.06] rounded-full overflow-hidden">
+                    <div
+                      className="w-24 h-1.5 bg-warm-gray-300 rounded-full overflow-hidden"
+                      style={isDark ? { backgroundColor: 'rgba(99,157,255,0.08)' } : {}}
+                    >
                       <div
                         className={`h-full transition-all duration-300 ${
                           employee.daysUsed >= 14
                             ? 'bg-red-500 dark:bg-[#FF6B6B]'
                             : employee.daysUsed >= 11
                               ? 'bg-amber-500 dark:bg-[#FF9F0A]'
-                              : 'bg-navy dark:bg-[#2C4A6F]'
+                              : 'bg-navy'
                         }`}
-                        style={{ width: `${(employee.daysUsed / 15) * 100}%` }}
+                        style={{
+                          width: `${(employee.daysUsed / 15) * 100}%`,
+                          ...(isDark && employee.daysUsed < 11 ? { background: 'linear-gradient(90deg, #2A5494, #1E3D6B)' } : {})
+                        }}
                       />
                     </div>
                   </td>
@@ -322,7 +381,13 @@ export default function EmployeesPage() {
                           e.stopPropagation()
                           setSelectedEmployee(employee)
                         }}
-                        className="text-xs font-medium text-gray-600 dark:text-[#8E8E93] hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-all px-3 py-1.5 rounded-lg"
+                        className="text-xs font-medium text-gray-600 dark:text-[#7A9CC4] hover:bg-gray-100 transition-all px-3 py-1.5 rounded-lg"
+                        onMouseEnter={(e) => {
+                          if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                        }}
+                        onMouseLeave={(e) => {
+                          if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+                        }}
                       >
                         Détails
                       </button>
@@ -361,7 +426,7 @@ export default function EmployeesPage() {
         {/* Empty state */}
         {sortedEmployees.length === 0 && (
           <div className="py-16 text-center">
-            <p className="text-[#6B7280] dark:text-[#8E8E93]">Aucun employé trouvé</p>
+            <p className="text-[#6B7280] dark:text-[#7A9CC4]">Aucun employé trouvé</p>
           </div>
         )}
       </div>
