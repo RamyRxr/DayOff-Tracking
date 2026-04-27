@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X, Upload, Search, ChevronLeft, AlertTriangle } from 'lucide-react'
 import { format, isSameDay } from 'date-fns'
@@ -148,7 +148,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const hasSandwich = totalCalendarDays > workingDays
 
   // Custom cell renderer for range selection
-  const renderCalendarCell = useCallback((day, index) => {
+  const renderCalendarCell = (day, index) => {
     const dayStr = day.toISOString().split('T')[0]
     const isWeekend = day.getDay() === 5 || day.getDay() === 6
     const isPast = day < new Date(new Date().setHours(0, 0, 0, 0))
@@ -203,7 +203,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
         {format(day, 'd')}
       </button>
     )
-  }, [isDark, startDate, endDate, existingDates, handleDayClick])
+  }
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0]
