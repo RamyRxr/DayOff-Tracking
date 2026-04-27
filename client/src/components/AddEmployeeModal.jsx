@@ -246,43 +246,69 @@ export default function AddEmployeeModal({
   const isStep2Valid = !!selectedAdmin && pinStatus === "verified";
 
   return (
-    <div className="fixed inset-0 bg-black/30 dark:bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+    <div
+      className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
+      style={isDark ? { backgroundColor: 'rgba(0,0,0,0.75)' } : {}}
+    >
       <div
-        className="bg-white dark:bg-[#16161E] rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col h-[92vh] sm:max-h-[88vh] overflow-hidden"
+        className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col h-[92vh] sm:max-h-[88vh] overflow-hidden"
         style={isDark ? {
-          boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 24px 64px rgba(0,0,0,0.6)'
+          backgroundColor: '#0B1120',
+          border: '1px solid rgba(99,157,255,0.15)',
+          boxShadow: '0 0 0 1px rgba(99,157,255,0.1), 0 32px 80px rgba(0,0,0,0.7)'
         } : {
           boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)'
         }}
       >
         {/* STICKY HEADER */}
-        <div className="flex-shrink-0 bg-navy/10 dark:bg-[rgba(44,74,111,0.15)] border-b border-gray-100 dark:border-white/[0.07] px-5 pt-5 pb-4 flex items-center justify-between">
+        <div
+          className="flex-shrink-0 bg-navy/10 border-b border-gray-100 px-5 pt-5 pb-4 flex items-center justify-between"
+          style={isDark ? {
+            backgroundColor: 'rgba(42,84,148,0.12)',
+            borderColor: 'rgba(99,157,255,0.12)'
+          } : {}}
+        >
           <div className="flex items-center gap-3">
             {step === 2 && (
               <button
                 onClick={() => setStep(1)}
-                className="p-1 hover:bg-black/5 dark:hover:bg-white/[0.06] rounded-lg transition-colors"
+                className="p-1 hover:bg-black/5 rounded-lg transition-colors"
+                onMouseEnter={(e) => {
+                  if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                }}
+                onMouseLeave={(e) => {
+                  if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+                }}
               >
-                <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#8E8E93]" />
+                <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4]" />
               </button>
             )}
-            <div className="w-10 h-10 rounded-full bg-navy/20 dark:bg-[rgba(44,74,111,0.2)] flex items-center justify-center">
-              <UserPlus className="w-5 h-5 text-navy dark:text-[#5E9FFF]" strokeWidth={2} />
+            <div
+              className="w-10 h-10 rounded-full bg-navy/20 flex items-center justify-center"
+              style={isDark ? { backgroundColor: 'rgba(99,157,255,0.15)' } : {}}
+            >
+              <UserPlus className="w-5 h-5 text-navy dark:text-[#639DFF]" strokeWidth={2} />
             </div>
             <div>
-              <h2 className="font-display text-xl font-bold text-[#111827] dark:text-[#F2F2F7]">
+              <h2 className="font-display text-xl font-bold text-[#111827] dark:text-[#E8EFF8]">
                 {step === 1 ? t('nouvelEmploye') : t('autorisationRequise')}
               </h2>
-              <p className="text-xs text-[#6B7280] dark:text-[#8E8E93] mt-0.5">
+              <p className="text-xs text-[#6B7280] dark:text-[#7A9CC4] mt-0.5">
                 {t('etape')} {step} {t('sur')} 2
               </p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="w-8 h-8 rounded-lg hover:bg-black/5 dark:hover:bg-white/[0.06] flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-lg hover:bg-black/5 flex items-center justify-center transition-colors"
+            onMouseEnter={(e) => {
+              if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+            }}
+            onMouseLeave={(e) => {
+              if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+            }}
           >
-            <X className="w-5 h-5 text-[#6B7280] dark:text-[#8E8E93]" />
+            <X className="w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4]" />
           </button>
         </div>
 
@@ -292,7 +318,7 @@ export default function AddEmployeeModal({
             <>
               {/* Prénom */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
                   {t('prenom')}
                   <span className="text-status-red ml-1">*</span>
                 </label>
@@ -300,9 +326,14 @@ export default function AddEmployeeModal({
                   type="text"
                   value={formData.prenom}
                   onChange={(e) => handleChange("prenom", e.target.value)}
-                  className={`w-full px-4 py-3 bg-white dark:bg-white/[0.06] border rounded-xl text-[#111827] dark:text-[#F2F2F7] placeholder:text-[#6B7280] dark:placeholder:text-[#48484A] transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 dark:focus:ring-[#2C4A6F]/20 ${
-                    errors.prenom ? "border-status-red dark:border-[#C0392B]" : "border-warm-gray-400 dark:border-white/[0.07]"
+                  className={`w-full px-4 py-3 bg-white border rounded-xl text-[#111827] placeholder:text-[#6B7280] transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
+                    errors.prenom ? "border-status-red" : "border-warm-gray-400"
                   }`}
+                  style={isDark ? {
+                    backgroundColor: 'rgba(13,21,38,0.75)',
+                    borderColor: errors.prenom ? '#C0392B' : 'rgba(99,157,255,0.12)',
+                    color: '#E8EFF8'
+                  } : {}}
                 />
                 {errors.prenom && (
                   <p className="text-xs text-status-red dark:text-[#FF6B6B] mt-1">
@@ -313,7 +344,7 @@ export default function AddEmployeeModal({
 
               {/* Nom */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
                   {t('nom')}
                   <span className="text-status-red ml-1">*</span>
                 </label>
@@ -324,6 +355,11 @@ export default function AddEmployeeModal({
                   className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
                     errors.nom ? "border-status-red" : "border-warm-gray-400"
                   }`}
+                  style={isDark ? {
+                    backgroundColor: 'rgba(13,21,38,0.75)',
+                    borderColor: errors.nom ? '#C0392B' : 'rgba(99,157,255,0.12)',
+                    color: '#E8EFF8'
+                  } : {}}
                 />
                 {errors.nom && (
                   <p className="text-xs text-status-red dark:text-[#FF6B6B] mt-1">{errors.nom}</p>
@@ -332,7 +368,7 @@ export default function AddEmployeeModal({
 
               {/* Matricule (auto-generated) */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
                   {t('matricule')}
                 </label>
                 <div className="flex gap-2">
@@ -340,17 +376,31 @@ export default function AddEmployeeModal({
                     type="text"
                     value={formData.matricule}
                     readOnly
-                    className="flex-1 px-4 py-3 bg-warm-gray-200 dark:bg-white/[0.06] border border-warm-gray-400 dark:border-white/[0.07] rounded-xl font-mono text-navy dark:text-[#5E9FFF] cursor-not-allowed"
+                    className="flex-1 px-4 py-3 bg-warm-gray-200 border border-warm-gray-400 rounded-xl font-mono text-navy cursor-not-allowed"
+                    style={isDark ? {
+                      backgroundColor: 'rgba(13,21,38,0.75)',
+                      borderColor: 'rgba(99,157,255,0.12)',
+                      color: '#639DFF'
+                    } : {}}
                   />
                   <button
                     onClick={generateMatricule}
-                    className="px-4 py-3 bg-navy/10 dark:bg-[rgba(44,74,111,0.15)] hover:bg-navy/20 dark:hover:bg-[rgba(44,74,111,0.25)] rounded-xl transition-colors"
+                    className="px-4 py-3 bg-navy/10 hover:bg-navy/20 rounded-xl transition-colors"
+                    style={isDark ? {
+                      backgroundColor: 'rgba(99,157,255,0.12)'
+                    } : {}}
+                    onMouseEnter={(e) => {
+                      if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.18)'
+                    }}
+                    onMouseLeave={(e) => {
+                      if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.12)'
+                    }}
                     title={t('genererMatricule')}
                   >
-                    <RefreshCw className="w-5 h-5 text-navy dark:text-[#5E9FFF]" />
+                    <RefreshCw className="w-5 h-5 text-navy dark:text-[#639DFF]" />
                   </button>
                 </div>
-                <p className="text-xs text-[#6B7280] dark:text-[#8E8E93] mt-1">
+                <p className="text-xs text-[#6B7280] dark:text-[#7A9CC4] mt-1">
                   {t('genereAutomatiquement')}
                 </p>
               </div>
@@ -377,7 +427,7 @@ export default function AddEmployeeModal({
 
               {/* Poste */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
                   {t('poste')}
                   <span className="text-status-red ml-1">*</span>
                 </label>
@@ -387,10 +437,13 @@ export default function AddEmployeeModal({
                   value={formData.position}
                   onChange={(e) => handleChange("position", e.target.value)}
                   className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
-                    errors.position
-                      ? "border-status-red"
-                      : "border-warm-gray-400"
+                    errors.position ? "border-status-red" : "border-warm-gray-400"
                   }`}
+                  style={isDark ? {
+                    backgroundColor: 'rgba(13,21,38,0.75)',
+                    borderColor: errors.position ? '#C0392B' : 'rgba(99,157,255,0.12)',
+                    color: '#E8EFF8'
+                  } : {}}
                 />
                 {errors.position && (
                   <p className="text-xs text-status-red dark:text-[#FF6B6B] mt-1">
@@ -401,7 +454,7 @@ export default function AddEmployeeModal({
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
                   {t('email')}
                   <span className="text-status-red ml-1">*</span>
                 </label>
@@ -412,6 +465,11 @@ export default function AddEmployeeModal({
                   className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
                     errors.email ? "border-status-red" : "border-warm-gray-400"
                   }`}
+                  style={isDark ? {
+                    backgroundColor: 'rgba(13,21,38,0.75)',
+                    borderColor: errors.email ? '#C0392B' : 'rgba(99,157,255,0.12)',
+                    color: '#E8EFF8'
+                  } : {}}
                 />
                 {errors.email && (
                   <p className="text-xs text-status-red dark:text-[#FF6B6B] mt-1">{errors.email}</p>
@@ -420,7 +478,7 @@ export default function AddEmployeeModal({
 
               {/* Téléphone */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
                   {t('telephone')}
                   <span className="text-[#6B7280] font-normal ml-1">
                     ({t('optionnel')})
@@ -432,12 +490,17 @@ export default function AddEmployeeModal({
                   value={formData.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
                   className="w-full px-4 py-3 bg-white border border-warm-gray-400 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20"
+                  style={isDark ? {
+                    backgroundColor: 'rgba(13,21,38,0.75)',
+                    borderColor: 'rgba(99,157,255,0.12)',
+                    color: '#E8EFF8'
+                  } : {}}
                 />
               </div>
 
               {/* Date d'embauche */}
               <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#F2F2F7] mb-2">
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
                   {t('dateEmbauche')}
                   <span className="text-status-red ml-1">*</span>
                 </label>
@@ -446,10 +509,13 @@ export default function AddEmployeeModal({
                   value={formData.startDate}
                   onChange={(e) => handleChange("startDate", e.target.value)}
                   className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
-                    errors.startDate
-                      ? "border-status-red"
-                      : "border-warm-gray-400"
+                    errors.startDate ? "border-status-red" : "border-warm-gray-400"
                   }`}
+                  style={isDark ? {
+                    backgroundColor: 'rgba(13,21,38,0.75)',
+                    borderColor: errors.startDate ? '#C0392B' : 'rgba(99,157,255,0.12)',
+                    color: '#E8EFF8'
+                  } : {}}
                 />
                 {errors.startDate && (
                   <p className="text-xs text-status-red dark:text-[#FF6B6B] mt-1">
@@ -496,10 +562,22 @@ export default function AddEmployeeModal({
         </div>
 
         {/* STICKY FOOTER */}
-        <div className="flex-shrink-0 bg-white dark:bg-[#16161E] border-t border-gray-100 dark:border-white/[0.07] px-5 py-4 flex gap-3">
+        <div
+          className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-3"
+          style={isDark ? {
+            backgroundColor: '#0B1120',
+            borderColor: 'rgba(99,157,255,0.12)'
+          } : {}}
+        >
           <button
             onClick={step === 1 ? handleClose : () => setStep(1)}
-            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#8E8E93] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
+            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#7A9CC4] hover:bg-black/5 transition-all duration-200"
+            onMouseEnter={(e) => {
+              if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+            }}
+            onMouseLeave={(e) => {
+              if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+            }}
           >
             {step === 1 ? t('annuler') : t('retourFleche')}
           </button>
@@ -511,8 +589,9 @@ export default function AddEmployeeModal({
               backgroundColor: (step === 1 ? isStep1Valid : isStep2Valid) ? '#1A2F4F' : '#9CA3AF',
               color: 'white',
               ...(isDark && (step === 1 ? isStep1Valid : isStep2Valid) ? {
-                background: 'linear-gradient(145deg, #2C4A6F, #1A2F4F)',
-                boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+                background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
+                border: '1px solid rgba(99,157,255,0.2)',
+                boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
               } : {})
             }}
             onMouseEnter={(e) => {
@@ -522,7 +601,7 @@ export default function AddEmployeeModal({
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.boxShadow = isDark && (step === 1 ? isStep1Valid : isStep2Valid)
-                ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+                ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
                 : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
             }}
           >
