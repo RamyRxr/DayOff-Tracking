@@ -175,52 +175,97 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md z-40 transition-opacity animate-fade-in flex items-center justify-center p-6"
+        className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 transition-opacity animate-fade-in flex items-center justify-center p-6"
+        style={isDark ? { backgroundColor: 'rgba(0,0,0,0.75)' } : {}}
         onClick={onClose}
       >
         {/* Centered Modal */}
         <div
-          className="bg-white dark:bg-[#16161E] rounded-2xl w-full max-w-4xl flex flex-col h-[92vh] max-h-[88vh] overflow-hidden animate-scale-in"
+          className="bg-white rounded-2xl w-full max-w-4xl flex flex-col h-[92vh] max-h-[88vh] overflow-hidden animate-scale-in"
           style={isDark ? {
-            boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 24px 64px rgba(0,0,0,0.6)'
+            backgroundColor: '#0B1120',
+            border: '1px solid rgba(99,157,255,0.15)',
+            boxShadow: '0 0 0 1px rgba(99,157,255,0.1), 0 32px 80px rgba(0,0,0,0.7)'
           } : {
             boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.2)'
           }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* STICKY HEADER */}
-          <div className="flex-shrink-0 bg-white dark:bg-[#16161E] border-b border-gray-100 dark:border-white/[0.07] px-8 py-5 flex items-center justify-between">
-              <h2 className="font-display text-2xl font-bold text-[#111827] dark:text-[#F2F2F7]">
+          <div
+            className="flex-shrink-0 bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between"
+            style={isDark ? {
+              backgroundColor: '#0B1120',
+              borderColor: 'rgba(99,157,255,0.12)'
+            } : {}}
+          >
+              <h2 className="font-display text-2xl font-bold text-[#111827] dark:text-[#E8EFF8]">
                 {t('detailsEmploye')}
               </h2>
               <button
                 onClick={onClose}
-                className="w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/[0.06] active:scale-95 flex items-center justify-center transition-all duration-200"
+                className="w-10 h-10 rounded-xl hover:bg-black/5 active:scale-95 flex items-center justify-center transition-all duration-200"
+                style={isDark ? {
+                  ':hover': { backgroundColor: 'rgba(99,157,255,0.08)' }
+                } : {}}
+                onMouseEnter={(e) => {
+                  if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                }}
+                onMouseLeave={(e) => {
+                  if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+                }}
               >
-                <X className="w-6 h-6 text-[#6B7280] dark:text-[#8E8E93]" />
+                <X className="w-6 h-6 text-[#6B7280] dark:text-[#7A9CC4]" />
               </button>
             </div>
 
           {/* SCROLLABLE BODY */}
           <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6 space-y-6 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
           {/* Employee info card */}
-          <div className="bg-white/80 dark:bg-white/[0.06] backdrop-blur-xl rounded-2xl p-6 shadow-ambient border border-transparent dark:border-white/[0.07]">
+          <div
+            className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-ambient border border-transparent"
+            style={isDark ? {
+              backgroundColor: 'rgba(13,21,38,0.75)',
+              backdropFilter: 'blur(16px)',
+              border: '1px solid rgba(99,157,255,0.12)',
+              boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 4px 16px rgba(0,0,0,0.4)'
+            } : {}}
+          >
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-full bg-warm-gray-200 dark:bg-white/[0.08] flex items-center justify-center text-xl font-semibold text-[#374151] dark:text-[#8E8E93] flex-shrink-0">
+              <div
+                className="w-16 h-16 rounded-full bg-warm-gray-200 flex items-center justify-center text-xl font-semibold text-[#374151] flex-shrink-0"
+                style={isDark ? {
+                  backgroundColor: 'rgba(99,157,255,0.12)',
+                  color: '#7A9CC4',
+                  border: '1px solid rgba(99,157,255,0.2)'
+                } : {}}
+              >
                 {employee.avatar}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-semibold text-[#111827] dark:text-[#F2F2F7]">
+                <h3 className="text-xl font-semibold text-[#111827] dark:text-[#E8EFF8]">
                   {employee.name}
                 </h3>
-                <p className="text-sm font-mono text-[#6B7280] dark:text-[#8E8E93] mt-1">
+                <p className="text-sm font-mono text-[#6B7280] dark:text-[#7A9CC4] mt-1">
                   {employee.matricule}
                 </p>
                 <div className="flex items-center gap-2 mt-3">
-                  <span className="px-3 py-1 bg-warm-gray-300 dark:bg-white/[0.08] text-[#374151] dark:text-[#8E8E93] text-xs rounded-lg">
+                  <span
+                    className="px-3 py-1 bg-warm-gray-300 text-[#374151] text-xs rounded-lg"
+                    style={isDark ? {
+                      backgroundColor: 'rgba(99,157,255,0.08)',
+                      color: '#7A9CC4'
+                    } : {}}
+                  >
                     {employee.department}
                   </span>
-                  <span className="px-3 py-1 bg-warm-gray-300 dark:bg-white/[0.08] text-[#374151] dark:text-[#8E8E93] text-xs rounded-lg">
+                  <span
+                    className="px-3 py-1 bg-warm-gray-300 text-[#374151] text-xs rounded-lg"
+                    style={isDark ? {
+                      backgroundColor: 'rgba(99,157,255,0.08)',
+                      color: '#7A9CC4'
+                    } : {}}
+                  >
                     {employee.position}
                   </span>
                 </div>
@@ -233,17 +278,32 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
 
                 {/* Contact & Start Date Info Pills */}
                 <div className="flex items-center gap-2 mt-3 flex-wrap">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 dark:bg-white/[0.06] rounded-lg">
-                    <Mail className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#8E8E93]" />
-                    <span className="text-xs text-[#6B7280] dark:text-[#8E8E93]">{getEmail()}</span>
+                  <div
+                    className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 rounded-lg"
+                    style={isDark ? {
+                      backgroundColor: 'rgba(99,157,255,0.06)'
+                    } : {}}
+                  >
+                    <Mail className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#7A9CC4]" />
+                    <span className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{getEmail()}</span>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 dark:bg-white/[0.06] rounded-lg">
-                    <Phone className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#8E8E93]" />
-                    <span className="text-xs text-[#6B7280] dark:text-[#8E8E93]">{employee.phone || '—'}</span>
+                  <div
+                    className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 rounded-lg"
+                    style={isDark ? {
+                      backgroundColor: 'rgba(99,157,255,0.06)'
+                    } : {}}
+                  >
+                    <Phone className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#7A9CC4]" />
+                    <span className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{employee.phone || '—'}</span>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 dark:bg-white/[0.06] rounded-lg">
-                    <CalendarIcon className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#8E8E93]" />
-                    <span className="text-xs text-[#6B7280] dark:text-[#8E8E93]">{getStartDate()}</span>
+                  <div
+                    className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 rounded-lg"
+                    style={isDark ? {
+                      backgroundColor: 'rgba(99,157,255,0.06)'
+                    } : {}}
+                  >
+                    <CalendarIcon className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#7A9CC4]" />
+                    <span className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{getStartDate()}</span>
                   </div>
                 </div>
               </div>
@@ -253,39 +313,45 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
           {/* Stats - Compact chips */}
           <div className="flex gap-2">
             <div
-              className="flex-1 bg-white dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.07] rounded-xl px-4 py-3 flex flex-col gap-0.5"
+              className="flex-1 bg-white border border-black/[0.06] rounded-xl px-4 py-3 flex flex-col gap-0.5"
               style={isDark ? {
-                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.3)'
+                backgroundColor: 'rgba(13,21,38,0.75)',
+                border: '1px solid rgba(99,157,255,0.12)',
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3)'
               } : {
                 boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.04)'
               }}
             >
-              <div className="text-xl font-bold text-gray-900 dark:text-[#F2F2F7]">
+              <div className="text-xl font-bold text-gray-900 dark:text-[#E8EFF8]">
                 {totalDayOffDays}
               </div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#8E8E93] font-medium">
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#7A9CC4] font-medium">
                 {t('joursCongeLabel')}
               </div>
             </div>
             <div
-              className="flex-1 bg-white dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.07] rounded-xl px-4 py-3 flex flex-col gap-0.5"
+              className="flex-1 bg-white border border-black/[0.06] rounded-xl px-4 py-3 flex flex-col gap-0.5"
               style={isDark ? {
-                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.3)'
+                backgroundColor: 'rgba(13,21,38,0.75)',
+                border: '1px solid rgba(99,157,255,0.12)',
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3)'
               } : {
                 boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.04)'
               }}
             >
-              <div className="text-xl font-bold text-gray-900 dark:text-[#F2F2F7]">
+              <div className="text-xl font-bold text-gray-900 dark:text-[#E8EFF8]">
                 {workingDaysElapsed}
               </div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#8E8E93] font-medium">
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#7A9CC4] font-medium">
                 {t('joursTravaillesLabel')}
               </div>
             </div>
             <div
-              className="flex-1 bg-white dark:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.07] rounded-xl px-4 py-3 flex flex-col gap-0.5"
+              className="flex-1 bg-white border border-black/[0.06] rounded-xl px-4 py-3 flex flex-col gap-0.5"
               style={isDark ? {
-                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.3)'
+                backgroundColor: 'rgba(13,21,38,0.75)',
+                border: '1px solid rgba(99,157,255,0.12)',
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3)'
               } : {
                 boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.04)'
               }}
@@ -293,11 +359,11 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               <div className={`text-xl font-bold ${
                 daysAvailable <= 0 ? 'text-red-600 dark:text-[#FF6B6B]' :
                 daysAvailable <= 4 ? 'text-amber-600 dark:text-[#FF9F0A]' :
-                'text-gray-900 dark:text-[#F2F2F7]'
+                'text-gray-900 dark:text-[#E8EFF8]'
               }`}>
                 {daysAvailable}
               </div>
-              <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#8E8E93] font-medium">
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#7A9CC4] font-medium">
                 {t('joursDisponiblesLabel')}
               </div>
             </div>
@@ -305,24 +371,44 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
 
           {/* Calendar */}
           <div
-            className="bg-white dark:bg-[#1C1C28] rounded-2xl p-4"
+            className="bg-white rounded-2xl p-4"
             style={isDark ? {
-              boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.3)'
+              backgroundColor: 'rgba(13,21,38,0.75)',
+              border: '1px solid rgba(99,157,255,0.12)',
+              boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 4px 12px rgba(0,0,0,0.4)'
             } : {
               boxShadow: '0 0 0 1px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04)'
             }}
           >
             {/* Month header */}
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-[13px] font-semibold text-gray-800 dark:text-[#F2F2F7] uppercase tracking-wide">
+              <h4 className="text-[13px] font-semibold text-gray-800 dark:text-[#E8EFF8] uppercase tracking-wide">
                 {periodStart.toLocaleDateString('fr-DZ', { month: 'long', year: 'numeric' })}
               </h4>
               <div className="flex gap-1">
-                <button className="w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06] flex items-center justify-center transition-colors">
-                  <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-[#8E8E93]" />
+                <button
+                  className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
+                  style={isDark ? {} : {}}
+                  onMouseEnter={(e) => {
+                    if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
+                >
+                  <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-[#7A9CC4]" />
                 </button>
-                <button className="w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06] flex items-center justify-center transition-colors">
-                  <ChevronRight className="w-4 h-4 text-gray-600 dark:text-[#8E8E93]" />
+                <button
+                  className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
+                  style={isDark ? {} : {}}
+                  onMouseEnter={(e) => {
+                    if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+                  }}
+                >
+                  <ChevronRight className="w-4 h-4 text-gray-600 dark:text-[#7A9CC4]" />
                 </button>
               </div>
             </div>
@@ -339,24 +425,24 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             <div
               className="flex items-center justify-center gap-3 mt-4 pt-3"
               style={{
-                borderTop: isDark ? '0.5px solid rgba(255,255,255,0.06)' : '0.5px solid rgba(0,0,0,0.06)'
+                borderTop: isDark ? '0.5px solid rgba(99,157,255,0.12)' : '0.5px solid rgba(0,0,0,0.06)'
               }}
             >
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-amber-500" />
-                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">{t('congeLegend')}</span>
+                <span className="text-[10px] text-gray-500 dark:text-[#7A9CC4]">{t('congeLegend')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-600" />
-                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">{t('weekend')}</span>
+                <span className="text-[10px] text-gray-500 dark:text-[#7A9CC4]">{t('weekend')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">{t('bloqueLegend')}</span>
+                <span className="text-[10px] text-gray-500 dark:text-[#7A9CC4]">{t('bloqueLegend')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-blue-500" />
-                <span className="text-[10px] text-gray-500 dark:text-[#8E8E93]">Aujourd'hui</span>
+                <span className="text-[10px] text-gray-500 dark:text-[#7A9CC4]">Aujourd'hui</span>
               </div>
             </div>
           </div>
@@ -366,18 +452,35 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
         </div>
 
         {/* STICKY FOOTER - Action buttons */}
-        <div className="flex-shrink-0 bg-white dark:bg-[#16161E] border-t border-gray-100 dark:border-white/[0.06] px-8 py-5 flex gap-3">
+        <div
+          className="flex-shrink-0 bg-white border-t border-gray-100 px-8 py-5 flex gap-3"
+          style={isDark ? {
+            backgroundColor: '#0B1120',
+            borderColor: 'rgba(99,157,255,0.12)'
+          } : {}}
+        >
             <button
               onClick={() => setShowAddDayOff(true)}
               disabled={employee.status === 'bloqué'}
               className={`flex-1 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
                 employee.status === 'bloqué'
-                  ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                  : 'bg-navy dark:bg-[#2C4A6F] text-white shadow-ambient hover:shadow-modal'
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-navy text-white shadow-ambient hover:shadow-modal'
               }`}
-              style={employee.status !== 'bloqué' && isDark ? {
-                boxShadow: '0 4px 12px rgba(26,47,79,0.4)'
-              } : {}}
+              style={
+                employee.status === 'bloqué' && isDark
+                  ? {
+                      backgroundColor: 'rgba(99,157,255,0.06)',
+                      color: '#4A6A8A'
+                    }
+                  : employee.status !== 'bloqué' && isDark
+                  ? {
+                      background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
+                      border: '1px solid rgba(99,157,255,0.2)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.4)'
+                    }
+                  : {}
+              }
             >
               {t('ajouterUnConge')}
             </button>
