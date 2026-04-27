@@ -91,7 +91,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 text-navy dark:text-[#2C4A6F] animate-spin" />
+        <Loader2 className="w-8 h-8 text-navy dark:text-[#639DFF] animate-spin" />
       </div>
     )
   }
@@ -99,17 +99,17 @@ export default function HomePage() {
   // Error state
   if (error) {
     return (
-      <div className="bg-status-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-status-red/20 dark:border-[rgba(255,59,48,0.2)] rounded-2xl p-6">
+      <div className="bg-status-red/10 dark:bg-[rgba(192,57,43,0.15)] border border-status-red/20 dark:border-[rgba(255,59,48,0.2)] rounded-2xl p-6">
         <div className="flex items-center gap-3">
           <AlertCircle className="w-6 h-6 text-status-red dark:text-[#FF6B6B]" />
           <div>
             <div className="font-semibold text-status-red dark:text-[#FF6B6B]">
               {t('erreurChargement')}
             </div>
-            <p className="text-sm text-[#374151] dark:text-[#8E8E93] mt-1">{error}</p>
+            <p className="text-sm text-[#374151] dark:text-[#7A9CC4] mt-1">{error}</p>
             <button
               onClick={refetch}
-              className="text-sm text-navy dark:text-[#5E9FFF] hover:underline mt-2"
+              className="text-sm text-navy dark:text-[#639DFF] hover:underline mt-2"
             >
               {t('reessayer')}
             </button>
@@ -125,10 +125,12 @@ export default function HomePage() {
     <div>
       {/* Animated tab pills - Interactive filters */}
       <div
-        className="bg-white/80 backdrop-blur-xl rounded-2xl p-3 mb-6 animate-fade-up border border-black/6 dark:border-white/[0.07]"
+        className="bg-white/80 backdrop-blur-xl rounded-2xl p-3 mb-6 animate-fade-up border border-black/6"
         style={isDark ? {
-          backgroundColor: '#16161E',
-          boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset'
+          backgroundColor: 'rgba(13,21,38,0.85)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(99,157,255,0.12)',
+          boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset'
         } : {
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
         }}
@@ -139,26 +141,45 @@ export default function HomePage() {
             onClick={() => setActiveFilter(null)}
             className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === null
-                ? 'bg-white dark:bg-white/[0.08] text-gray-900 dark:text-[#F2F2F7] font-semibold border-black/[0.08] dark:border-white/[0.12] scale-[1.03]'
-                : 'bg-white/60 dark:bg-white/[0.04] text-gray-500 dark:text-[#8E8E93] border-black/[0.06] dark:border-white/[0.07] hover:bg-white/85 dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-[#F2F2F7] hover:scale-[1.02]'
+                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
+                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
             }`}
-            style={isDark ? {
-              boxShadow: activeFilter === null
-                ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(0,0,0,0.2)'
-                : 'none'
-            } : {
+            style={isDark ? (
+              activeFilter === null
+                ? {
+                    backgroundColor: 'rgba(99,157,255,0.12)',
+                    border: '1px solid rgba(99,157,255,0.2)',
+                    color: '#E8EFF8',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.3)'
+                  }
+                : {
+                    backgroundColor: 'rgba(99,157,255,0.04)',
+                    border: '1px solid rgba(99,157,255,0.08)',
+                    color: '#7A9CC4'
+                  }
+            ) : {
               boxShadow: activeFilter === null
                 ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
                 : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
             }}
             onMouseEnter={(e) => {
-              if (activeFilter !== null && !isDark) {
-                e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+              if (activeFilter !== null) {
+                if (isDark) {
+                  e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                  e.currentTarget.style.color = '#E8EFF8'
+                } else {
+                  e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+                }
               }
             }}
             onMouseLeave={(e) => {
-              if (activeFilter !== null && !isDark) {
-                e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+              if (activeFilter !== null) {
+                if (isDark) {
+                  e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.04)'
+                  e.currentTarget.style.color = '#7A9CC4'
+                } else {
+                  e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+                }
               }
             }}
           >
@@ -167,33 +188,55 @@ export default function HomePage() {
           </button>
 
           {/* Divider */}
-          <div className="w-px h-8 bg-gray-100 dark:bg-white/[0.06] self-center" />
+          <div
+            className="w-px h-8 bg-gray-100 self-center"
+            style={isDark ? { backgroundColor: 'rgba(99,157,255,0.12)' } : {}}
+          />
 
           {/* Actifs pill */}
           <button
             onClick={() => setActiveFilter('actif')}
             className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'actif'
-                ? 'bg-white dark:bg-white/[0.08] text-gray-900 dark:text-[#F2F2F7] font-semibold border-black/[0.08] dark:border-white/[0.12] scale-[1.03]'
-                : 'bg-white/60 dark:bg-white/[0.04] text-gray-500 dark:text-[#8E8E93] border-black/[0.06] dark:border-white/[0.07] hover:bg-white/85 dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-[#F2F2F7] hover:scale-[1.02]'
+                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
+                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
             }`}
-            style={isDark ? {
-              boxShadow: activeFilter === 'actif'
-                ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(0,0,0,0.2)'
-                : 'none'
-            } : {
+            style={isDark ? (
+              activeFilter === 'actif'
+                ? {
+                    backgroundColor: 'rgba(99,157,255,0.12)',
+                    border: '1px solid rgba(99,157,255,0.2)',
+                    color: '#E8EFF8',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.3)'
+                  }
+                : {
+                    backgroundColor: 'rgba(99,157,255,0.04)',
+                    border: '1px solid rgba(99,157,255,0.08)',
+                    color: '#7A9CC4'
+                  }
+            ) : {
               boxShadow: activeFilter === 'actif'
                 ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
                 : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
             }}
             onMouseEnter={(e) => {
-              if (activeFilter !== 'actif' && !isDark) {
-                e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+              if (activeFilter !== 'actif') {
+                if (isDark) {
+                  e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                  e.currentTarget.style.color = '#E8EFF8'
+                } else {
+                  e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+                }
               }
             }}
             onMouseLeave={(e) => {
-              if (activeFilter !== 'actif' && !isDark) {
-                e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+              if (activeFilter !== 'actif') {
+                if (isDark) {
+                  e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.04)'
+                  e.currentTarget.style.color = '#7A9CC4'
+                } else {
+                  e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+                }
               }
             }}
           >
@@ -202,33 +245,55 @@ export default function HomePage() {
           </button>
 
           {/* Divider */}
-          <div className="w-px h-8 bg-gray-100 dark:bg-white/[0.06] self-center" />
+          <div
+            className="w-px h-8 bg-gray-100 self-center"
+            style={isDark ? { backgroundColor: 'rgba(99,157,255,0.12)' } : {}}
+          />
 
           {/* À risque pill */}
           <button
             onClick={() => setActiveFilter('risque')}
             className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'risque'
-                ? 'bg-white dark:bg-white/[0.08] text-gray-900 dark:text-[#F2F2F7] font-semibold border-black/[0.08] dark:border-white/[0.12] scale-[1.03]'
-                : 'bg-white/60 dark:bg-white/[0.04] text-gray-500 dark:text-[#8E8E93] border-black/[0.06] dark:border-white/[0.07] hover:bg-white/85 dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-[#F2F2F7] hover:scale-[1.02]'
+                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
+                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
             }`}
-            style={isDark ? {
-              boxShadow: activeFilter === 'risque'
-                ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(0,0,0,0.2)'
-                : 'none'
-            } : {
+            style={isDark ? (
+              activeFilter === 'risque'
+                ? {
+                    backgroundColor: 'rgba(99,157,255,0.12)',
+                    border: '1px solid rgba(99,157,255,0.2)',
+                    color: '#E8EFF8',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.3)'
+                  }
+                : {
+                    backgroundColor: 'rgba(99,157,255,0.04)',
+                    border: '1px solid rgba(99,157,255,0.08)',
+                    color: '#7A9CC4'
+                  }
+            ) : {
               boxShadow: activeFilter === 'risque'
                 ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
                 : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
             }}
             onMouseEnter={(e) => {
-              if (activeFilter !== 'risque' && !isDark) {
-                e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+              if (activeFilter !== 'risque') {
+                if (isDark) {
+                  e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                  e.currentTarget.style.color = '#E8EFF8'
+                } else {
+                  e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+                }
               }
             }}
             onMouseLeave={(e) => {
-              if (activeFilter !== 'risque' && !isDark) {
-                e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+              if (activeFilter !== 'risque') {
+                if (isDark) {
+                  e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.04)'
+                  e.currentTarget.style.color = '#7A9CC4'
+                } else {
+                  e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+                }
               }
             }}
           >
@@ -239,33 +304,55 @@ export default function HomePage() {
           </button>
 
           {/* Divider */}
-          <div className="w-px h-8 bg-gray-100 dark:bg-white/[0.06] self-center" />
+          <div
+            className="w-px h-8 bg-gray-100 self-center"
+            style={isDark ? { backgroundColor: 'rgba(99,157,255,0.12)' } : {}}
+          />
 
           {/* Bloqués pill */}
           <button
             onClick={() => setActiveFilter('bloqué')}
             className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
               activeFilter === 'bloqué'
-                ? 'bg-white dark:bg-white/[0.08] text-gray-900 dark:text-[#F2F2F7] font-semibold border-black/[0.08] dark:border-white/[0.12] scale-[1.03]'
-                : 'bg-white/60 dark:bg-white/[0.04] text-gray-500 dark:text-[#8E8E93] border-black/[0.06] dark:border-white/[0.07] hover:bg-white/85 dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-[#F2F2F7] hover:scale-[1.02]'
+                ? 'bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]'
+                : 'bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]'
             }`}
-            style={isDark ? {
-              boxShadow: activeFilter === 'bloqué'
-                ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(0,0,0,0.2)'
-                : 'none'
-            } : {
+            style={isDark ? (
+              activeFilter === 'bloqué'
+                ? {
+                    backgroundColor: 'rgba(99,157,255,0.12)',
+                    border: '1px solid rgba(99,157,255,0.2)',
+                    color: '#E8EFF8',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.3)'
+                  }
+                : {
+                    backgroundColor: 'rgba(99,157,255,0.04)',
+                    border: '1px solid rgba(99,157,255,0.08)',
+                    color: '#7A9CC4'
+                  }
+            ) : {
               boxShadow: activeFilter === 'bloqué'
                 ? 'inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)'
                 : 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)',
             }}
             onMouseEnter={(e) => {
-              if (activeFilter !== 'bloqué' && !isDark) {
-                e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+              if (activeFilter !== 'bloqué') {
+                if (isDark) {
+                  e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                  e.currentTarget.style.color = '#E8EFF8'
+                } else {
+                  e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 12px rgba(0,0,0,0.08)'
+                }
               }
             }}
             onMouseLeave={(e) => {
-              if (activeFilter !== 'bloqué' && !isDark) {
-                e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+              if (activeFilter !== 'bloqué') {
+                if (isDark) {
+                  e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.04)'
+                  e.currentTarget.style.color = '#7A9CC4'
+                } else {
+                  e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)'
+                }
               }
             }}
           >
@@ -279,52 +366,63 @@ export default function HomePage() {
 
       {/* Filter label */}
       {getFilterLabel() && (
-        <div className="text-sm text-[#6B7280] dark:text-[#8E8E93] font-medium mb-4">
+        <div className="text-sm text-[#6B7280] dark:text-[#7A9CC4] font-medium mb-4">
           {getFilterLabel()}
         </div>
       )}
 
       {/* Section label */}
-      <h2 className="text-xs uppercase tracking-widest text-[#6B7280] dark:text-[#8E8E93] font-semibold mb-4 mt-8">
+      <h2 className="text-xs uppercase tracking-widest text-[#6B7280] dark:text-[#7A9CC4] font-semibold mb-4 mt-8">
         {t('activiteRecente')}
       </h2>
 
       {/* Employee table */}
       <div
-        className="bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden border border-black/6 dark:border-white/[0.07]"
+        className="bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden border border-black/6"
         style={isDark ? {
-          backgroundColor: '#16161E',
-          boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset'
+          backgroundColor: 'rgba(13,21,38,0.85)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(99,157,255,0.12)',
+          boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset'
         } : {
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
         }}
       >
         {filteredEmployees.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-[#6B7280] dark:text-[#8E8E93]">{t('aucunEmployeTrouve')}</p>
+            <p className="text-[#6B7280] dark:text-[#7A9CC4]">{t('aucunEmployeTrouve')}</p>
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-warm-gray-200 dark:bg-white/[0.04] border-b border-black/6 dark:border-white/[0.06]">
+            <thead
+              className="bg-warm-gray-200 border-b border-black/6"
+              style={isDark ? {
+                backgroundColor: 'rgba(99,157,255,0.06)',
+                borderColor: 'rgba(99,157,255,0.12)'
+              } : {}}
+            >
               <tr>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
                   {t('employe')}
                 </th>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
                   {t('departement')}
                 </th>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
                   {t('conge')}
                 </th>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
                   {t('statut')}
                 </th>
-                <th className="text-right px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#8E8E93] uppercase tracking-wider">
+                <th className="text-right px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
                   {t('actions')}
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/6 dark:divide-white/[0.06]">
+            <tbody
+              className="divide-y divide-black/6"
+              style={isDark ? { borderColor: 'rgba(99,157,255,0.08)' } : {}}
+            >
               {filteredEmployees.slice(0, 5).map((employee) => {
                 const statusConfig = {
                   actif: {
@@ -351,31 +449,54 @@ export default function HomePage() {
                 return (
                   <tr
                     key={employee.id}
-                    className="h-[52px] hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors cursor-pointer"
+                    className="h-[52px] hover:bg-black/[0.02] transition-colors cursor-pointer"
+                    style={isDark ? {} : {}}
+                    onMouseEnter={(e) => {
+                      if (isDark) {
+                        e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.04)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (isDark) {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                      }
+                    }}
                     onClick={() => setSelectedEmployee(employee)}
                   >
                     <td className="px-6 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-warm-gray-200 dark:bg-white/[0.06] flex items-center justify-center text-xs font-semibold text-[#374151] dark:text-[#8E8E93]">
+                        <div
+                          className="w-8 h-8 rounded-full bg-warm-gray-200 flex items-center justify-center text-xs font-semibold text-[#374151]"
+                          style={isDark ? {
+                            backgroundColor: 'rgba(99,157,255,0.08)',
+                            color: '#7A9CC4'
+                          } : {}}
+                        >
                           {employee.avatar}
                         </div>
                         <div>
-                          <div className="font-semibold text-sm text-[#111827] dark:text-[#F2F2F7]">
+                          <div className="font-semibold text-sm text-[#111827] dark:text-[#E8EFF8]">
                             {employee.name}
                           </div>
-                          <div className="text-[11px] font-mono text-[#6B7280] dark:text-[#8E8E93]">
+                          <div className="text-[11px] font-mono text-[#6B7280] dark:text-[#7A9CC4]">
                             {employee.matricule}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-3">
-                      <span className="inline-block px-2 py-0.5 bg-warm-gray-300 dark:bg-white/[0.06] text-[#374151] dark:text-[#8E8E93] text-[11px] rounded-md">
+                      <span
+                        className="inline-block px-2 py-0.5 bg-warm-gray-300 text-[#374151] text-[11px] rounded-md"
+                        style={isDark ? {
+                          backgroundColor: 'rgba(99,157,255,0.08)',
+                          color: '#7A9CC4'
+                        } : {}}
+                      >
                         {employee.department}
                       </span>
                     </td>
                     <td className="px-6 py-3">
-                      <div className="text-sm text-[#111827] dark:text-[#F2F2F7]">
+                      <div className="text-sm text-[#111827] dark:text-[#E8EFF8]">
                         {employee.daysUsed} {t('jours')}
                       </div>
                     </td>
@@ -393,7 +514,7 @@ export default function HomePage() {
                           e.stopPropagation()
                           setSelectedEmployee(employee)
                         }}
-                        className="text-xs font-medium text-[#6B7280] dark:text-[#8E8E93] hover:text-navy dark:hover:text-[#5E9FFF] transition-colors px-2 py-1"
+                        className="text-xs font-medium text-[#6B7280] dark:text-[#7A9CC4] hover:text-navy dark:hover:text-[#639DFF] transition-colors px-2 py-1"
                       >
                         {t('details')}
                       </button>
@@ -414,8 +535,9 @@ export default function HomePage() {
             isAnyModalOpen ? 'opacity-0 pointer-events-none' : ''
           }`}
           style={isDark ? {
-            background: 'linear-gradient(145deg, #2C4A6F, #1A2F4F)',
-            boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+            background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
+            border: '1px solid rgba(99,157,255,0.2)',
+            boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,157,255,0.15)'
           } : {
             backgroundColor: '#1E3A5F',
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
