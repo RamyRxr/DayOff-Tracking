@@ -11,17 +11,20 @@ const navItems = [
 ]
 
 export default function Sidebar({ currentAdmin, onLogout }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { isDark } = useTheme()
+  const isRTL = i18n.language === 'ar'
 
   return (
     <aside
-      className="fixed left-0 top-0 bottom-0 w-60 bg-white/60 backdrop-blur-2xl border-r-0.5 border-black/6 flex flex-col z-40"
+      className={`fixed top-0 bottom-0 w-60 bg-white/60 backdrop-blur-2xl flex flex-col z-40 ${
+        isRTL ? 'right-0 border-l-0.5' : 'left-0 border-r-0.5'
+      } border-black/6`}
       style={isDark ? {
         backgroundColor: 'rgba(13,21,38,0.95)',
         backdropFilter: 'blur(24px)',
         borderColor: 'rgba(99,157,255,0.08)',
-        boxShadow: '2px 0 24px rgba(0,0,0,0.4)'
+        boxShadow: isRTL ? '-2px 0 24px rgba(0,0,0,0.4)' : '2px 0 24px rgba(0,0,0,0.4)'
       } : {}}
     >
       {/* Logo */}
