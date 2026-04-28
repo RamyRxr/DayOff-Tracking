@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useBlocks } from '../hooks/useBlocks'
 import { useTheme } from '../contexts/ThemeContext'
+import { useNotifications, createBlockNotification, createUnblockNotification } from '../hooks/useNotifications'
 import { translateDepartment } from '../utils/translateDepartment'
 import AddDayOffModal from './AddDayOffModal'
 import BlockEmployeeModal from './BlockEmployeeModal'
@@ -34,6 +35,9 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
   // Block management
   const { blocks, block, unblock } = useBlocks()
 
+  // Notifications
+  const { addNotification } = useNotifications()
+
   if (!isOpen || !employee) return null
 
   const handleAddDayOffSubmit = async (dayOffData) => {
@@ -57,6 +61,10 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     try {
       await block(blockData)
       setShowBlock(false)
+
+      // Create notification
+      addNotification(createBlockNotification(employee, blockData.reason, t))
+
       if (onUpdate) onUpdate()
       alert('✅ Employé bloqué avec succès')
     } catch (error) {
@@ -73,6 +81,10 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
         description: unblockData.description,
       })
       setShowUnblock(false)
+
+      // Create notification
+      addNotification(createUnblockNotification(employee, t))
+
       if (onUpdate) onUpdate()
       alert('✅ Employé débloqué avec succès')
     } catch (error) {

@@ -333,7 +333,7 @@ export default function CalendarPage() {
             <div
               className="w-4 h-4 rounded bg-navy/80 dark:bg-[rgba(99,157,255,0.3)]"
             />
-            <span className="text-xs text-gray-700 dark:text-[#7A9CC4]">Congé</span>
+            <span className="text-xs text-gray-700 dark:text-[#7A9CC4]">{t('conge')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div
@@ -351,7 +351,7 @@ export default function CalendarPage() {
                 backgroundColor: 'rgba(99,157,255,0.03)'
               } : {}}
             />
-            <span className="text-xs text-gray-700 dark:text-[#7A9CC4]">Weekend</span>
+            <span className="text-xs text-gray-700 dark:text-[#7A9CC4]">{t('weekend')}</span>
           </div>
         </div>
       </div>
@@ -367,12 +367,8 @@ export default function CalendarPage() {
           } : {}}
         >
           <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E8EFF8] mb-4">
-            Congés du{' '}
-            {new Date(selectedDate).toLocaleDateString('fr-DZ', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
+            {t('congesDu')}{' '}
+            {format(new Date(selectedDate), 'd MMMM yyyy', { locale })}
           </h3>
           <div className="space-y-3">
             {selectedDayOffs.map((dayOff) => (
@@ -395,10 +391,10 @@ export default function CalendarPage() {
                   <div className="font-semibold text-gray-900 dark:text-[#E8EFF8]">
                     {dayOff.employeeName}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-[#7A9CC4]">En congé</div>
+                  <div className="text-xs text-gray-600 dark:text-[#7A9CC4]">{t('enConge')}</div>
                 </div>
                 <button className="text-xs font-medium text-navy dark:text-[#639DFF] hover:text-navy/80 dark:hover:text-[#639DFF]/80 transition-colors px-3 py-1.5">
-                  Détails
+                  {t('details')}
                 </button>
               </div>
             ))}

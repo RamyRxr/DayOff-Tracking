@@ -4,34 +4,19 @@ import { useTranslation } from 'react-i18next'
 import { Moon, Sun } from 'lucide-react'
 import Sidebar from './Sidebar'
 import LanguageSelector from './LanguageSelector'
-import { useEmployees } from '../hooks/useEmployees'
+import { useNotifications } from '../hooks/useNotifications'
 import { useTheme } from '../contexts/ThemeContext'
 
 export default function Layout({ currentAdmin, onLogout }) {
   const { t, i18n } = useTranslation()
   const { isDark, toggle: toggleDarkMode } = useTheme()
   const [notificationsOpen, setNotificationsOpen] = useState(false)
-  const [readNotifications, setReadNotifications] = useState(new Set())
   const notifRef = useRef(null)
-  const { employees } = useEmployees()
   const isRTL = i18n.language === 'ar'
 
-  // Generate notifications from employee data
-  const notifications = employees
-    .filter((emp) => emp.status === 'risque' || emp.status === 'bloqué')
-    .map((emp) => ({
-      id: emp.id,
-      type: emp.status,
-      employeeName: emp.name,
-      matricule: emp.matricule,
-      message:
-        emp.status === 'risque'
-          ? `⚠ ${emp.name} ${t('estARisque')} — ${emp.daysTotal - emp.daysUsed} ${t('joursRestants')}`
-          : `🚫 ${emp.name} ${t('bloqueMessage')}`,
-      timestamp: t('aujourdhui'),
-    }))
+  // Use real notifications system
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications()
 
-  const unreadCount = notifications.filter(n => !readNotifications.has(n.id)).length
   const displayCount = unreadCount > 9 ? '9+' : unreadCount
 
   // Calculate progress percentage based on current date in work period
@@ -81,15 +66,28 @@ export default function Layout({ currentAdmin, onLogout }) {
   }, [notificationsOpen])
 
   const handleMarkAllRead = () => {
-    const allIds = new Set(notifications.map(n => n.id))
-    setReadNotifications(allIds)
+    markAllAsRead()
     setTimeout(() => setNotificationsOpen(false), 300)
   }
 
   const handleNotificationHover = (notifId) => {
-    if (!readNotifications.has(notifId)) {
-      setReadNotifications(prev => new Set([...prev, notifId]))
-    }
+    markAsRead(notifId)
+  }
+
+  // Format relative time for notifications
+  const getRelativeTime = (timestamp) => {
+    const now = new Date()
+    const notifTime = new Date(timestamp)
+    const diffMs = now - notifTime
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return t('aLinstant')
+    if (diffMins < 60) return `${diffMins} min`
+    if (diffHours < 24) return `${diffHours}h`
+    if (diffDays === 1) return t('hier')
+    return `${diffDays}j`
   }
 
   return (
@@ -183,7 +181,15 @@ export default function Layout({ currentAdmin, onLogout }) {
                       </div>
                     ) : (
                       notifications.map((notif) => {
-                        const isRead = readNotifications.has(notif.id)
+                        const isRead = notif.read
+                        const iconBg = notif.type === 'at-risk'
+                          ? 'bg-status-amber/10 dark:bg-[rgba(255,159,10,0.12)]'
+                          : notif.type === 'blocked'
+                            ? 'bg-status-red/10 dark:bg-[rgba(192,57,43,0.15)]'
+                            : 'bg-status-green/10 dark:bg-[rgba(52,199,89,0.15)]'
+
+                        const icon = notif.type === 'at-risk' ? '⚠️' : notif.type === 'blocked' ? '🚫' : '✅'
+
                         return (
                           <div
                             key={notif.id}
@@ -196,16 +202,8 @@ export default function Layout({ currentAdmin, onLogout }) {
                             <div className="flex gap-3">
                               {/* Icon */}
                               <div className="flex-shrink-0">
-                                <div
-                                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                    notif.type === 'risque'
-                                      ? 'bg-status-amber/10 dark:bg-[rgba(255,159,10,0.12)]'
-                                      : 'bg-status-red/10 dark:bg-[rgba(192,57,43,0.15)]'
-                                  }`}
-                                >
-                                  <span className="text-sm">
-                                    {notif.type === 'risque' ? '⚠' : '🚫'}
-                                  </span>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${iconBg}`}>
+                                  <span className="text-sm">{icon}</span>
                                 </div>
                               </div>
 
@@ -221,7 +219,7 @@ export default function Layout({ currentAdmin, onLogout }) {
 
                               {/* Timestamp */}
                               <div className="text-[11px] text-[#6B7280] dark:text-[#7A9CC4] flex-shrink-0">
-                                {notif.timestamp}
+                                {getRelativeTime(notif.timestamp)}
                               </div>
                             </div>
                           </div>

@@ -203,5 +203,12 @@
   "congesSansAutorisation": "Days off without authorization",
   "nonRespectReglement": "Non-compliance with regulations",
   "informationsBlocage": "Blocking information",
-  "nonSpecifie": "Not specified"
+  "nonSpecifie": "Not specified",
+  "congesDu": "Days off on",
+  "enConge": "On leave",
+  "details": "Details",
+  "aEteBloque": "has been blocked",
+  "aEteDebloque": "has been unblocked",
+  "aLinstant": "Just now",
+  "hier": "Yesterday"
 }
