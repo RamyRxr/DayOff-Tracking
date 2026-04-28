@@ -4,14 +4,18 @@ import { useTranslation } from 'react-i18next'
 import { format } from 'date-fns'
 import { getDateLocale, getDayNames } from '../utils/getDateLocale'
 import { useDaysOff } from '../hooks/useDaysOff'
+import { useEmployees } from '../hooks/useEmployees'
 import { useTheme } from '../contexts/ThemeContext'
+import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 
 export default function CalendarPage() {
   const { t } = useTranslation()
   const { isDark } = useTheme()
   const [currentDate, setCurrentDate] = useState(new Date(2026, 3, 1)) // April 2026
   const [selectedDate, setSelectedDate] = useState(null)
+  const [selectedEmployee, setSelectedEmployee] = useState(null)
   const { daysOff, loading, error, refetch } = useDaysOff()
+  const { employees, refetch: refetchEmployees } = useEmployees()
 
   // Transform API data to calendar format
   const transformedDaysOff = daysOff.flatMap((dayOff) => {
@@ -393,7 +397,15 @@ export default function CalendarPage() {
                   </div>
                   <div className="text-xs text-gray-600 dark:text-[#7A9CC4]">{t('enConge')}</div>
                 </div>
-                <button className="text-xs font-medium text-navy dark:text-[#639DFF] hover:text-navy/80 dark:hover:text-[#639DFF]/80 transition-colors px-3 py-1.5">
+                <button
+                  onClick={() => {
+                    const employee = employees.find(emp => emp.id === dayOff.employeeId)
+                    if (employee) {
+                      setSelectedEmployee(employee)
+                    }
+                  }}
+                  className="text-xs font-medium text-navy dark:text-[#639DFF] hover:text-navy/80 dark:hover:text-[#639DFF]/80 transition-colors px-3 py-1.5 hover:underline"
+                >
                   {t('details')}
                 </button>
               </div>
@@ -446,6 +458,17 @@ export default function CalendarPage() {
           <div className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">{t('tauxUtilisation')}</div>
         </div>
       </div>
+
+      {/* Employee Detail Panel */}
+      <EmployeeDetailPanel
+        employee={selectedEmployee}
+        isOpen={!!selectedEmployee}
+        onClose={() => setSelectedEmployee(null)}
+        onUpdate={() => {
+          refetch()
+          refetchEmployees()
+        }}
+      />
     </div>
   )
 }
