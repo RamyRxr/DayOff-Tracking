@@ -34,6 +34,17 @@ async function getDaysOff(req, res) {
 
         const records = await prisma.dayOff.findMany({
             where,
+            include: {
+                employee: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatar: true,
+                        matricule: true,
+                        department: true,
+                    }
+                }
+            },
             orderBy: { createdAt: 'desc' },
         })
 
