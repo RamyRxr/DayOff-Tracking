@@ -163,6 +163,50 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     }
   }
 
+  // Custom cell renderer matching AddDayOffModal style
+  const renderCalendarCell = (day, index) => {
+    const dayStr = day.toISOString().split('T')[0]
+    const isWeekend = day.getDay() === 5 || day.getDay() === 6
+    const isDayOff = dayOffDates.has(day.setHours(0, 0, 0, 0))
+    const isToday = isSameDay(day, new Date())
+
+    let cellStyle = {}
+    let textClass = 'w-9 h-9 flex items-center justify-center transition-all duration-150 rounded-lg text-[13px]'
+
+    // Apply styling logic matching AddDayOffModal
+    if (isDayOff) {
+      cellStyle.background = 'linear-gradient(145deg, rgba(255,59,48,0.12), rgba(192,57,43,0.08))'
+      cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.1)'
+      textClass += ' text-[#C0392B] font-semibold cursor-pointer hover:opacity-90'
+    } else if (isWeekend) {
+      cellStyle.background = isDark ? 'rgba(99,157,255,0.03)' : '#F2F2F7'
+      cellStyle.boxShadow = isDark ? 'inset 0 1px 2px rgba(0,0,0,0.2)' : 'inset 0 1px 2px rgba(0,0,0,0.04)'
+      textClass += isDark ? ' text-[#4A6A8A] cursor-not-allowed' : ' text-[#C7C7CC] cursor-not-allowed'
+    } else if (isToday) {
+      cellStyle.background = isDark ? 'linear-gradient(145deg, rgba(99,157,255,0.12), rgba(99,157,255,0.06))' : 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
+      cellStyle.boxShadow = isDark ? '0 0 0 1.5px #639DFF, inset 0 1px 0 rgba(255,255,255,0.06)' : '0 0 0 1.5px #007AFF, inset 0 1px 0 rgba(255,255,255,0.9)'
+      textClass += isDark ? ' text-[#639DFF] font-semibold' : ' text-[#007AFF] font-semibold'
+    } else {
+      cellStyle.background = isDark ? 'rgba(99,157,255,0.05)' : 'rgba(255,255,255,0.8)'
+      cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.04), 0 0 0 1px rgba(99,157,255,0.08)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
+      textClass += isDark ? ' text-[#7A9CC4]' : ' text-[#374151]'
+    }
+
+    const Element = isDayOff ? 'button' : 'div'
+
+    return (
+      <Element
+        key={index}
+        onClick={isDayOff ? (e) => handleDayOffClick(day, e) : undefined}
+        disabled={isWeekend}
+        className={textClass}
+        style={cellStyle}
+      >
+        {format(day, 'd')}
+      </Element>
+    )
+  }
+
   const statusConfig = {
     actif: { label: t('actif'), color: 'text-status-green', bg: 'bg-status-green/10' },
     risque: { label: t('aRisque'), color: 'text-status-amber', bg: 'bg-status-amber/10' },
@@ -419,6 +463,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               dayOffDates={dayOffDates}
               onDayOffClick={handleDayOffClick}
               isDark={isDark}
+              renderCell={renderCalendarCell}
             />
 
             {/* Legend */}
