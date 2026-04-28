@@ -10,6 +10,7 @@ import HomeAddDayOffModal from '../components/HomeAddDayOffModal'
 import { useEmployees } from '../hooks/useEmployees'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useTheme } from '../contexts/ThemeContext'
+import { translateDepartment } from '../utils/translateDepartment'
 
 export default function HomePage() {
   const { t } = useTranslation()
@@ -482,7 +483,7 @@ export default function HomePage() {
                           color: '#7A9CC4'
                         } : {}}
                       >
-                        {employee.department}
+                        {translateDepartment(employee.department, t)}
                       </span>
                     </td>
                     <td className="px-6 py-3">

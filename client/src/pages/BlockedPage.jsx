@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { ShieldAlert, AlertCircle, Unlock, Loader2, Download } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import UnblockModal from '../components/UnblockModal'
 import { useBlocks } from '../hooks/useBlocks'
 import { useTheme } from '../contexts/ThemeContext'
+import { translateDepartment } from '../utils/translateDepartment'
 
 export default function BlockedPage() {
+  const { t } = useTranslation()
   const { isDark } = useTheme()
   const { blocks, loading, error, unblock, refetch } = useBlocks(true)
   const [selectedEmployee, setSelectedEmployee] = useState(null)
@@ -115,7 +118,7 @@ ${t('decisionBlocageTitre')}
 ════════════════════════════════════════
 ${t('matricule')}:        ${emp.matricule}
 ${t('nomComplet')}:      ${emp.name}
-${t('departement')}:      ${emp.department}
+${t('departement')}:      ${translateDepartment(emp.department, t)}
 ${t('poste')}:            ${emp.position}
 ${t('email')}:            ${email}
 ${t('telephone')}:        ${emp.phone || '—'}
@@ -151,7 +154,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
         emp.matricule,
         email,
         phone,
-        emp.department,
+        translateDepartment(emp.department, t),
         emp.blockedReason,
         formatDate(emp.blockedAt)
       ]
@@ -280,7 +283,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
                             color: '#7A9CC4'
                           } : {}}
                         >
-                          {employee.department}
+                          {translateDepartment(employee.department, t)}
                         </span>
                       </div>
                       <div className="text-xs text-gray-600 dark:text-[#7A9CC4] mt-1">

@@ -7,6 +7,7 @@ import AddEmployeeModal from '../components/AddEmployeeModal'
 import CustomSelect from '../components/CustomSelect'
 import { useEmployees } from '../hooks/useEmployees'
 import { useTheme } from '../contexts/ThemeContext'
+import { translateDepartment } from '../utils/translateDepartment'
 
 export default function EmployeesPage() {
   const { t } = useTranslation()
@@ -329,7 +330,7 @@ export default function EmployeesPage() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-[#111827] dark:text-[#E8EFF8]">
-                      {employee.department}
+                      {translateDepartment(employee.department, t)}
                     </div>
                     <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">
                       {employee.position}

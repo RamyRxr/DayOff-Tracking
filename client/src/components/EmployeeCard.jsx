@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { translateDepartment } from '../utils/translateDepartment'
 
 export default function EmployeeCard({ employee, onDetailsClick }) {
   const { t } = useTranslation()
@@ -48,7 +49,7 @@ export default function EmployeeCard({ employee, onDetailsClick }) {
               {employee.matricule}
             </span>
             <span className="px-2 py-0.5 bg-warm-gray-300 text-[#374151] text-[11px] rounded-md">
-              {employee.department}
+              {translateDepartment(employee.department, t)}
             </span>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useBlocks } from '../hooks/useBlocks'
 import { useTheme } from '../contexts/ThemeContext'
+import { translateDepartment } from '../utils/translateDepartment'
 import AddDayOffModal from './AddDayOffModal'
 import BlockEmployeeModal from './BlockEmployeeModal'
 import UnblockModal from './UnblockModal'
@@ -298,7 +299,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                       color: '#7A9CC4'
                     } : {}}
                   >
-                    {employee.department}
+                    {translateDepartment(employee.department, t)}
                   </span>
                   <span
                     className="px-3 py-1 bg-warm-gray-300 text-[#374151] text-xs rounded-lg"
