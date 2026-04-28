@@ -114,7 +114,7 @@ export default function LoginPage({ onLoginSuccess }) {
           {/* Admin Selection - Custom Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
-              Administrateur
+              {t('administrateur')}
             </label>
             {adminsLoading ? (
               <div className="flex items-center justify-center py-4">
@@ -199,7 +199,7 @@ export default function LoginPage({ onLoginSuccess }) {
           {/* PIN Input */}
           <div>
             <label className="block text-sm font-medium text-gray-900 dark:text-[#E8EFF8] mb-2">
-              Code PIN (4 chiffres)
+              {t('codePIN4Chiffres')}
             </label>
             <input
               type="password"
@@ -221,7 +221,7 @@ export default function LoginPage({ onLoginSuccess }) {
             >
               <AlertCircle className="w-5 h-5 text-apple-red dark:text-[#FF6B6B] flex-shrink-0" />
               <p className="text-sm text-apple-red dark:text-[#FF6B6B]">
-                Code PIN incorrect. Veuillez réessayer.
+                {t('codePINIncorrect')}
               </p>
             </div>
           )}
@@ -243,7 +243,7 @@ export default function LoginPage({ onLoginSuccess }) {
             {verifying ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Vérification...
+                {t('verification')}
               </>
             ) : (
               'Se connecter'
@@ -254,7 +254,7 @@ export default function LoginPage({ onLoginSuccess }) {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-xs text-gray-500 dark:text-[#7A9CC4]">
-            Code PIN par défaut pour Mohammed Saïd : 1234
+            {t('codePINParDefaut')}
           </p>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../contexts/ThemeContext'
 
 export default function AutorisationStep({
@@ -10,6 +11,7 @@ export default function AutorisationStep({
   pinStatus,
   pinIdPrefix = 'pin'
 }) {
+  const { t } = useTranslation()
   const { isDark } = useTheme()
 
   const getPinBoxClass = (index) => {
@@ -39,7 +41,7 @@ export default function AutorisationStep({
       {/* Admin Selector */}
       <div>
         <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-3">
-          Administrateur
+          {t('administrateur')}
         </label>
         <div className="space-y-2">
           {admins.map(admin => (
@@ -86,7 +88,7 @@ export default function AutorisationStep({
       {/* PIN Input */}
       <div>
         <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-3">
-          Code PIN
+          {t('codePIN')}
         </label>
         <div className="flex justify-center gap-3">
           {[0, 1, 2, 3].map(index => (
@@ -105,7 +107,7 @@ export default function AutorisationStep({
           ))}
         </div>
         {pinStatus === 'verifying' && (
-          <p className="text-[12px] text-navy dark:text-[#639DFF] text-center mt-2">Vérification...</p>
+          <p className="text-[12px] text-navy dark:text-[#639DFF] text-center mt-2">{t('verification')}</p>
         )}
         {pinStatus === 'error' && (
           <p className="text-[12px] text-status-red dark:text-[#FF6B6B] text-center mt-2">Code incorrect</p>

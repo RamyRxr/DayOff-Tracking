@@ -143,7 +143,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
                 {step === 1 ? t('bloquerEmploye') : t('autorisationRequise')}
               </h2>
               <p className="text-xs text-[#6B7280] dark:text-[#7A9CC4] mt-0.5">
-                Étape {step} sur 2
+                {t('etape')} {step} {t('sur')} 2
               </p>
             </div>
           </div>
@@ -324,7 +324,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
               if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
             }}
           >
-            {step === 1 ? 'Annuler' : '← Retour'}
+            {step === 1 ? t('annuler') : t('retourFleche')}
           </button>
 
           {step === 1 ? (
@@ -352,7 +352,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
                     : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
                 }}
               >
-                Suivant →
+                {t('suivantFleche')}
               </button>
               {!canBlock && (
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-800 text-white text-[11px] rounded-lg px-3 py-1.5 whitespace-nowrap pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
