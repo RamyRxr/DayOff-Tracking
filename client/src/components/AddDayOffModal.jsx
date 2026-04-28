@@ -111,7 +111,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
   const hasSandwich = totalCalendarDays > workingDays
 
   // Custom cell renderer for range selection
-  const renderCalendarCell = (day, index) => {
+  const renderCalendarCell = (day, index, { isDark: _, cellSizeClass = 'w-9 h-9', textSizeClass = 'text-[13px]' } = {}) => {
     const dayStr = day.toISOString().split('T')[0]
     const isWeekend = day.getDay() === 5 || day.getDay() === 6
     const isPast = day < new Date(new Date().setHours(0, 0, 0, 0))
@@ -122,7 +122,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
     const isToday = isSameDay(day, new Date())
 
     let cellStyle = {}
-    let textClass = 'w-9 h-9 flex items-center justify-center transition-all duration-150 rounded-lg text-[13px]'
+    let textClass = `${cellSizeClass} flex items-center justify-center transition-all duration-150 rounded-lg ${textSizeClass}`
 
     // Apply complex styling logic
     if (isExisting) {

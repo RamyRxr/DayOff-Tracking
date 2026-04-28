@@ -8,8 +8,11 @@ export default function CalendarGrid({
   dayOffDates = new Set(),
   renderCellContent,
   renderCell,
+  cellSize = 'small', // 'small' for modal, 'large' for detail panel
 }) {
   const dayNames = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
+  const cellSizeClass = cellSize === 'large' ? 'w-12 h-12' : 'w-9 h-9'
+  const textSizeClass = cellSize === 'large' ? 'text-[15px]' : 'text-[13px]'
 
   return (
     <div>
@@ -20,7 +23,7 @@ export default function CalendarGrid({
 
       {/* Day name header */}
       <div
-        className="grid grid-cols-7 gap-0.5 pb-1 mb-1"
+        className="grid grid-cols-7 pb-1 mb-1"
         style={{
           borderBottom: isDark ? '0.5px solid rgba(99,157,255,0.15)' : '0.5px solid #E5E5EA'
         }}
@@ -37,16 +40,16 @@ export default function CalendarGrid({
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-0.5">
+      <div className="grid grid-cols-7 place-items-center gap-y-1">
         {days.map((date, i) => {
           if (date === null) {
             // Empty padding cell
-            return <div key={`empty-${i}`} className="w-9 h-9" />
+            return <div key={`empty-${i}`} className={cellSizeClass} />
           }
 
           // If custom cell renderer provided, use it
           if (renderCell) {
-            return renderCell(date, i, { isDark })
+            return renderCell(date, i, { isDark, cellSize, cellSizeClass, textSizeClass })
           }
 
           // Default rendering
@@ -72,7 +75,7 @@ export default function CalendarGrid({
               key={i}
               onClick={Element === 'button' ? handleClick : undefined}
               disabled={isWeekend && Element === 'button'}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-medium transition-all duration-150 ${
+              className={`${cellSizeClass} rounded-lg flex items-center justify-center ${textSizeClass} font-medium transition-all duration-150 ${
                 isDayOff
                   ? 'cursor-pointer hover:opacity-90'
                   : isWeekend
