@@ -162,5 +162,18 @@
   "raison": "Raison",
   "fichier": "Fichier",
   "erreur": "Erreur",
-  "periodeLabel": "Période"
+  "periodeLabel": "Période",
+  "employesBloque": "Employés Bloqués",
+  "raisonDuBlocage": "Raison du blocage",
+  "bloqueLe": "Bloqué le",
+  "par": "par",
+  "dateBlocage": "Date de blocage",
+  "telephoneLabel": "Téléphone",
+  "emailLabel": "Email",
+  "decisionBlocageTitre": "DÉCISION DE BLOCAGE — NAFTAL SPA",
+  "nomComplet": "Nom complet",
+  "motif": "Motif",
+  "bloquePar": "Bloqué par",
+  "voirDetails": "Voir détails",
+  "telecharger": "Télécharger"
 }

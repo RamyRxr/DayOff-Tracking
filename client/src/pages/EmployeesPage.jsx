@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Search, Filter, Plus, ChevronDown, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import AddDayOffModal from '../components/AddDayOffModal'
 import AddEmployeeModal from '../components/AddEmployeeModal'
@@ -8,6 +9,7 @@ import { useEmployees } from '../hooks/useEmployees'
 import { useTheme } from '../contexts/ThemeContext'
 
 export default function EmployeesPage() {
+  const { t } = useTranslation()
   const { isDark } = useTheme()
   const { employees, loading, error, refetch } = useEmployees()
   const [searchQuery, setSearchQuery] = useState('')

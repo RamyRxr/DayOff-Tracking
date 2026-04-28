@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Filter, Loader2, AlertCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useTheme } from '../contexts/ThemeContext'
 
 export default function CalendarPage() {
+  const { t } = useTranslation()
   const { isDark } = useTheme()
   const [currentDate, setCurrentDate] = useState(new Date(2026, 3, 1)) // April 2026
   const [selectedDate, setSelectedDate] = useState(null)

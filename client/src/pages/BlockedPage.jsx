@@ -111,19 +111,19 @@ export default function BlockedPage() {
 
     // File content
     const content = `════════════════════════════════════════
-DÉCISION DE BLOCAGE — NAFTAL SPA
+${t('decisionBlocageTitre')}
 ════════════════════════════════════════
-Matricule:        ${emp.matricule}
-Nom complet:      ${emp.name}
-Département:      ${emp.department}
-Poste:            ${emp.position}
-Email:            ${email}
-Téléphone:        ${emp.phone || '—'}
+${t('matricule')}:        ${emp.matricule}
+${t('nomComplet')}:      ${emp.name}
+${t('departement')}:      ${emp.department}
+${t('poste')}:            ${emp.position}
+${t('email')}:            ${email}
+${t('telephone')}:        ${emp.phone || '—'}
 ────────────────────────────────────────
-Date de blocage:  ${formatDate(block.blockedAt)}
-Motif:            ${block.reason}
-Description:      ${block.description || '—'}
-Bloqué par:       ${block.blockedBy?.name || '—'} — ${block.blockedBy?.role || '—'}
+${t('dateBlocage')}:  ${formatDate(block.blockedAt)}
+${t('motif')}:            ${block.reason}
+${t('description')}:      ${block.description || '—'}
+${t('bloquePar')}:       ${block.blockedBy?.name || '—'} — ${block.blockedBy?.role || '—'}
 ────────────────────────────────────────
 ${t('periodeLabel')}:          ${periodStartFormatted} → ${periodEndFormatted}
 ${t('joursConge')}:   ${block.daysUsed} / 15
@@ -142,7 +142,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
 
   const handleExport = () => {
     // Generate CSV content
-    const headers = ['Nom', 'Matricule', 'Email', 'Téléphone', 'Département', 'Motif', 'Date de blocage']
+    const headers = [t('nom'), t('matricule'), t('email'), t('telephone'), t('departement'), t('motifBlocage'), t('dateBlocage')]
     const rows = mockBlockedEmployees.map(emp => {
       const email = emp.email || `${emp.name.toLowerCase().split(' ').join('.')}@naftal.dz`
       const phone = emp.phone || '—'
@@ -186,7 +186,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
               <ShieldAlert className="w-5 h-5 text-apple-red dark:text-[#FF6B6B]" strokeWidth={2} />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-[#E8EFF8]">
-              Employés Bloqués
+              {t('employesBloque')}
             </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-[#7A9CC4]">
@@ -292,7 +292,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-apple-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-transparent dark:border-[rgba(255,59,48,0.2)]">
                       <div className="w-1.5 h-1.5 rounded-full bg-apple-red dark:bg-[#FF6B6B]" />
                       <span className="text-xs font-medium text-apple-red dark:text-[#FF6B6B]">
-                        Bloqué
+                        {t('bloque')}
                       </span>
                     </div>
                   </div>
@@ -308,13 +308,13 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
                 } : {}}
               >
                 <div className="text-xs font-semibold text-gray-700 dark:text-[#7A9CC4] mb-1">
-                  Raison du blocage
+                  {t('raisonDuBlocage')}
                 </div>
                 <div className="text-sm text-gray-900 dark:text-[#E8EFF8]">
                   {employee.blockedReason}
                 </div>
                 <div className="text-xs text-gray-600 dark:text-[#7A9CC4] mt-2">
-                  Bloqué le {formatDate(employee.blockedAt)} par{' '}
+                  {t('bloqueLe')} {formatDate(employee.blockedAt)} {t('par')}{' '}
                   {employee.blockedBy}
                 </div>
               </div>
@@ -338,7 +338,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
                     }
                   }}
                 >
-                  Voir détails
+                  {t('voirDetails')}
                 </button>
                 <button
                   onClick={(e) => handleDownloadBlockDetails(employee, employee.blockData, e)}
@@ -359,7 +359,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
                   }}
                 >
                   <Download className="w-3.5 h-3.5" />
-                  Télécharger
+                  {t('telecharger')}
                 </button>
                 <button
                   onClick={(e) => handleUnblockClick(employee, employee.blockData, e)}
@@ -379,7 +379,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
                   }}
                 >
                   <Unlock className="w-4 h-4" strokeWidth={2} />
-                  Débloquer
+                  {t('debloquer')}
                 </button>
               </div>
             </div>
