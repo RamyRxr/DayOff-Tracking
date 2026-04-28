@@ -53,7 +53,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
         alert(`⚠️ Employé bloqué automatiquement: ${result.block.reason}`)
       }
     } catch (error) {
-      alert(`Erreur: ${error.message}`)
+      alert(`❌ ${t('erreur')}: ${error.message}`)
     }
   }
 
@@ -66,9 +66,9 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
       addNotification(createBlockNotification(employee, blockData.reason, t))
 
       if (onUpdate) onUpdate()
-      alert('✅ Employé bloqué avec succès')
+      alert(`✅ ${t('employeBloqueSucces')}`)
     } catch (error) {
-      alert(`Erreur: ${error.message}`)
+      alert(`❌ ${t('erreur')}: ${error.message}`)
     }
   }
 
@@ -86,9 +86,9 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
       addNotification(createUnblockNotification(employee, t))
 
       if (onUpdate) onUpdate()
-      alert('✅ Employé débloqué avec succès')
+      alert(`✅ ${t('employeDebloqueSucces')}`)
     } catch (error) {
-      alert(`Erreur: ${error.message}`)
+      alert(`❌ ${t('erreur')}: ${error.message}`)
     }
   }
 

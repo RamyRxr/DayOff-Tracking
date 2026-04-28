@@ -71,7 +71,7 @@ export function useBlocks(activeOnly = true) {
             const list = Array.isArray(response?.data) ? response.data.map(mapBlock) : []
             setBlocks(list)
         } catch (err) {
-            setError(err.message || 'Erreur lors du chargement des blocages')
+            setError(err.message || 'Error loading blocks')
         } finally {
             setLoading(false)
         }

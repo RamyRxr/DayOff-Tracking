@@ -16,7 +16,7 @@ export function useAdmins() {
             const response = await getAdmins()
             setAdmins(Array.isArray(response?.data) ? response.data : [])
         } catch (err) {
-            setError(err.message || 'Erreur lors du chargement des administrateurs')
+            setError(err.message || 'Error loading administrators')
         } finally {
             setLoading(false)
         }
@@ -33,7 +33,7 @@ export function useAdmins() {
                 setAdmins(Array.isArray(response?.data) ? response.data : [])
             } catch (err) {
                 if (cancelled) return
-                setError(err.message || 'Erreur lors du chargement des administrateurs')
+                setError(err.message || 'Error loading administrators')
             } finally {
                 if (!cancelled) setLoading(false)
             }
@@ -73,7 +73,7 @@ export function useAdminPin() {
             })
 
             if (!response?.data?.valid) {
-                throw new Error('Code PIN incorrect')
+                throw new Error('Incorrect PIN code')
             }
 
             const data = {

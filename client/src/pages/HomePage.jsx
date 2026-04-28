@@ -63,7 +63,7 @@ export default function HomePage() {
       setShowAddEmployee(false)
       alert('✅ Employé ajouté avec succès')
     } catch (error) {
-      alert(`Erreur: ${error.message}`)
+      alert(`❌ ${t('erreur')}: ${error.message}`)
     }
   }
 
@@ -80,7 +80,7 @@ export default function HomePage() {
         alert('✅ Congé ajouté avec succès')
       }
     } catch (error) {
-      alert(`Erreur: ${error.message}`)
+      alert(`❌ ${t('erreur')}: ${error.message}`)
     }
   }
 

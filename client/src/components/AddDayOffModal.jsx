@@ -232,7 +232,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
       alert('✅ Congé ajouté avec succès')
       navigate('/')
     } catch (error) {
-      alert(`❌ Erreur: ${error.message}`)
+      alert(`❌ ${t("erreur")}: ${error.message}`)
       // Stay on current page if error
     }
   }

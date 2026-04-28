@@ -210,5 +210,14 @@
   "aEteBloque": "تم حجبه",
   "aEteDebloque": "تم رفع الحجب عنه",
   "aLinstant": "الآن",
-  "hier": "أمس"
+  "hier": "أمس",
+  "erreurChargementAdmins": "خطأ في تحميل المسؤولين",
+  "erreurChargementBlocs": "خطأ في تحميل الحجوبات",
+  "erreurChargementConges": "خطأ في تحميل الإجازات",
+  "erreurChargementEmployes": "خطأ في تحميل الموظفين",
+  "erreurChargementEmploye": "خطأ في تحميل الموظف",
+  "erreur": "خطأ",
+  "reessayer": "إعادة المحاولة",
+  "employeBloqueSucces": "تم حجب الموظف بنجاح",
+  "employeDebloqueSucces": "تم رفع الحجب عن الموظف بنجاح"
 }

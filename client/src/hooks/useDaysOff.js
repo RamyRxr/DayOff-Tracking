@@ -53,7 +53,7 @@ export function useDaysOff(filters = {}) {
             const records = Array.isArray(response?.data) ? response.data.map(mapDayOff) : []
             setDaysOff(records)
         } catch (err) {
-            setError(err.message || 'Erreur lors du chargement des congés')
+            setError(err.message || 'Error loading days off')
         } finally {
             setLoading(false)
         }
@@ -71,7 +71,7 @@ export function useDaysOff(filters = {}) {
                 setDaysOff(records)
             } catch (err) {
                 if (cancelled) return
-                setError(err.message || 'Erreur lors du chargement des congés')
+                setError(err.message || 'Error loading days off')
             } finally {
                 if (!cancelled) setLoading(false)
             }

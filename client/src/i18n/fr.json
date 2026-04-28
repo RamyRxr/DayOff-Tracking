@@ -210,5 +210,14 @@
   "aEteBloque": "a été bloqué",
   "aEteDebloque": "a été débloqué",
   "aLinstant": "À l'instant",
-  "hier": "Hier"
+  "hier": "Hier",
+  "erreurChargementAdmins": "Erreur lors du chargement des administrateurs",
+  "erreurChargementBlocs": "Erreur lors du chargement des blocages",
+  "erreurChargementConges": "Erreur lors du chargement des congés",
+  "erreurChargementEmployes": "Erreur lors du chargement des employés",
+  "erreurChargementEmploye": "Erreur lors du chargement de l'employé",
+  "erreur": "Erreur",
+  "reessayer": "Réessayer",
+  "employeBloqueSucces": "Employé bloqué avec succès",
+  "employeDebloqueSucces": "Employé débloqué avec succès"
 }
