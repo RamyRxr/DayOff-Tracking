@@ -198,5 +198,10 @@
   "aRisque": "At risk",
   "bloques": "Blocked",
   "motifBlocage": "Blocking reason",
-  "absencesNonJustifiees": "Unjustified absences"
+  "absencesNonJustifiees": "Unjustified absences",
+  "depassementQuota": "Days off quota exceeded",
+  "congesSansAutorisation": "Days off without authorization",
+  "nonRespectReglement": "Non-compliance with regulations",
+  "informationsBlocage": "Blocking information",
+  "nonSpecifie": "Not specified"
 }

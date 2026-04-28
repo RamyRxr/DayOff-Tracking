@@ -198,5 +198,10 @@
   "aRisque": "في خطر",
   "bloques": "محجوب",
   "motifBlocage": "سبب الحجب",
-  "absencesNonJustifiees": "غياب غير مبرر"
+  "absencesNonJustifiees": "غياب غير مبرر",
+  "depassementQuota": "تجاوز حصة الإجازات",
+  "congesSansAutorisation": "إجازة بدون تصريح",
+  "nonRespectReglement": "عدم احترام اللوائح",
+  "informationsBlocage": "معلومات الحجب",
+  "nonSpecifie": "غير محدد"
 }

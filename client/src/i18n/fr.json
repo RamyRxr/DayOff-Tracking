@@ -198,5 +198,10 @@
   "aRisque": "À risque",
   "bloques": "Bloqués",
   "motifBlocage": "Motif de blocage",
-  "absencesNonJustifiees": "Absences non justifiées"
+  "absencesNonJustifiees": "Absences non justifiées",
+  "depassementQuota": "Dépassement du quota de congés",
+  "congesSansAutorisation": "Congés sans autorisation",
+  "nonRespectReglement": "Non-respect du règlement",
+  "informationsBlocage": "Informations du blocage",
+  "nonSpecifie": "Non spécifié"
 }

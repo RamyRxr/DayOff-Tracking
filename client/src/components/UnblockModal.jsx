@@ -6,6 +6,7 @@ import { fr } from 'date-fns/locale'
 import { useTheme } from '../contexts/ThemeContext'
 import CustomSelect from './CustomSelect'
 import { useAdmins } from '../hooks/useAdmins'
+import { translateBlockingReason } from '../utils/translateBlockingReason'
 
 export default function UnblockModal({ employee, activeBlock, isOpen, onClose, onSubmit }) {
   // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
@@ -211,17 +212,17 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
                 } : {}}
               >
                 <h4 className="text-sm font-semibold text-[#111827] dark:text-[#E8EFF8] mb-3">
-                  Informations du blocage
+                  {t('informationsBlocage')}
                 </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-[#6B7280] dark:text-[#7A9CC4]">Motif du blocage</span>
+                    <span className="text-[#6B7280] dark:text-[#7A9CC4]">{t('motifBlocage')}</span>
                     <span className="text-[#111827] dark:text-[#E8EFF8] font-medium">
-                      {activeBlock?.reason || 'Non spécifié'}
+                      {translateBlockingReason(activeBlock?.reason, t) || t('nonSpecifie')}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#6B7280] dark:text-[#7A9CC4]">Date de blocage</span>
+                    <span className="text-[#6B7280] dark:text-[#7A9CC4]">{t('dateBlocage')}</span>
                     <span className="text-[#111827] dark:text-[#E8EFF8] font-medium">
                       {getBlockDate()}
                     </span>
