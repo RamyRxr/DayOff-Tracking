@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { Lock, Loader2, AlertCircle, Check, ChevronDown, Sun, Moon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAdmins, useAdminPin } from '../hooks/useAdmins'
 import { useDarkMode } from '../hooks/useDarkMode'
 
 export default function LoginPage({ onLoginSuccess }) {
+  const { t } = useTranslation()
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
   const { admins, loading: adminsLoading } = useAdmins()
   const { verify, verifying, error } = useAdminPin()
