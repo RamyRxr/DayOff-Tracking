@@ -192,5 +192,11 @@
   "vueCalendrierTous": "Vue calendrier de tous les congés",
   "congesCeMois": "Congés ce mois",
   "employesEnConge": "Employés en congé",
-  "tauxUtilisation": "Taux d'utilisation"
+  "tauxUtilisation": "Taux d'utilisation",
+  "tousLesStatuts": "Tous les statuts",
+  "actifs": "Actifs",
+  "aRisque": "À risque",
+  "bloques": "Bloqués",
+  "motifBlocage": "Motif de blocage",
+  "absencesNonJustifiees": "Absences non justifiées"
 }

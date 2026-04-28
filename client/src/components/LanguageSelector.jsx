@@ -14,6 +14,7 @@ export default function LanguageSelector() {
   const { isDark } = useTheme()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
+  const isRTL = i18n.language === 'ar'
 
   const currentLang = languages.find(lang => lang.code === i18n.language) || languages[0]
 
@@ -63,7 +64,7 @@ export default function LanguageSelector() {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-48 rounded-2xl overflow-hidden animate-in"
+        <div className={`absolute top-full mt-2 w-48 rounded-2xl overflow-hidden animate-in ${isRTL ? 'left-0' : 'right-0'}`}
           style={isDark ? {
             backgroundColor: '#1C1C28',
             border: '1px solid rgba(99,157,255,0.15)',

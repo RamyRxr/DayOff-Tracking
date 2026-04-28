@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Filter, Loader2, AlertCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { format } from 'date-fns'
+import { getDateLocale, getDayNames } from '../utils/getDateLocale'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useTheme } from '../contexts/ThemeContext'
 
@@ -81,7 +83,9 @@ export default function CalendarPage() {
     setCurrentDate(new Date(year, month + 1, 1))
   }
 
-  const monthName = currentDate.toLocaleDateString('fr-DZ', { month: 'long', year: 'numeric' })
+  const locale = getDateLocale()
+  const dayNames = getDayNames()
+  const monthName = format(currentDate, 'MMMM yyyy', { locale })
 
   // Get day-offs for selected date
   const selectedDayOffs = selectedDate
@@ -221,7 +225,7 @@ export default function CalendarPage() {
         <div className="space-y-2">
           {/* Day headers */}
           <div className="grid grid-cols-7 gap-2 mb-3">
-            {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map((day, i) => (
+            {dayNames.map((day, i) => (
               <div
                 key={i}
                 className={`text-center text-xs font-semibold ${

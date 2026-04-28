@@ -192,5 +192,11 @@
   "vueCalendrierTous": "Calendar view of all days off",
   "congesCeMois": "Days off this month",
   "employesEnConge": "Employees on leave",
-  "tauxUtilisation": "Usage rate"
+  "tauxUtilisation": "Usage rate",
+  "tousLesStatuts": "All statuses",
+  "actifs": "Active",
+  "aRisque": "At risk",
+  "bloques": "Blocked",
+  "motifBlocage": "Blocking reason",
+  "absencesNonJustifiees": "Unjustified absences"
 }

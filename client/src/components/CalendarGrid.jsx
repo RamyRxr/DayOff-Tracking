@@ -61,6 +61,7 @@ export default function CalendarGrid({
           const isDayOff = dayOffDates.has(timestamp)
           const isWeekend = date.getDay() === 5 || date.getDay() === 6 // Friday = 5, Saturday = 6
           const isToday = date.toDateString() === new Date().toDateString()
+          const isTodayAndDayOff = isToday && isDayOff
 
           const handleClick = (e) => {
             if (isDayOff && onDayOffClick) {
@@ -89,35 +90,41 @@ export default function CalendarGrid({
                         : ''
               }`}
               style={{
-                background: isDayOff
-                  ? 'linear-gradient(135deg, rgba(255,59,48,0.15), rgba(192,57,43,0.1))'
-                  : isWeekend
-                    ? (isDark ? 'rgba(99,157,255,0.03)' : '#F2F2F7')
-                    : isSelected
-                      ? (isDark ? 'linear-gradient(135deg, rgba(99,157,255,0.15), rgba(99,157,255,0.1))' : 'linear-gradient(135deg, rgba(0,122,255,0.12), rgba(0,122,255,0.08))')
-                      : isToday
-                        ? (isDark ? 'linear-gradient(145deg, rgba(99,157,255,0.12), rgba(99,157,255,0.06))' : 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))')
-                        : (isDark ? 'rgba(99,157,255,0.05)' : '#FAFAFA'),
-                boxShadow: isDayOff
-                  ? 'inset 0 1px 2px rgba(0,0,0,0.1)'
-                  : isWeekend
-                    ? (isDark ? 'inset 0 1px 2px rgba(0,0,0,0.2)' : 'inset 0 1px 2px rgba(0,0,0,0.04)')
-                    : isSelected
-                      ? (isDark ? '0 0 0 2px #639DFF' : '0 0 0 2px #007AFF')
-                      : isToday
-                        ? (isDark ? '0 0 0 1.5px #639DFF' : '0 0 0 1.5px #007AFF')
-                        : (isDark ? 'inset 0 1px 1px rgba(255,255,255,0.04), 0 0 0 1px rgba(99,157,255,0.08)' : 'inset 0 1px 1px rgba(255,255,255,0.9)'),
-                border: isDayOff || isWeekend || isToday || isSelected ? 'none' : (isDark ? '1px solid rgba(99,157,255,0.08)' : '1px solid rgba(0,0,0,0.04)'),
-                color: isDayOff
-                  ? '#C0392B'
-                  : isWeekend
-                    ? (isDark ? '#4A6A8A' : '#C7C7CC')
-                    : isSelected
-                      ? (isDark ? '#639DFF' : '#007AFF')
-                      : isToday
+                background: isTodayAndDayOff
+                  ? 'linear-gradient(135deg, rgba(255,159,10,0.2), rgba(255,149,0,0.15))'
+                  : isDayOff
+                    ? 'linear-gradient(135deg, rgba(255,59,48,0.15), rgba(192,57,43,0.1))'
+                    : isWeekend
+                      ? (isDark ? 'rgba(99,157,255,0.03)' : '#F2F2F7')
+                      : isSelected
+                        ? (isDark ? 'linear-gradient(135deg, rgba(99,157,255,0.15), rgba(99,157,255,0.1))' : 'linear-gradient(135deg, rgba(0,122,255,0.12), rgba(0,122,255,0.08))')
+                        : isToday
+                          ? (isDark ? 'linear-gradient(145deg, rgba(99,157,255,0.12), rgba(99,157,255,0.06))' : 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))')
+                          : (isDark ? 'rgba(99,157,255,0.05)' : '#FAFAFA'),
+                boxShadow: isTodayAndDayOff
+                  ? (isDark ? '0 0 0 2px #FF9F0A' : '0 0 0 2px #FF9500')
+                  : isDayOff
+                    ? 'inset 0 1px 2px rgba(0,0,0,0.1)'
+                    : isWeekend
+                      ? (isDark ? 'inset 0 1px 2px rgba(0,0,0,0.2)' : 'inset 0 1px 2px rgba(0,0,0,0.04)')
+                      : isSelected
+                        ? (isDark ? '0 0 0 2px #639DFF' : '0 0 0 2px #007AFF')
+                        : isToday
+                          ? (isDark ? '0 0 0 1.5px #639DFF' : '0 0 0 1.5px #007AFF')
+                          : (isDark ? 'inset 0 1px 1px rgba(255,255,255,0.04), 0 0 0 1px rgba(99,157,255,0.08)' : 'inset 0 1px 1px rgba(255,255,255,0.9)'),
+                border: isDayOff || isWeekend || isToday || isSelected || isTodayAndDayOff ? 'none' : (isDark ? '1px solid rgba(99,157,255,0.08)' : '1px solid rgba(0,0,0,0.04)'),
+                color: isTodayAndDayOff
+                  ? (isDark ? '#FF9F0A' : '#FF9500')
+                  : isDayOff
+                    ? '#C0392B'
+                    : isWeekend
+                      ? (isDark ? '#4A6A8A' : '#C7C7CC')
+                      : isSelected
                         ? (isDark ? '#639DFF' : '#007AFF')
-                        : (isDark ? '#7A9CC4' : '#374151'),
-                fontWeight: isDayOff || isSelected || isToday ? 600 : 'inherit',
+                        : isToday
+                          ? (isDark ? '#639DFF' : '#007AFF')
+                          : (isDark ? '#7A9CC4' : '#374151'),
+                fontWeight: isDayOff || isSelected || isToday || isTodayAndDayOff ? 600 : 'inherit',
               }}
             >
               {renderCellContent ? renderCellContent(date, { isSelected, isDayOff, isWeekend, isToday }) : dayNum}

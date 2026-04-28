@@ -185,10 +185,10 @@ export default function EmployeesPage() {
           {/* Status filter */}
           <CustomSelect
             options={[
-              { value: 'tous', label: 'Tous les statuts' },
-              { value: 'actif', label: 'Actifs' },
-              { value: 'risque', label: 'À risque' },
-              { value: 'bloqué', label: 'Bloqués' },
+              { value: 'tous', label: t('tousLesStatuts') },
+              { value: 'actif', label: t('actifs') },
+              { value: 'risque', label: t('aRisque') },
+              { value: 'bloqué', label: t('bloques') },
             ]}
             value={statusFilter}
             onChange={setStatusFilter}
