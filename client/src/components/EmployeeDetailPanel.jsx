@@ -473,16 +473,12 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               }}
             >
               <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-amber-500" />
+                <div className="w-2 h-2 rounded-full bg-red-500" />
                 <span className="text-[10px] text-gray-500 dark:text-[#7A9CC4]">{t('congeLegend')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-600" />
                 <span className="text-[10px] text-gray-500 dark:text-[#7A9CC4]">{t('weekend')}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-[10px] text-gray-500 dark:text-[#7A9CC4]">{t('bloqueLegend')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-blue-500" />

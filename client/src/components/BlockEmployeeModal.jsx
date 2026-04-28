@@ -197,13 +197,13 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
               style={isDark ? { borderColor: 'rgba(99,157,255,0.12)' } : {}}
             >
               <div>
-                <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">Jours de congé pris</div>
+                <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{t('joursDeCongeLabel')}</div>
                 <div className="text-lg font-bold text-[#111827] dark:text-[#E8EFF8] mt-0.5">
                   {employee.daysUsed}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">Jours travaillés</div>
+                <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{t('joursTravaillesLabel2')}</div>
                 <div className="text-lg font-bold text-[#111827] dark:text-[#E8EFF8] mt-0.5">
                   {workingDaysElapsed}
                 </div>
