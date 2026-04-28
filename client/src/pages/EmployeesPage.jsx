@@ -5,8 +5,10 @@ import AddDayOffModal from '../components/AddDayOffModal'
 import AddEmployeeModal from '../components/AddEmployeeModal'
 import CustomSelect from '../components/CustomSelect'
 import { useEmployees } from '../hooks/useEmployees'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function EmployeesPage() {
+  const { isDark } = useTheme()
   const { employees, loading, error, refetch } = useEmployees()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('tous')
@@ -15,7 +17,6 @@ export default function EmployeesPage() {
   const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false)
   const [sortField, setSortField] = useState('name')
   const [sortDirection, setSortDirection] = useState('asc')
-  const isDark = document.documentElement.classList.contains('dark')
 
   // Filter employees
   const filteredEmployees = employees.filter((emp) => {
@@ -125,7 +126,6 @@ export default function EmployeesPage() {
           className="flex items-center gap-2 bg-navy text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200"
           style={isDark ? {
             background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
-            border: '1px solid rgba(99,157,255,0.2)',
             boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
           } : {
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
@@ -138,12 +138,11 @@ export default function EmployeesPage() {
 
       {/* Filters */}
       <div
-        className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 mb-6 border border-black/6"
+        className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 mb-6 border border-black/6 dark:border-white/[0.07]"
         style={isDark ? {
           backgroundColor: 'rgba(13,21,38,0.85)',
           backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(99,157,255,0.12)',
-          boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
+          boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
         } : {
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
         }}
@@ -203,12 +202,11 @@ export default function EmployeesPage() {
 
       {/* Table */}
       <div
-        className="bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden border border-black/6"
+        className="bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden border border-black/6 dark:border-white/[0.07]"
         style={isDark ? {
           backgroundColor: 'rgba(13,21,38,0.85)',
           backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(99,157,255,0.12)',
-          boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
+          boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
         } : {
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
         }}

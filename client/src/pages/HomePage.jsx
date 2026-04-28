@@ -9,9 +9,11 @@ import AddDayOffModal from '../components/AddDayOffModal'
 import HomeAddDayOffModal from '../components/HomeAddDayOffModal'
 import { useEmployees } from '../hooks/useEmployees'
 import { useDaysOff } from '../hooks/useDaysOff'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function HomePage() {
   const { t } = useTranslation()
+  const { isDark } = useTheme()
   const location = useLocation()
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [showAddEmployee, setShowAddEmployee] = useState(false)
@@ -119,18 +121,15 @@ export default function HomePage() {
     )
   }
 
-  const isDark = document.documentElement.classList.contains('dark')
-
   return (
     <div>
       {/* Animated tab pills - Interactive filters */}
       <div
-        className="bg-white/80 backdrop-blur-xl rounded-2xl p-3 mb-6 animate-fade-up border border-black/6"
+        className="bg-white/80 backdrop-blur-xl rounded-2xl p-3 mb-6 animate-fade-up border border-black/6 dark:border-white/[0.07]"
         style={isDark ? {
           backgroundColor: 'rgba(13,21,38,0.85)',
           backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(99,157,255,0.12)',
-          boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset'
+          boxShadow: '0 8px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset'
         } : {
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
         }}
@@ -148,13 +147,11 @@ export default function HomePage() {
               activeFilter === null
                 ? {
                     backgroundColor: 'rgba(99,157,255,0.12)',
-                    border: '1px solid rgba(99,157,255,0.2)',
                     color: '#E8EFF8',
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.3)'
                   }
                 : {
                     backgroundColor: 'rgba(99,157,255,0.04)',
-                    border: '1px solid rgba(99,157,255,0.08)',
                     color: '#7A9CC4'
                   }
             ) : {
@@ -205,13 +202,11 @@ export default function HomePage() {
               activeFilter === 'actif'
                 ? {
                     backgroundColor: 'rgba(99,157,255,0.12)',
-                    border: '1px solid rgba(99,157,255,0.2)',
                     color: '#E8EFF8',
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.3)'
                   }
                 : {
                     backgroundColor: 'rgba(99,157,255,0.04)',
-                    border: '1px solid rgba(99,157,255,0.08)',
                     color: '#7A9CC4'
                   }
             ) : {
@@ -262,13 +257,11 @@ export default function HomePage() {
               activeFilter === 'risque'
                 ? {
                     backgroundColor: 'rgba(99,157,255,0.12)',
-                    border: '1px solid rgba(99,157,255,0.2)',
                     color: '#E8EFF8',
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.3)'
                   }
                 : {
                     backgroundColor: 'rgba(99,157,255,0.04)',
-                    border: '1px solid rgba(99,157,255,0.08)',
                     color: '#7A9CC4'
                   }
             ) : {
@@ -321,13 +314,11 @@ export default function HomePage() {
               activeFilter === 'bloqué'
                 ? {
                     backgroundColor: 'rgba(99,157,255,0.12)',
-                    border: '1px solid rgba(99,157,255,0.2)',
                     color: '#E8EFF8',
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.3)'
                   }
                 : {
                     backgroundColor: 'rgba(99,157,255,0.04)',
-                    border: '1px solid rgba(99,157,255,0.08)',
                     color: '#7A9CC4'
                   }
             ) : {
@@ -378,12 +369,11 @@ export default function HomePage() {
 
       {/* Employee table */}
       <div
-        className="bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden border border-black/6"
+        className="bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden border border-black/6 dark:border-white/[0.07]"
         style={isDark ? {
           backgroundColor: 'rgba(13,21,38,0.85)',
           backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(99,157,255,0.12)',
-          boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset'
+          boxShadow: '0 8px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset'
         } : {
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
         }}
@@ -536,8 +526,7 @@ export default function HomePage() {
           }`}
           style={isDark ? {
             background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
-            border: '1px solid rgba(99,157,255,0.2)',
-            boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,157,255,0.15)'
+            boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
           } : {
             backgroundColor: '#1E3A5F',
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
