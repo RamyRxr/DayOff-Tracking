@@ -175,5 +175,22 @@
   "motif": "Reason",
   "bloquePar": "Blocked by",
   "voirDetails": "View details",
-  "telecharger": "Download"
+  "telecharger": "Download",
+  "joursDeConge": "Days off",
+  "joursDeCongeLabel": "Days off taken",
+  "joursTravaillesLabel2": "Working days",
+  "gerezEmployes": "Manage all employees and their days off",
+  "conges": "Days Off",
+  "employeLabel": "Employee",
+  "listeEmployesBloques": "List of blocked employees for quota exceeded",
+  "exporterLesDonnees": "Export data",
+  "employesBloques": "blocked employees",
+  "employesNePeuventPlus": "These employees can no longer request days off. You can manually unblock them after verification.",
+  "deblocageImmediat": "Immediate unblock",
+  "apresConfirmation": "After confirmation, the employee will be able to immediately request new days off and their status will be updated.",
+  "calendrierDesConges": "Days Off Calendar",
+  "vueCalendrierTous": "Calendar view of all days off",
+  "congesCeMois": "Days off this month",
+  "employesEnConge": "Employees on leave",
+  "tauxUtilisation": "Usage rate"
 }

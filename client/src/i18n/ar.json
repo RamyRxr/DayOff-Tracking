@@ -175,5 +175,22 @@
   "motif": "السبب",
   "bloquePar": "محجوب بواسطة",
   "voirDetails": "عرض التفاصيل",
-  "telecharger": "تحميل"
+  "telecharger": "تحميل",
+  "joursDeConge": "أيام الإجازة",
+  "joursDeCongeLabel": "أيام الإجازة المأخوذة",
+  "joursTravaillesLabel2": "أيام العمل",
+  "gerezEmployes": "إدارة جميع الموظفين وإجازاتهم",
+  "conges": "الإجازات",
+  "employeLabel": "الموظف",
+  "listeEmployesBloques": "قائمة الموظفين المحجوبين لتجاوز الحصة",
+  "exporterLesDonnees": "تصدير البيانات",
+  "employesBloques": "موظفون محجوبون",
+  "employesNePeuventPlus": "هؤلاء الموظفون لم يعودوا قادرين على طلب الإجازات. يمكنك رفع الحجب يدويًا بعد التحقق.",
+  "deblocageImmediat": "رفع الحجب الفوري",
+  "apresConfirmation": "بعد التأكيد، سيتمكن الموظف من طلب إجازات جديدة فورًا وسيتم تحديث حالته.",
+  "calendrierDesConges": "تقويم الإجازات",
+  "vueCalendrierTous": "عرض تقويم جميع الإجازات",
+  "congesCeMois": "إجازات هذا الشهر",
+  "employesEnConge": "موظفون في إجازة",
+  "tauxUtilisation": "معدل الاستخدام"
 }
