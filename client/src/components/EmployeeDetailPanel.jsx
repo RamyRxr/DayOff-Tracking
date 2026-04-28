@@ -1,7 +1,7 @@
 import { X, Mail, Phone, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { format, isBefore, isAfter, startOfDay, isSameDay } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { getDateLocale } from '../utils/getDateLocale'
 import { useTranslation } from 'react-i18next'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useBlocks } from '../hooks/useBlocks'
@@ -16,11 +16,17 @@ import SplitCalendar from './SplitCalendar'
 export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdate }) {
   const { t } = useTranslation()
   const { isDark } = useTheme()
+  const locale = getDateLocale()
   const [showAddDayOff, setShowAddDayOff] = useState(false)
   const [showBlock, setShowBlock] = useState(false)
   const [showUnblock, setShowUnblock] = useState(false)
   const [selectedDayOff, setSelectedDayOff] = useState(null)
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 })
+
+  // Calendar navigation state - start with current period
+  const currentDate = new Date()
+  const [calendarMonth, setCalendarMonth] = useState(currentDate.getMonth())
+  const [calendarYear, setCalendarYear] = useState(currentDate.getFullYear())
 
   // Fetch day-off records for this employee
   const { daysOff, addDayOff } = useDaysOff({ employeeId: employee?.id })
@@ -79,11 +85,34 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     (b) => b.employeeId === employee?.id && b.isActive
   )
 
-  // Current date and period variables
-  const currentDate = new Date()
-  const currentMonth = currentDate.getMonth()
-  const currentYear = currentDate.getFullYear()
-  const periodStart = new Date(currentYear, currentMonth, 20)
+  // Period start for the displayed calendar (20th of selected month)
+  const periodStart = new Date(calendarYear, calendarMonth, 20)
+
+  // Navigation functions
+  const handlePreviousPeriod = () => {
+    const newMonth = calendarMonth - 1
+    if (newMonth < 0) {
+      setCalendarMonth(11)
+      setCalendarYear(calendarYear - 1)
+    } else {
+      setCalendarMonth(newMonth)
+    }
+  }
+
+  const handleNextPeriod = () => {
+    const newMonth = calendarMonth + 1
+    if (newMonth > 11) {
+      setCalendarMonth(0)
+      setCalendarYear(calendarYear + 1)
+    } else {
+      setCalendarMonth(newMonth)
+    }
+  }
+
+  // Get month names for the period header (e.g., "April - May 2026")
+  const periodStartMonth = format(new Date(calendarYear, calendarMonth, 20), 'MMMM', { locale })
+  const periodEndMonth = format(new Date(calendarYear, calendarMonth + 1, 19), 'MMMM', { locale })
+  const periodYearDisplay = calendarYear
 
   // Calculate total day-off days taken from actual records
   const totalDayOffDays = daysOff.reduce((sum, dayOff) => {
@@ -425,10 +454,11 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
             {/* Month header */}
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-[13px] font-semibold text-gray-800 dark:text-[#E8EFF8] uppercase tracking-wide">
-                {periodStart.toLocaleDateString('fr-DZ', { month: 'long', year: 'numeric' })}
+                {periodStartMonth} - {periodEndMonth} {periodYearDisplay}
               </h4>
               <div className="flex gap-1">
                 <button
+                  onClick={handlePreviousPeriod}
                   className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
                   style={isDark ? {} : {}}
                   onMouseEnter={(e) => {
@@ -441,6 +471,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                   <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-[#7A9CC4]" />
                 </button>
                 <button
+                  onClick={handleNextPeriod}
                   className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
                   style={isDark ? {} : {}}
                   onMouseEnter={(e) => {

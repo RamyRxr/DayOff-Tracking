@@ -192,5 +192,11 @@
   "vueCalendrierTous": "عرض تقويم جميع الإجازات",
   "congesCeMois": "إجازات هذا الشهر",
   "employesEnConge": "موظفون في إجازة",
-  "tauxUtilisation": "معدل الاستخدام"
+  "tauxUtilisation": "معدل الاستخدام",
+  "tousLesStatuts": "جميع الحالات",
+  "actifs": "نشط",
+  "aRisque": "في خطر",
+  "bloques": "محجوب",
+  "motifBlocage": "سبب الحجب",
+  "absencesNonJustifiees": "غياب غير مبرر"
 }
