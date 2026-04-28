@@ -282,11 +282,10 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
                 <CheckCircle2 className="w-5 h-5 text-status-green dark:text-[#34C759] flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <div className="font-semibold text-status-green dark:text-[#34C759] text-sm">
-                    Déblocage immédiat
+                    {t('deblocageImmediat')}
                   </div>
                   <p className="text-xs text-[#374151] dark:text-[#7A9CC4] mt-1">
-                    Après confirmation, l'employé pourra immédiatement demander de
-                    nouveaux congés et son statut sera mis à jour.
+                    {t('apresConfirmation')}
                   </p>
                 </div>
               </div>

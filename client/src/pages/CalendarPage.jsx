@@ -130,10 +130,10 @@ export default function CalendarPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-[#E8EFF8]">
-            Calendrier des Congés
+            {t('calendrierDesConges')}
           </h1>
           <p className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">
-            Vue calendrier de tous les congés
+            {t('vueCalendrierTous')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -415,7 +415,7 @@ export default function CalendarPage() {
           <div className="text-2xl font-bold text-navy dark:text-[#639DFF]">
             {transformedDaysOff.filter(d => d.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length}
           </div>
-          <div className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">Congés ce mois</div>
+          <div className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">{t('congesCeMois')}</div>
         </div>
         <div
           className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient"
@@ -428,7 +428,7 @@ export default function CalendarPage() {
           <div className="text-2xl font-bold text-navy dark:text-[#639DFF]">
             {new Set(transformedDaysOff.map(d => d.employeeId)).size}
           </div>
-          <div className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">Employés en congé</div>
+          <div className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">{t('employesEnConge')}</div>
         </div>
         <div
           className="bg-white/80 backdrop-blur-xl rounded-xl p-4 shadow-ambient"
@@ -443,7 +443,7 @@ export default function CalendarPage() {
               ? Math.round((transformedDaysOff.filter(d => d.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length / 30) * 100)
               : 0}%
           </div>
-          <div className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">Taux d'utilisation</div>
+          <div className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">{t('tauxUtilisation')}</div>
         </div>
       </div>
     </div>

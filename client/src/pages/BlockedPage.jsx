@@ -193,7 +193,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
             </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-[#7A9CC4]">
-            Liste des employés bloqués pour dépassement de quota
+            {t('listeEmployesBloques')}
           </p>
         </div>
         {mockBlockedEmployees.length > 0 && (
@@ -215,7 +215,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
             }}
           >
             <Download className="w-4 h-4" />
-            Exporter les données
+            {t('exporterLesDonnees')}
           </button>
         )}
       </div>
@@ -226,12 +226,10 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
           <AlertCircle className="w-5 h-5 text-apple-red dark:text-[#FF6B6B] flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <div className="font-semibold text-apple-red dark:text-[#FF6B6B] text-sm">
-              {mockBlockedEmployees.length} employé
-              {mockBlockedEmployees.length > 1 ? 's bloqués' : ' bloqué'}
+              {mockBlockedEmployees.length} {t('employesBloques')}
             </div>
             <p className="text-xs text-gray-700 dark:text-[#7A9CC4] mt-1">
-              Ces employés ne peuvent plus demander de congés. Vous pouvez les
-              débloquer manuellement après vérification.
+              {t('employesNePeuventPlus')}
             </p>
           </div>
         </div>
