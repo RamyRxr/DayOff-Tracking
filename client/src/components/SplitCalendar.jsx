@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { format, endOfMonth } from 'date-fns'
-import { fr } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { getDateLocale } from '../utils/getDateLocale'
 import CalendarGrid from './CalendarGrid'
 
 export default function SplitCalendar({
@@ -19,6 +19,7 @@ export default function SplitCalendar({
   cellSize = 'small',
 }) {
   const { t } = useTranslation()
+  const locale = getDateLocale()
   const { currentMonthDays, nextMonthDays, currentMonthLabel, nextMonthLabel } = useMemo(() => {
     const currentYear = currentPeriod.getFullYear()
     const currentMonth = currentPeriod.getMonth()
@@ -58,10 +59,10 @@ export default function SplitCalendar({
     return {
       currentMonthDays: currentDays,
       nextMonthDays: nextDays,
-      currentMonthLabel: format(new Date(currentYear, currentMonth), 'MMMM', { locale: fr }),
-      nextMonthLabel: format(new Date(nextYear, normalizedNextMonth), 'MMMM', { locale: fr }),
+      currentMonthLabel: format(new Date(currentYear, currentMonth), 'MMMM', { locale }),
+      nextMonthLabel: format(new Date(nextYear, normalizedNextMonth), 'MMMM', { locale }),
     }
-  }, [currentPeriod])
+  }, [currentPeriod, locale])
 
   return (
     <div
