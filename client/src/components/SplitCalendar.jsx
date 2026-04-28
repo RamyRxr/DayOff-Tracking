@@ -16,6 +16,7 @@ export default function SplitCalendar({
   showNavigation = false,
   renderCellContent,
   renderCell,
+  cellSize = 'small',
 }) {
   const { t } = useTranslation()
   const { currentMonthDays, nextMonthDays, currentMonthLabel, nextMonthLabel } = useMemo(() => {
@@ -133,6 +134,7 @@ export default function SplitCalendar({
           dayOffDates={dayOffDates}
           renderCellContent={renderCellContent}
           renderCell={renderCell}
+          cellSize={cellSize}
         />
       </div>
 
@@ -156,6 +158,7 @@ export default function SplitCalendar({
           dayOffDates={dayOffDates}
           renderCellContent={renderCellContent}
           renderCell={renderCell}
+          cellSize={cellSize}
         />
       </div>
     </div>

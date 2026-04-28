@@ -163,14 +163,14 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     }
   }
 
-  // Custom cell renderer - exact copy from AddDayOffModal
-  const renderCalendarCell = (day, index) => {
+  // Custom cell renderer - exact copy from AddDayOffModal with dynamic sizing
+  const renderCalendarCell = (day, index, { isDark, cellSizeClass = 'w-12 h-12', textSizeClass = 'text-[15px]' }) => {
     const isWeekend = day.getDay() === 5 || day.getDay() === 6
     const isExisting = dayOffDates.has(day.setHours(0, 0, 0, 0))
     const isToday = isSameDay(day, new Date())
 
     let cellStyle = {}
-    let textClass = 'w-9 h-9 flex items-center justify-center transition-all duration-150 rounded-lg text-[13px]'
+    let textClass = `${cellSizeClass} flex items-center justify-center transition-all duration-150 rounded-lg ${textSizeClass}`
 
     // Apply complex styling logic - exact same as AddDayOffModal
     if (isExisting) {
@@ -461,6 +461,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               onDayOffClick={handleDayOffClick}
               isDark={isDark}
               renderCell={renderCalendarCell}
+              cellSize="large"
             />
 
             {/* Legend */}
