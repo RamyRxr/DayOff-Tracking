@@ -203,5 +203,12 @@
   "congesSansAutorisation": "Congés sans autorisation",
   "nonRespectReglement": "Non-respect du règlement",
   "informationsBlocage": "Informations du blocage",
-  "nonSpecifie": "Non spécifié"
+  "nonSpecifie": "Non spécifié",
+  "congesDu": "Congés du",
+  "enConge": "En congé",
+  "details": "Détails",
+  "aEteBloque": "a été bloqué",
+  "aEteDebloque": "a été débloqué",
+  "aLinstant": "À l'instant",
+  "hier": "Hier"
 }

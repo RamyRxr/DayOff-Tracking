@@ -203,5 +203,12 @@
   "congesSansAutorisation": "إجازة بدون تصريح",
   "nonRespectReglement": "عدم احترام اللوائح",
   "informationsBlocage": "معلومات الحجب",
-  "nonSpecifie": "غير محدد"
+  "nonSpecifie": "غير محدد",
+  "congesDu": "إجازات يوم",
+  "enConge": "في إجازة",
+  "details": "التفاصيل",
+  "aEteBloque": "تم حجبه",
+  "aEteDebloque": "تم رفع الحجب عنه",
+  "aLinstant": "الآن",
+  "hier": "أمس"
 }
