@@ -118,10 +118,10 @@ export default function EmployeesPage() {
       <div className="flex items-center justify-between mb-6 animate-fade-up">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight text-[#111827] dark:text-[#E8EFF8]">
-            Employés
+            {t('employes')}
           </h1>
           <p className="text-sm text-[#6B7280] dark:text-[#7A9CC4] mt-2 font-medium">
-            Gérez tous les employés et leurs congés
+            {t('gerezEmployes')}
           </p>
         </div>
         <button
@@ -135,7 +135,7 @@ export default function EmployeesPage() {
           }}
         >
           <Plus className="w-4 h-4" strokeWidth={2} />
-          Nouvel employé
+          {t('nouvelEmploye')}
         </button>
       </div>
 
@@ -234,7 +234,7 @@ export default function EmployeesPage() {
                 }}
               >
                 <div className="flex items-center gap-2">
-                  Employé
+                  {t('employeLabel')}
                   {sortField === 'name' && (
                     <span className="text-navy dark:text-[#639DFF]">
                       {sortDirection === 'asc' ? '↑' : '↓'}
@@ -243,7 +243,7 @@ export default function EmployeesPage() {
                 </div>
               </th>
               <th className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
-                Département
+                {t('departement')}
               </th>
               <th
                 onClick={() => handleSort('daysUsed')}
@@ -256,7 +256,7 @@ export default function EmployeesPage() {
                 }}
               >
                 <div className="flex items-center gap-2">
-                  Congés
+                  {t('conges')}
                   {sortField === 'daysUsed' && (
                     <span className="text-navy dark:text-[#639DFF]">
                       {sortDirection === 'asc' ? '↑' : '↓'}
@@ -275,7 +275,7 @@ export default function EmployeesPage() {
                 }}
               >
                 <div className="flex items-center gap-2">
-                  Statut
+                  {t('statut')}
                   {sortField === 'status' && (
                     <span className="text-navy dark:text-[#639DFF]">
                       {sortDirection === 'asc' ? '↑' : '↓'}
@@ -284,7 +284,7 @@ export default function EmployeesPage() {
                 </div>
               </th>
               <th className="text-right px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
-                Actions
+                {t('actions')}
               </th>
             </tr>
           </thead>
@@ -344,7 +344,7 @@ export default function EmployeesPage() {
                           ? 'text-amber-600 dark:text-[#FF9F0A]'
                           : 'text-gray-700 dark:text-[#E8EFF8]'
                     }`}>
-                      {employee.daysUsed} / 15 jours
+                      {employee.daysUsed} / 15 {t('jours')}
                     </div>
                     <div
                       className="w-24 h-1.5 bg-warm-gray-300 rounded-full overflow-hidden"
@@ -390,7 +390,7 @@ export default function EmployeesPage() {
                           if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
                         }}
                       >
-                        Détails
+                        {t('details')}
                       </button>
                       {employee.status !== 'bloqué' && (
                         <button
