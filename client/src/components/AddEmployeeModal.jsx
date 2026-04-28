@@ -7,15 +7,6 @@ import { useTheme } from "../contexts/ThemeContext";
 import CustomSelect from "./CustomSelect";
 import AutorisationStep from "./AutorisationStep";
 
-const DEPARTMENTS = [
-  "Production",
-  "Logistique",
-  "Administration",
-  "Maintenance",
-  "Qualité",
-  "Sécurité",
-];
-
 export default function AddEmployeeModal({
   isOpen,
   onClose,
@@ -23,6 +14,15 @@ export default function AddEmployeeModal({
   onSuccess,
 }) {
   const { t } = useTranslation();
+
+  const DEPARTMENTS = [
+    t('production'),
+    t('logistique'),
+    t('administration'),
+    t('maintenance'),
+    t('qualite'),
+    t('securite'),
+  ];
   const { isDark } = useTheme();
   const isVisible = typeof isOpen === "boolean" ? isOpen : true;
   const { employees, addEmployee } = useEmployees();

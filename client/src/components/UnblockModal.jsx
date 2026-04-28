@@ -151,7 +151,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
                 {step === 1 ? t('debloquerEmploye') : t('autorisationRequise')}
               </h2>
               <p className="text-xs text-[#6B7280] dark:text-[#7A9CC4] mt-0.5">
-                Étape {step} sur 2
+                {t('etape')} {step} {t('sur')} 2
               </p>
             </div>
           </div>
@@ -296,7 +296,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
               {/* Admin Selector */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-3">
-                  Administrateur
+                  {t('administrateur')}
                 </label>
                 {loadingAdmins ? (
                   <div className="text-center py-4 text-sm text-[#6B7280] dark:text-[#7A9CC4]">
@@ -353,7 +353,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
               {/* PIN Input */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-3">
-                  Code PIN
+                  {t('codePIN')}
                 </label>
                 <div className="flex justify-center gap-3">
                   {[0, 1, 2, 3].map(index => (
@@ -389,7 +389,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
                   ))}
                 </div>
                 {pinStatus === 'verifying' && (
-                  <p className="text-xs text-navy dark:text-[#639DFF] text-center mt-2">Vérification...</p>
+                  <p className="text-xs text-navy dark:text-[#639DFF] text-center mt-2">{t('verification')}</p>
                 )}
                 {pinStatus === 'error' && (
                   <p className="text-xs text-status-red dark:text-[#FF6B6B] text-center mt-2">Code incorrect</p>
@@ -420,7 +420,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
               if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
             }}
           >
-            {step === 1 ? 'Annuler' : '← Retour'}
+            {step === 1 ? t('annuler') : t('retourFleche')}
           </button>
           <button
             onClick={step === 1 ? () => setStep(2) : handleSubmit}
@@ -435,7 +435,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
               } : {})
             }}
           >
-            {step === 1 ? 'Suivant →' : 'Confirmer le déblocage'}
+            {step === 1 ? t('suivantFleche') : t('confirmerDeblocage')}
           </button>
         </div>
       </div>

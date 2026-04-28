@@ -313,7 +313,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                 color: '#7A9CC4'
               } : {}}
             >
-              Étape {step} / 2
+              {t('etape')} {step} {t('etapeDe')} 2
             </span>
             <button
               onClick={handleClose}
@@ -422,7 +422,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                       Glisser ou cliquer
                     </div>
                     <div className="text-xs text-[#9CA3AF] dark:text-[#7A9CC4] mt-1">
-                      PDF, JPG, PNG · max 5 Mo
+                      {t('fichierFormats')}
                     </div>
                     <input
                       type="file"
@@ -500,7 +500,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               }
             }}
           >
-            {step === 1 ? 'Annuler' : '← Retour'}
+            {step === 1 ? t('annuler') : t('retourFleche')}
           </button>
           <button
             onClick={step === 1 ? () => setStep(2) : handleSubmit}
@@ -535,7 +535,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               }
             }}
           >
-            {step === 1 ? 'Suivant →' : 'Confirmer le congé'}
+            {step === 1 ? t('suivantFleche') : t('confirmerConge')}
           </button>
         </div>
       </div>

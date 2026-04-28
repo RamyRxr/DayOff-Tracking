@@ -336,7 +336,7 @@ export default function CalendarPage() {
                 backgroundColor: 'rgba(99,157,255,0.06)'
               } : {}}
             />
-            <span className="text-xs text-gray-700 dark:text-[#7A9CC4]">Aujourd'hui</span>
+            <span className="text-xs text-gray-700 dark:text-[#7A9CC4]">{t('aujourdhui')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div

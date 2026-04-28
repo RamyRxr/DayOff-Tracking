@@ -31,7 +31,7 @@ export default function BlockedPage() {
           borderColor: 'rgba(255,59,48,0.2)'
         } : {}}
       >
-        <div className="font-semibold text-apple-red dark:text-[#FF6B6B] mb-2">Erreur</div>
+        <div className="font-semibold text-apple-red dark:text-[#FF6B6B] mb-2">{t('erreur')}</div>
         <p className="text-sm text-gray-700 dark:text-[#7A9CC4]">{error}</p>
       </div>
     )
@@ -125,8 +125,8 @@ Motif:            ${block.reason}
 Description:      ${block.description || '—'}
 Bloqué par:       ${block.blockedBy?.name || '—'} — ${block.blockedBy?.role || '—'}
 ────────────────────────────────────────
-Période:          ${periodStartFormatted} → ${periodEndFormatted}
-Jours de congé:   ${block.daysUsed} / 15
+${t('periodeLabel')}:          ${periodStartFormatted} → ${periodEndFormatted}
+${t('joursConge')}:   ${block.daysUsed} / 15
 ════════════════════════════════════════`
 
     // Create and download file

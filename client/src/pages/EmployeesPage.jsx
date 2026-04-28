@@ -153,7 +153,7 @@ export default function EmployeesPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4] pointer-events-none" />
             <input
               type="text"
-              placeholder="Rechercher par nom, matricule ou département..."
+              placeholder={t('rechercherNomMatriculeDept')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-warm-gray-200 rounded-xl text-[#111827] placeholder-[#6B7280] focus:outline-none transition-all"
@@ -189,7 +189,7 @@ export default function EmployeesPage() {
             ]}
             value={statusFilter}
             onChange={setStatusFilter}
-            placeholder="Filtrer par statut"
+            placeholder={t('filtrerParStatut')}
           />
         </div>
       </div>
