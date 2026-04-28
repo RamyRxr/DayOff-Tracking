@@ -3,13 +3,14 @@ import { ShieldAlert, AlertCircle, Unlock, Loader2, Download } from 'lucide-reac
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import UnblockModal from '../components/UnblockModal'
 import { useBlocks } from '../hooks/useBlocks'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function BlockedPage() {
+  const { isDark } = useTheme()
   const { blocks, loading, error, unblock, refetch } = useBlocks(true)
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [unblockEmployee, setUnblockEmployee] = useState(null)
   const [showUnblock, setShowUnblock] = useState(false)
-  const isDark = document.documentElement.classList.contains('dark')
 
   // Loading state
   if (loading) {

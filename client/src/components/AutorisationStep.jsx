@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function AutorisationStep({
   admins,
@@ -9,6 +10,8 @@ export default function AutorisationStep({
   pinStatus,
   pinIdPrefix = 'pin'
 }) {
+  const { isDark } = useTheme()
+
   const getPinBoxClass = (index) => {
     const hasValue = pin[index] !== ''
 
@@ -30,8 +33,6 @@ export default function AutorisationStep({
     // EMPTY unfocused (default)
     return 'pin-empty'
   }
-
-  const isDark = document.documentElement.classList.contains('dark')
 
   return (
     <>
