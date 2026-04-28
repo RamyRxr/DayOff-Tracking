@@ -1,6 +1,6 @@
 import { X, Mail, Phone, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
-import { format, isBefore, isAfter, startOfDay } from 'date-fns'
+import { format, isBefore, isAfter, startOfDay, isSameDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
 import { useDaysOff } from '../hooks/useDaysOff'
@@ -163,21 +163,20 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     }
   }
 
-  // Custom cell renderer matching AddDayOffModal style
+  // Custom cell renderer - exact copy from AddDayOffModal
   const renderCalendarCell = (day, index) => {
-    const dayStr = day.toISOString().split('T')[0]
     const isWeekend = day.getDay() === 5 || day.getDay() === 6
-    const isDayOff = dayOffDates.has(day.setHours(0, 0, 0, 0))
+    const isExisting = dayOffDates.has(day.setHours(0, 0, 0, 0))
     const isToday = isSameDay(day, new Date())
 
     let cellStyle = {}
     let textClass = 'w-9 h-9 flex items-center justify-center transition-all duration-150 rounded-lg text-[13px]'
 
-    // Apply styling logic matching AddDayOffModal
-    if (isDayOff) {
+    // Apply complex styling logic - exact same as AddDayOffModal
+    if (isExisting) {
       cellStyle.background = 'linear-gradient(145deg, rgba(255,59,48,0.12), rgba(192,57,43,0.08))'
       cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.1)'
-      textClass += ' text-[#C0392B] font-semibold cursor-pointer hover:opacity-90'
+      textClass += ' text-[#C0392B] font-semibold cursor-pointer'
     } else if (isWeekend) {
       cellStyle.background = isDark ? 'rgba(99,157,255,0.03)' : '#F2F2F7'
       cellStyle.boxShadow = isDark ? 'inset 0 1px 2px rgba(0,0,0,0.2)' : 'inset 0 1px 2px rgba(0,0,0,0.04)'
@@ -189,21 +188,19 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     } else {
       cellStyle.background = isDark ? 'rgba(99,157,255,0.05)' : 'rgba(255,255,255,0.8)'
       cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.04), 0 0 0 1px rgba(99,157,255,0.08)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
-      textClass += isDark ? ' text-[#7A9CC4]' : ' text-[#374151]'
+      textClass += isDark ? ' text-[#7A9CC4] hover:bg-white/[0.06]' : ' text-[#374151] hover:bg-[#F2F2F7]'
     }
 
-    const Element = isDayOff ? 'button' : 'div'
-
     return (
-      <Element
+      <button
         key={index}
-        onClick={isDayOff ? (e) => handleDayOffClick(day, e) : undefined}
+        onClick={isExisting ? (e) => handleDayOffClick(day, e) : undefined}
         disabled={isWeekend}
         className={textClass}
         style={cellStyle}
       >
         {format(day, 'd')}
-      </Element>
+      </button>
     )
   }
 
