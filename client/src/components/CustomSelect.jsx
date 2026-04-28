@@ -78,7 +78,7 @@ export default function CustomSelect({ options, value, onChange, placeholder = '
       {/* Dropdown Panel */}
       {isOpen && (
         <div
-          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-black/6 shadow-ambient overflow-hidden z-10"
+          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-black/6 shadow-ambient overflow-hidden z-50"
           style={isDark ? {
             animation: 'dropdownOpen 150ms cubic-bezier(0.16, 1, 0.3, 1)',
             backgroundColor: '#0F1A2E',

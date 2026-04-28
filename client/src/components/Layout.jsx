@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Moon, Sun } from 'lucide-react'
@@ -8,12 +8,13 @@ import { useEmployees } from '../hooks/useEmployees'
 import { useTheme } from '../contexts/ThemeContext'
 
 export default function Layout({ currentAdmin, onLogout }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { isDark, toggle: toggleDarkMode } = useTheme()
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [readNotifications, setReadNotifications] = useState(new Set())
   const notifRef = useRef(null)
   const { employees } = useEmployees()
+  const isRTL = i18n.language === 'ar'
 
   // Generate notifications from employee data
   const notifications = employees
@@ -32,6 +33,35 @@ export default function Layout({ currentAdmin, onLogout }) {
 
   const unreadCount = notifications.filter(n => !readNotifications.has(n.id)).length
   const displayCount = unreadCount > 9 ? '9+' : unreadCount
+
+  // Calculate progress percentage based on current date in work period
+  const progressPercentage = useMemo(() => {
+    const today = new Date()
+    const currentYear = today.getFullYear()
+    const currentMonth = today.getMonth()
+    const currentDay = today.getDate()
+
+    // Determine work period start and end dates
+    let periodStart, periodEnd
+    if (currentDay >= 20) {
+      // Period: 20th of current month to 19th of next month
+      periodStart = new Date(currentYear, currentMonth, 20)
+      periodEnd = new Date(currentYear, currentMonth + 1, 19, 23, 59, 59)
+    } else {
+      // We're before the 20th, so period is from 20th of previous month to 19th of current month
+      periodStart = new Date(currentYear, currentMonth - 1, 20)
+      periodEnd = new Date(currentYear, currentMonth, 19, 23, 59, 59)
+    }
+
+    // Calculate total period duration and elapsed time
+    const totalDuration = periodEnd.getTime() - periodStart.getTime()
+    const elapsed = today.getTime() - periodStart.getTime()
+
+    // Calculate percentage (clamped between 0 and 100)
+    const percentage = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100))
+
+    return percentage
+  }, [])
 
   // Close on outside click
   useEffect(() => {
@@ -67,7 +97,7 @@ export default function Layout({ currentAdmin, onLogout }) {
       <Sidebar currentAdmin={currentAdmin} onLogout={onLogout} />
 
       {/* Main content area - offset for fixed sidebar */}
-      <div className="ml-60 flex flex-col min-h-screen">
+      <div className={`flex flex-col min-h-screen ${isRTL ? 'mr-60' : 'ml-60'}`}>
         {/* Top bar - 56px, frosted glass */}
         <header
           className="h-14 bg-white/75 backdrop-blur-xl border-b-0.5 border-black/6 flex items-center px-8 justify-between sticky top-0 z-30"
@@ -88,8 +118,13 @@ export default function Layout({ currentAdmin, onLogout }) {
               style={isDark ? { background: 'rgba(255,255,255,0.06)' } : {}}
             >
               <div
-                className="h-full bg-navy w-[45%] rounded-full transition-all duration-300"
-                style={isDark ? { background: 'linear-gradient(90deg, #1E3D6B, #2A5494)' } : {}}
+                className="h-full bg-navy rounded-full transition-all duration-300"
+                style={isDark ? {
+                  background: 'linear-gradient(90deg, #1E3D6B, #2A5494)',
+                  width: `${progressPercentage}%`
+                } : {
+                  width: `${progressPercentage}%`
+                }}
               ></div>
             </div>
           </div>
