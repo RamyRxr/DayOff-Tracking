@@ -127,7 +127,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
     // Apply complex styling logic
     if (isExisting) {
       cellStyle.background = 'linear-gradient(145deg, rgba(255,59,48,0.12), rgba(192,57,43,0.08))'
-      cellStyle.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.85), inset 0 0 0 1px rgba(255,59,48,0.18)'
+      cellStyle.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.1)'
       textClass += ' text-[#C0392B] font-semibold cursor-not-allowed'
     } else if (isStart || isEnd) {
       cellStyle.background = isDark ? 'linear-gradient(145deg, #639DFF, #4A7FCC)' : 'linear-gradient(145deg, #007AFF, #0055D4)'

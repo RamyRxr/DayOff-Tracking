@@ -44,12 +44,10 @@ export default function Sidebar({ currentAdmin, onLogout }) {
               to={item.to}
               end={item.to === '/'}
               style={({ isActive }) => {
-                const isDark = document.documentElement.classList.contains('dark')
                 if (isActive && isDark) {
                   return {
                     backgroundColor: 'rgba(99,157,255,0.12)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
-                    borderLeft: '2px solid #639DFF'
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)'
                   }
                 }
                 return {}
@@ -81,8 +79,7 @@ export default function Sidebar({ currentAdmin, onLogout }) {
             className="w-8 h-8 rounded-full bg-warm-gray-200 flex items-center justify-center text-xs font-semibold text-[#374151]"
             style={isDark ? {
               background: 'rgba(99,157,255,0.12)',
-              color: '#639DFF',
-              border: '1px solid rgba(99,157,255,0.2)'
+              color: '#639DFF'
             } : {}}
           >
             {currentAdmin?.name

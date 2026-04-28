@@ -94,7 +94,7 @@ export default function CalendarGrid({
                         ? (isDark ? 'linear-gradient(145deg, rgba(99,157,255,0.12), rgba(99,157,255,0.06))' : 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))')
                         : (isDark ? 'rgba(99,157,255,0.05)' : '#FAFAFA'),
                 boxShadow: isDayOff
-                  ? 'inset 0 1px 0 rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,59,48,0.2)'
+                  ? 'inset 0 1px 2px rgba(0,0,0,0.1)'
                   : isWeekend
                     ? (isDark ? 'inset 0 1px 2px rgba(0,0,0,0.2)' : 'inset 0 1px 2px rgba(0,0,0,0.04)')
                     : isSelected
