@@ -1,3 +1,5 @@
+import { getDayNames } from '../utils/getDateLocale'
+
 export default function CalendarGrid({
   days,
   monthLabel,
@@ -10,7 +12,7 @@ export default function CalendarGrid({
   renderCell,
   cellSize = 'small', // 'small' for modal, 'large' for detail panel
 }) {
-  const dayNames = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
+  const dayNames = getDayNames()
   const cellSizeClass = cellSize === 'large' ? 'w-12 h-12' : 'w-9 h-9'
   const textSizeClass = cellSize === 'large' ? 'text-[15px]' : 'text-[13px]'
 
