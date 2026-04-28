@@ -162,5 +162,18 @@
   "raison": "السبب",
   "fichier": "الملف",
   "erreur": "خطأ",
-  "periodeLabel": "الفترة"
+  "periodeLabel": "الفترة",
+  "employesBloque": "الموظفون المحجوبون",
+  "raisonDuBlocage": "سبب الحجب",
+  "bloqueLe": "محجوب في",
+  "par": "بواسطة",
+  "dateBlocage": "تاريخ الحجب",
+  "telephoneLabel": "الهاتف",
+  "emailLabel": "البريد الإلكتروني",
+  "decisionBlocageTitre": "قرار الحجب — نفطال SPA",
+  "nomComplet": "الاسم الكامل",
+  "motif": "السبب",
+  "bloquePar": "محجوب بواسطة",
+  "voirDetails": "عرض التفاصيل",
+  "telecharger": "تحميل"
 }
