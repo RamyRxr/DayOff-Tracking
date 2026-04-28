@@ -38,8 +38,8 @@ async function getDaysOff(req, res) {
                 employee: {
                     select: {
                         id: true,
-                        name: true,
-                        avatar: true,
+                        firstName: true,
+                        lastName: true,
                         matricule: true,
                         department: true,
                     }
@@ -48,7 +48,17 @@ async function getDaysOff(req, res) {
             orderBy: { createdAt: 'desc' },
         })
 
-        return res.json({ data: records })
+        // Transform employee data to match frontend expectations
+        const transformedRecords = records.map(record => ({
+            ...record,
+            employee: record.employee ? {
+                ...record.employee,
+                name: `${record.employee.firstName} ${record.employee.lastName}`,
+                avatar: `${record.employee.firstName[0]}${record.employee.lastName[0]}`.toUpperCase()
+            } : null
+        }))
+
+        return res.json({ data: transformedRecords })
     } catch (error) {
         console.error('Error fetching day-off records:', error)
         return res.status(500).json({ error: 'Failed to fetch day-off records' })

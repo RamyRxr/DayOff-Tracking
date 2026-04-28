@@ -105,7 +105,7 @@ export default function EmployeesPage() {
         } : {}}
       >
         <div className="font-semibold text-status-red dark:text-[#FF6B6B] mb-2">
-          Erreur de chargement
+          {t('erreurChargement')}
         </div>
         <p className="text-sm text-[#374151] dark:text-[#7A9CC4]">{error}</p>
       </div>

@@ -114,13 +114,13 @@ export default function CalendarPage() {
         <div className="flex items-center gap-3">
           <AlertCircle className="w-6 h-6 text-apple-red dark:text-[#FF6B6B]" />
           <div>
-            <div className="font-semibold text-apple-red dark:text-[#FF6B6B]">Erreur de chargement</div>
+            <div className="font-semibold text-apple-red dark:text-[#FF6B6B]">{t('erreurChargement')}</div>
             <p className="text-sm text-gray-700 dark:text-[#7A9CC4] mt-1">{error}</p>
             <button
               onClick={refetch}
               className="text-sm text-navy dark:text-[#639DFF] hover:underline mt-2"
             >
-              Réessayer
+              {t('reessayer')}
             </button>
           </div>
         </div>

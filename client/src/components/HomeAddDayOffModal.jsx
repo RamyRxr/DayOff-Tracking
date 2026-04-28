@@ -276,7 +276,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
       onSuccess?.()
       handleClose()
     } catch (error) {
-      alert(`Erreur: ${error.message}`)
+      alert(`❌ ${t('erreur')}: ${error.message}`)
     }
   }
 

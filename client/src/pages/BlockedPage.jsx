@@ -78,7 +78,7 @@ export default function BlockedPage() {
       refetch()
       alert('✅ Employé débloqué avec succès')
     } catch (error) {
-      alert(`Erreur: ${error.message}`)
+      alert(`❌ ${t('erreur')}: ${error.message}`)
     }
   }
 

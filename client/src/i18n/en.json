@@ -210,5 +210,14 @@
   "aEteBloque": "has been blocked",
   "aEteDebloque": "has been unblocked",
   "aLinstant": "Just now",
-  "hier": "Yesterday"
+  "hier": "Yesterday",
+  "erreurChargementAdmins": "Error loading administrators",
+  "erreurChargementBlocs": "Error loading blocks",
+  "erreurChargementConges": "Error loading days off",
+  "erreurChargementEmployes": "Error loading employees",
+  "erreurChargementEmploye": "Error loading employee",
+  "erreur": "Error",
+  "reessayer": "Retry",
+  "employeBloqueSucces": "Employee blocked successfully",
+  "employeDebloqueSucces": "Employee unblocked successfully"
 }

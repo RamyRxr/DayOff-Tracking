@@ -76,7 +76,7 @@ export function useEmployees() {
             const list = Array.isArray(response?.data) ? response.data.map(toUiEmployee) : []
             setEmployees(list)
         } catch (err) {
-            setError(err.message || 'Erreur lors du chargement des employés')
+            setError(err.message || 'Error loading employees')
         } finally {
             setLoading(false)
         }
@@ -94,7 +94,7 @@ export function useEmployees() {
                 setEmployees(list)
             } catch (err) {
                 if (cancelled) return
-                setError(err.message || 'Erreur lors du chargement des employés')
+                setError(err.message || 'Error loading employees')
             } finally {
                 if (!cancelled) setLoading(false)
             }
