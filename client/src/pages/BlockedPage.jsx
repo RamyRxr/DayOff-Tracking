@@ -6,6 +6,7 @@ import UnblockModal from '../components/UnblockModal'
 import { useBlocks } from '../hooks/useBlocks'
 import { useTheme } from '../contexts/ThemeContext'
 import { translateDepartment } from '../utils/translateDepartment'
+import { translateBlockingReason } from '../utils/translateBlockingReason'
 
 export default function BlockedPage() {
   const { t } = useTranslation()
@@ -155,7 +156,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
         email,
         phone,
         translateDepartment(emp.department, t),
-        emp.blockedReason,
+        translateBlockingReason(emp.blockedReason, t),
         formatDate(emp.blockedAt)
       ]
     })
@@ -312,7 +313,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
                   {t('raisonDuBlocage')}
                 </div>
                 <div className="text-sm text-gray-900 dark:text-[#E8EFF8]">
-                  {employee.blockedReason}
+                  {translateBlockingReason(employee.blockedReason, t)}
                 </div>
                 <div className="text-xs text-gray-600 dark:text-[#7A9CC4] mt-2">
                   {t('bloqueLe')} {formatDate(employee.blockedAt)} {t('par')}{' '}
