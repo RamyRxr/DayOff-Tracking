@@ -595,42 +595,128 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                     renderCell={renderCalendarCell}
                   />
 
-                  {/* Period stats cards */}
-                  <div className="flex gap-2">
-                    <div
-                      className="flex-1 bg-white dark:bg-[#1C1C28] rounded-lg px-2 py-1.5 text-center"
-                      style={isDark ? {
-                        backgroundColor: 'rgba(13,21,38,0.6)',
-                        border: '1px solid rgba(99,157,255,0.12)'
-                      } : {}}
+                  {/* Current day-off count card (ALWAYS shown) */}
+                  <div
+                    className="rounded-xl p-3 flex items-center justify-between"
+                    style={{
+                      background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.8)',
+                      border: '1px solid rgba(0,0,0,0.06)',
+                      borderColor: isDark ? 'rgba(99,157,255,0.12)' : 'rgba(0,0,0,0.06)'
+                    }}
+                  >
+                    <span className="text-xs" style={{ color: isDark ? '#8E8E93' : '#6B7280' }}>
+                      Jours de congé déjà pris
+                    </span>
+                    <span
+                      className="text-sm font-bold"
+                      style={{
+                        color: periodStats.daysOffCount >= 15 ? '#C0392B'
+                             : periodStats.daysOffCount >= 10 ? '#FF9F0A'
+                             : '#34C759'
+                      }}
                     >
-                      <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{t('joursConge')}</div>
-                      <div className="text-sm font-bold text-navy dark:text-[#639DFF]">{periodStats.daysOffCount}</div>
-                    </div>
+                      {periodStats.daysOffCount} / 15 jours
+                    </span>
+                  </div>
+
+                  {/* Conditional alert cards (shown when dates selected) */}
+                  {startDate && endDate && (() => {
+                    const totalAfter = periodStats.daysOffCount + workingDays
+
+                    if (totalAfter > 15) {
+                      return (
+                        <div
+                          className="rounded-xl p-3 text-xs"
+                          style={{
+                            background: 'rgba(192,57,43,0.1)',
+                            border: '1px solid rgba(192,57,43,0.2)',
+                            color: '#C0392B'
+                          }}
+                        >
+                          🚫 Dépassement — {totalAfter} jours au total (limite: 15). Blocage activé.
+                        </div>
+                      )
+                    } else if (periodStats.daysOffCount >= 10 && periodStats.daysOffCount < 15) {
+                      return (
+                        <div
+                          className="rounded-xl p-3 text-xs"
+                          style={{
+                            background: 'rgba(255,159,10,0.1)',
+                            border: '1px solid rgba(255,159,10,0.2)',
+                            color: '#FF9F0A'
+                          }}
+                        >
+                          ⚠️ Attention — {periodStats.daysOffCount} jours utilisés. Limite: 15 jours
+                        </div>
+                      )
+                    } else if (periodStats.daysOffCount >= 5 && periodStats.daysOffCount < 10) {
+                      return (
+                        <div
+                          className="rounded-xl p-3 text-xs"
+                          style={{
+                            background: 'rgba(255,204,0,0.08)',
+                            border: '1px solid rgba(255,204,0,0.2)',
+                            color: '#FFC200'
+                          }}
+                        >
+                          ℹ️ Rappel — {periodStats.daysOffCount} jours de congé utilisés
+                        </div>
+                      )
+                    } else if (periodStats.daysOffCount < 5) {
+                      return (
+                        <div
+                          className="rounded-xl p-3 text-xs"
+                          style={{
+                            background: 'rgba(52,199,89,0.08)',
+                            border: '1px solid rgba(52,199,89,0.2)',
+                            color: '#34C759'
+                          }}
+                        >
+                          ✅ Employé en règle — {periodStats.daysOffCount} jours utilisés sur 15
+                        </div>
+                      )
+                    }
+                    return null
+                  })()}
+
+                  {/* Sandwich detection card */}
+                  {startDate && endDate && hasSandwich && (
                     <div
-                      className="flex-1 bg-white dark:bg-[#1C1C28] rounded-lg px-2 py-1.5 text-center"
-                      style={isDark ? {
-                        backgroundColor: 'rgba(13,21,38,0.6)',
-                        border: '1px solid rgba(99,157,255,0.12)'
-                      } : {}}
+                      className="rounded-xl p-3 text-xs"
+                      style={{
+                        background: 'rgba(255,159,10,0.08)',
+                        border: '1px solid rgba(255,159,10,0.15)',
+                        color: '#FF9F0A'
+                      }}
                     >
-                      <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{t('joursTravailles')}</div>
-                      <div className="text-sm font-bold text-navy dark:text-[#639DFF]">
-                        {periodStats.workedDays}
-                      </div>
+                      <div className="font-medium mb-1">🥪 Détection sandwich — Week-end inclus dans la période</div>
+                      <div className="text-[11px]">Jours ouvrables: {workingDays} · Jours calendaires: {totalCalendarDays}</div>
                     </div>
-                    <div
-                      className="flex-1 bg-white dark:bg-[#1C1C28] rounded-lg px-2 py-1.5 text-center"
-                      style={isDark ? {
-                        backgroundColor: 'rgba(13,21,38,0.6)',
-                        border: '1px solid rgba(99,157,255,0.12)'
-                      } : {}}
-                    >
-                      <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{t('joursDisponibles')}</div>
-                      <div className="text-sm font-bold text-navy dark:text-[#639DFF]">
-                        {periodStats.availableDays}
-                      </div>
-                    </div>
+                  )}
+
+                  {/* Reason selector */}
+                  <div ref={typeSelectRef}>
+                    <CustomSelect
+                      label={t('typeConge')}
+                      required
+                      value={reason}
+                      onChange={setReason}
+                      placeholder={t('typeConge')}
+                      options={[
+                        { value: 'annual', label: t('congeAnnuel') },
+                        { value: 'sick', label: t('congeMaladie') },
+                        { value: 'unpaid', label: t('congeSansSolde') },
+                        { value: 'other', label: t('autre') },
+                      ]}
+                      onOpen={() => {
+                        setTimeout(() => {
+                          typeSelectRef.current?.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest'
+                          })
+                        }, 150)
+                      }}
+                    />
                   </div>
                 </>
               )}
@@ -639,113 +725,51 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
 
           {step === 2 && (
             <>
-              {/* Calendar */}
-              <SplitCalendar
-                currentPeriod={new Date()}
-                isDark={isDark}
-                renderCell={renderCalendarCell}
-              />
-
-
-              {/* Date summary */}
-              {startDate && endDate && (
-                <div
-                  className="bg-navy/5 dark:bg-[#2C4A6F]/10 rounded-xl p-4"
-                  style={isDark ? {
-                    backgroundColor: 'rgba(99,157,255,0.1)',
-                    border: '1px solid rgba(99,157,255,0.12)'
-                  } : {}}
-                >
-                  <div className="flex items-center gap-4 text-sm">
-                    <div>
-                      <div className="text-[#6B7280] dark:text-[#7A9CC4] text-xs">{t('dateDebut')}</div>
-                      <div className="font-semibold text-navy dark:text-[#639DFF]">
-                        {format(startDate, 'dd MMM yyyy', { locale: fr })}
-                      </div>
-                    </div>
-                    <div className="text-[#6B7280] dark:text-[#7A9CC4]">→</div>
-                    <div>
-                      <div className="text-[#6B7280] dark:text-[#7A9CC4] text-xs">{t('dateFin')}</div>
-                      <div className="font-semibold text-navy dark:text-[#639DFF]">
-                        {format(endDate, 'dd MMM yyyy', { locale: fr })}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex gap-4 text-xs text-[#374151] dark:text-[#7A9CC4]">
-                    <div>
-                      <span className="font-bold text-navy dark:text-[#639DFF]">{workingDays}</span> {t('joursOuvrables')}
-                    </div>
-                    <div>
-                      <span className="font-bold text-navy dark:text-[#639DFF]">{totalCalendarDays}</span> {t('joursCalendaires')}
-                    </div>
-                    {hasSandwich && (
-                      <div className="flex items-center gap-1 text-status-amber dark:text-[#FF9F0A]">
-                        <AlertTriangle className="w-3 h-3" />
-                        <span className="font-medium">{t('sandwichDetection')}</span>
-                      </div>
-                    )}
-                  </div>
+              {/* Summary */}
+              <div
+                className="bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl p-4 mb-4"
+                style={isDark ? {
+                  backgroundColor: 'rgba(99,157,255,0.08)',
+                  border: '1px solid rgba(99,157,255,0.12)'
+                } : {}}
+              >
+                <div className="text-sm font-semibold text-[#111827] dark:text-[#E8EFF8] mb-2">
+                  Résumé du congé
                 </div>
-              )}
-
-              {/* File upload */}
-              <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
-                  {t('pieceJustificative')}
-                </label>
-                <label
-                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-warm-gray-400 dark:border-white/[0.12] rounded-xl cursor-pointer hover:bg-warm-gray-200 dark:hover:bg-white/[0.06] transition-colors"
-                  style={isDark ? {
-                    borderColor: 'rgba(99,157,255,0.2)',
-                    backgroundColor: 'transparent'
-                  } : {}}
-                  onMouseEnter={(e) => {
-                    if (isDark) {
-                      e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.06)'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (isDark) {
-                      e.currentTarget.style.backgroundColor = 'transparent'
-                    }
-                  }}
-                >
-                  <Upload className="w-6 h-6 text-[#6B7280] dark:text-[#7A9CC4] mb-2" />
-                  <span className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">
-                    {uploadedFile ? uploadedFile.name : t('glisserCliquer')}
-                  </span>
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={handleFileUpload}
-                  />
-                </label>
+                <div className="space-y-2 text-sm text-[#6B7280] dark:text-[#7A9CC4]">
+                  <div className="flex justify-between">
+                    <span>Employé:</span>
+                    <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">{selectedEmployee?.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Période:</span>
+                    <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">
+                      {startDate && endDate && `${format(startDate, 'dd MMM', { locale: fr })} – ${format(endDate, 'dd MMM yyyy', { locale: fr })}`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Jours ouvrables:</span>
+                    <span className="font-bold text-navy dark:text-[#639DFF]">{workingDays} jours</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Type:</span>
+                    <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">
+                      {reason === 'annual' ? t('congeAnnuel') : reason === 'sick' ? t('congeMaladie') : reason === 'unpaid' ? t('congeSansSolde') : t('autre')}
+                    </span>
+                  </div>
+                  {hasSandwich && (
+                    <div className="flex items-center gap-2 text-status-amber dark:text-[#FF9F0A] pt-2 border-t border-black/6 dark:border-white/[0.06]">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span className="text-xs font-medium">Détection sandwich — Week-end inclus</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Reason selector */}
-              <div ref={typeSelectRef}>
-                <CustomSelect
-                  label={t('typeConge')}
-                  required
-                  value={reason}
-                  onChange={setReason}
-                  placeholder={t('typeConge')}
-                  options={[
-                    { value: 'annual', label: t('congeAnnuel') },
-                    { value: 'sick', label: t('congeMaladie') },
-                    { value: 'unpaid', label: t('congeSansSolde') },
-                    { value: 'other', label: t('autre') },
-                  ]}
-                  onOpen={() => {
-                    setTimeout(() => {
-                      typeSelectRef.current?.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'nearest'
-                      })
-                    }, 150)
-                  }}
-                />
+              <div
+                className="bg-blue-50 dark:bg-[rgba(99,157,255,0.08)] border border-blue-200 dark:border-[rgba(99,157,255,0.15)] rounded-xl p-3 text-xs text-blue-800 dark:text-[#639DFF]"
+              >
+                Ajouté par: {currentAdmin?.name} — {currentAdmin?.role}
               </div>
             </>
           )}
