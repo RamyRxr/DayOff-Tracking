@@ -7,15 +7,22 @@ const {
 } = require('../utils/period')
 
 function getDaysUsedInPeriod(daysOff, period) {
-    return daysOff
-        .filter((record) => {
-            const start = new Date(record.startDate)
-            return start >= period.start && start <= period.end
-        })
-        .reduce(
-            (sum, record) => sum + countWorkingDays(new Date(record.startDate), new Date(record.endDate)),
-            0
-        )
+    return daysOff.reduce((sum, record) => {
+        const start = new Date(record.startDate)
+        const end = new Date(record.endDate)
+
+        // Skip if completely outside the period
+        if (end < period.start || start > period.end) {
+            return sum
+        }
+
+        // Calculate overlap with the period
+        const overlapStart = start < period.start ? period.start : start
+        const overlapEnd = end > period.end ? period.end : end
+
+        // Count only working days in the overlap
+        return sum + countWorkingDays(overlapStart, overlapEnd)
+    }, 0)
 }
 
 async function getEmployees(req, res) {
