@@ -74,12 +74,23 @@ async function getDaysOff(req, res) {
 
 async function createDayOff(req, res) {
     try {
-        const { employeeId, startDate, endDate, type, reason, justification } = req.body
+        const { employeeId, startDate, endDate, type, reason, justification, adminId } = req.body
 
         if (!employeeId || !startDate || !endDate || !type) {
             return res
                 .status(400)
                 .json({ error: 'Missing required fields: employeeId, startDate, endDate, type' })
+        }
+
+        // Validate adminId if provided
+        if (adminId) {
+            const admin = await prisma.admin.findUnique({
+                where: { id: String(adminId) },
+                select: { id: true },
+            })
+            if (!admin) {
+                return res.status(404).json({ error: 'Admin not found' })
+            }
         }
 
         const parsedStartDate = new Date(startDate)
@@ -130,6 +141,7 @@ async function createDayOff(req, res) {
                     type: String(type),
                     reason: reason ? String(reason) : null,
                     justification: justification ? String(justification) : null,
+                    adminId: adminId ? String(adminId) : null,
                 },
             })
 
