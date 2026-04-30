@@ -23,8 +23,15 @@ async function getDaysOff(req, res) {
         const { employeeId } = req.query
         const period = getCurrentPeriod()
 
+        // ALWAYS filter by current period for consistency
         const where = employeeId
-            ? { employeeId: String(employeeId) }
+            ? {
+                employeeId: String(employeeId),
+                startDate: {
+                    gte: period.start,
+                    lte: period.end,
+                },
+            }
             : {
                 startDate: {
                     gte: period.start,
