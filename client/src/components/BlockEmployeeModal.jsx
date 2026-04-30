@@ -16,9 +16,6 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
   // Early return AFTER all hooks
   if (!isOpen || !employee) return null
 
-  // Check if employee can be blocked
-  const canBlock = employee.daysUsed >= 15
-
   const handleClose = () => {
     setReason('')
     setDescription('')
