@@ -1,20 +1,26 @@
-import { useState } from 'react'
-import { ShieldAlert, AlertCircle, Unlock, Loader2, Download } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
-import UnblockModal from '../components/UnblockModal'
-import { useBlocks } from '../hooks/useBlocks'
-import { useTheme } from '../contexts/ThemeContext'
-import { translateDepartment } from '../utils/translateDepartment'
-import { translateBlockingReason } from '../utils/translateBlockingReason'
+import { useState } from "react";
+import {
+  ShieldAlert,
+  AlertCircle,
+  Unlock,
+  Loader2,
+  Download,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import EmployeeDetailPanel from "../components/EmployeeDetailPanel";
+import UnblockModal from "../components/UnblockModal";
+import { useBlocks } from "../hooks/useBlocks";
+import { useTheme } from "../contexts/ThemeContext";
+import { translateDepartment } from "../utils/translateDepartment";
+import { translateBlockingReason } from "../utils/translateBlockingReason";
 
 export default function BlockedPage() {
-  const { t } = useTranslation()
-  const { isDark } = useTheme()
-  const { blocks, loading, error, unblock, refetch } = useBlocks(true)
-  const [selectedEmployee, setSelectedEmployee] = useState(null)
-  const [unblockEmployee, setUnblockEmployee] = useState(null)
-  const [showUnblock, setShowUnblock] = useState(false)
+  const { t } = useTranslation();
+  const { isDark } = useTheme();
+  const { blocks, loading, error, unblock, refetch } = useBlocks(true);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [unblockEmployee, setUnblockEmployee] = useState(null);
+  const [showUnblock, setShowUnblock] = useState(false);
 
   // Loading state
   if (loading) {
@@ -22,7 +28,7 @@ export default function BlockedPage() {
       <div className="flex items-center justify-center h-96">
         <Loader2 className="w-8 h-8 text-navy dark:text-[#639DFF] animate-spin" />
       </div>
-    )
+    );
   }
 
   // Error state
@@ -30,15 +36,21 @@ export default function BlockedPage() {
     return (
       <div
         className="bg-apple-red/10 border border-apple-red/20 rounded-2xl p-6"
-        style={isDark ? {
-          backgroundColor: 'rgba(192,57,43,0.15)',
-          borderColor: 'rgba(255,59,48,0.2)'
-        } : {}}
+        style={
+          isDark
+            ? {
+                backgroundColor: "rgba(192,57,43,0.15)",
+                borderColor: "rgba(255,59,48,0.2)",
+              }
+            : {}
+        }
       >
-        <div className="font-semibold text-apple-red dark:text-[#FF6B6B] mb-2">{t('erreur')}</div>
+        <div className="font-semibold text-apple-red dark:text-[#FF6B6B] mb-2">
+          {t("erreur")}
+        </div>
         <p className="text-sm text-gray-700 dark:text-[#7A9CC4]">{error}</p>
       </div>
-    )
+    );
   }
 
   // Transform blocks to match component format
@@ -52,107 +64,125 @@ export default function BlockedPage() {
     phone: block.employee.phone,
     daysUsed: block.daysUsed,
     daysTotal: block.employee.daysTotal,
-    status: 'bloqué',
+    status: "bloqué",
     avatar: block.employee.avatar,
     blockedAt: block.createdAt,
     blockedReason: block.reason,
-    blockedBy: block.admin?.name || '—',
-    blockedByRole: block.admin?.role || '—',
+    blockedBy: block.admin?.name || "—",
+    blockedByRole: block.admin?.role || "—",
     blockId: block.id,
     blockData: block,
-  }))
+  }));
 
   const handleUnblockClick = (employee, block, e) => {
-    e.stopPropagation()
-    setUnblockEmployee({ employee, block })
-    setShowUnblock(true)
-  }
+    e.stopPropagation();
+    setUnblockEmployee({ employee, block });
+    setShowUnblock(true);
+  };
 
   const handleUnblockSubmit = async (unblockData) => {
     try {
       await unblock(unblockData.blockId, {
         adminId: 1,
-        pin: '1234',
+        pin: "1234",
         reason: unblockData.reason,
         description: unblockData.description,
-      })
-      setShowUnblock(false)
-      setUnblockEmployee(null)
-      refetch()
-      alert('✅ Employé débloqué avec succès')
+      });
+      setShowUnblock(false);
+      setUnblockEmployee(null);
+      refetch();
+      alert("✅ Employé débloqué avec succès");
     } catch (error) {
-      alert(`❌ ${t('erreur')}: ${error.message}`)
+      alert(`❌ ${t("erreur")}: ${error.message}`);
     }
-  }
+  };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('fr-DZ', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    })
-  }
+    return new Date(dateString).toLocaleDateString("fr-DZ", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
 
   const handleDownloadBlockDetails = (employee, block, e) => {
-    e.stopPropagation()
+    e.stopPropagation();
 
     // Calculate period dates
-    const currentDate = new Date()
-    const periodStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 20)
-    const periodEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 19)
+    const currentDate = new Date();
+    const periodStart = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      20,
+    );
+    const periodEnd = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      19,
+    );
 
-    const periodStartFormatted = periodStart.toLocaleDateString('fr-DZ', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    })
-    const periodEndFormatted = periodEnd.toLocaleDateString('fr-DZ', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    })
+    const periodStartFormatted = periodStart.toLocaleDateString("fr-DZ", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    const periodEndFormatted = periodEnd.toLocaleDateString("fr-DZ", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
 
     // Get employee data from the block
-    const emp = block.employee
-    const email = emp.email || `${emp.name.toLowerCase().split(' ').join('.')}@naftal.dz`
+    const emp = block.employee;
+    const email =
+      emp.email || `${emp.name.toLowerCase().split(" ").join(".")}@naftal.dz`;
 
     // File content
     const content = `════════════════════════════════════════
-${t('decisionBlocageTitre')}
+${t("decisionBlocageTitre")}
 ════════════════════════════════════════
-${t('matricule')}:        ${emp.matricule}
-${t('nomComplet')}:      ${emp.name}
-${t('departement')}:      ${translateDepartment(emp.department, t)}
-${t('poste')}:            ${emp.position}
-${t('email')}:            ${email}
-${t('telephone')}:        ${emp.phone || '—'}
+${t("matricule")}:        ${emp.matricule}
+${t("nomComplet")}:      ${emp.name}
+${t("departement")}:      ${translateDepartment(emp.department, t)}
+${t("poste")}:            ${emp.position}
+${t("email")}:            ${email}
+${t("telephone")}:        ${emp.phone || "—"}
 ────────────────────────────────────────
-${t('dateBlocage')}:  ${formatDate(block.createdAt)}
-${t('motif')}:            ${block.reason}
-${t('description')}:      ${block.description || '—'}
-${t('bloquePar')}:       ${block.admin?.name || '—'} — ${block.admin?.role || '—'}
+${t("dateBlocage")}:  ${formatDate(block.createdAt)}
+${t("motif")}:            ${block.reason}
+${t("description")}:      ${block.description || "—"}
+${t("bloquePar")}:       ${block.admin?.name || "—"} — ${block.admin?.role || "—"}
 ────────────────────────────────────────
-${t('periodeLabel')}:          ${periodStartFormatted} → ${periodEndFormatted}
-${t('joursConge')}:   ${block.daysUsed} / 15
-════════════════════════════════════════`
+${t("periodeLabel")}:          ${periodStartFormatted} → ${periodEndFormatted}
+${t("joursConge")}:   ${block.daysUsed} / 15
+════════════════════════════════════════`;
 
     // Create and download file
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    const today = new Date().toISOString().split('T')[0]
-    a.href = url
-    a.download = `decision-blocage-${emp.matricule}-${today}.txt`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const today = new Date().toISOString().split("T")[0];
+    a.href = url;
+    a.download = `decision-blocage-${emp.matricule}-${today}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleExport = () => {
     // Generate CSV content
-    const headers = [t('nom'), t('matricule'), t('email'), t('telephone'), t('departement'), t('motifBlocage'), t('dateBlocage')]
-    const rows = mockBlockedEmployees.map(emp => {
-      const email = emp.email || `${emp.name.toLowerCase().split(' ').join('.')}@naftal.dz`
-      const phone = emp.phone || '—'
+    const headers = [
+      t("nom"),
+      t("matricule"),
+      t("email"),
+      t("telephone"),
+      t("departement"),
+      t("motifBlocage"),
+      t("dateBlocage"),
+    ];
+    const rows = mockBlockedEmployees.map((emp) => {
+      const email =
+        emp.email || `${emp.name.toLowerCase().split(" ").join(".")}@naftal.dz`;
+      const phone = emp.phone || "—";
       return [
         emp.name,
         emp.matricule,
@@ -160,28 +190,28 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
         phone,
         translateDepartment(emp.department, t),
         translateBlockingReason(emp.blockedReason, t),
-        formatDate(emp.blockedAt)
-      ]
-    })
+        formatDate(emp.blockedAt),
+      ];
+    });
 
     const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n')
+      headers.join(","),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ].join("\n");
 
     // Download CSV
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    const url = URL.createObjectURL(blob)
-    const today = new Date().toISOString().split('T')[0]
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    const today = new Date().toISOString().split("T")[0];
 
-    link.setAttribute('href', url)
-    link.setAttribute('download', `employes-bloques-${today}.csv`)
-    link.style.visibility = 'hidden'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    link.setAttribute("href", url);
+    link.setAttribute("download", `employes-bloques-${today}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div>
@@ -190,36 +220,43 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-full bg-apple-red/10 dark:bg-[rgba(192,57,43,0.2)] flex items-center justify-center">
-              <ShieldAlert className="w-5 h-5 text-apple-red dark:text-[#FF6B6B]" strokeWidth={2} />
+              <ShieldAlert
+                className="w-5 h-5 text-apple-red dark:text-[#FF6B6B]"
+                strokeWidth={2}
+              />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-[#E8EFF8]">
-              {t('employesBloque')}
+              {t("employesBloque")}
             </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-[#7A9CC4]">
-            {t('listeEmployesBloques')}
+            {t("listeEmployesBloques")}
           </p>
         </div>
         {mockBlockedEmployees.length > 0 && (
           <button
             onClick={handleExport}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm text-navy dark:text-[#639DFF] border border-navy/20 dark:border-white/[0.12] hover:bg-navy/5 dark:hover:bg-white/[0.04] transition-all"
-            style={isDark ? {
-              borderColor: 'rgba(99,157,255,0.2)'
-            } : {}}
+            style={
+              isDark
+                ? {
+                    borderColor: "rgba(99,157,255,0.2)",
+                  }
+                : {}
+            }
             onMouseEnter={(e) => {
               if (isDark) {
-                e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                e.currentTarget.style.backgroundColor = "rgba(99,157,255,0.08)";
               }
             }}
             onMouseLeave={(e) => {
               if (isDark) {
-                e.currentTarget.style.backgroundColor = 'transparent'
+                e.currentTarget.style.backgroundColor = "transparent";
               }
             }}
           >
             <Download className="w-4 h-4" />
-            {t('exporterLesDonnees')}
+            {t("exporterLesDonnees")}
           </button>
         )}
       </div>
@@ -230,10 +267,10 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
           <AlertCircle className="w-5 h-5 text-apple-red dark:text-[#FF6B6B] flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <div className="font-semibold text-apple-red dark:text-[#FF6B6B] text-sm">
-              {mockBlockedEmployees.length} {t('employesBloques')}
+              {mockBlockedEmployees.length} {t("employesBloques")}
             </div>
             <p className="text-xs text-gray-700 dark:text-[#7A9CC4] mt-1">
-              {t('employesNePeuventPlus')}
+              {t("employesNePeuventPlus")}
             </p>
           </div>
         </div>
@@ -245,13 +282,19 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
           <div
             key={employee.id}
             className="bg-white/80 backdrop-blur-xl rounded-2xl transition-all duration-200 overflow-hidden border border-black/6 dark:border-white/[0.07]"
-            style={isDark ? {
-              backgroundColor: '#0B1120',
-              border: '1px solid rgba(99,157,255,0.12)',
-              boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
-            } : {
-              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
-            }}
+            style={
+              isDark
+                ? {
+                    backgroundColor: "#0B1120",
+                    border: "1px solid rgba(99,157,255,0.12)",
+                    boxShadow:
+                      "0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)",
+                  }
+                : {
+                    boxShadow:
+                      "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                  }
+            }
           >
             <div className="p-5">
               {/* Top section */}
@@ -259,10 +302,14 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
                 {/* Avatar */}
                 <div
                   className="w-12 h-12 rounded-full bg-warm-gray-400 dark:bg-white/[0.06] flex items-center justify-center text-sm font-semibold text-gray-700 dark:text-[#8E8E93] flex-shrink-0"
-                  style={isDark ? {
-                    backgroundColor: 'rgba(99,157,255,0.1)',
-                    color: '#7A9CC4'
-                  } : {}}
+                  style={
+                    isDark
+                      ? {
+                          backgroundColor: "rgba(99,157,255,0.1)",
+                          color: "#7A9CC4",
+                        }
+                      : {}
+                  }
                 >
                   {employee.avatar}
                 </div>
@@ -280,10 +327,14 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
                         </span>
                         <span
                           className="px-2 py-0.5 bg-warm-gray-300 dark:bg-white/[0.06] text-gray-700 dark:text-[#8E8E93] text-[11px] rounded-md"
-                          style={isDark ? {
-                            backgroundColor: 'rgba(99,157,255,0.08)',
-                            color: '#7A9CC4'
-                          } : {}}
+                          style={
+                            isDark
+                              ? {
+                                  backgroundColor: "rgba(99,157,255,0.08)",
+                                  color: "#7A9CC4",
+                                }
+                              : {}
+                          }
                         >
                           {translateDepartment(employee.department, t)}
                         </span>
@@ -297,7 +348,7 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-apple-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-transparent dark:border-[rgba(255,59,48,0.2)]">
                       <div className="w-1.5 h-1.5 rounded-full bg-apple-red dark:bg-[#FF6B6B]" />
                       <span className="text-xs font-medium text-apple-red dark:text-[#FF6B6B]">
-                        {t('bloque')}
+                        {t("bloque")}
                       </span>
                     </div>
                   </div>
@@ -307,19 +358,23 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
               {/* Reason section */}
               <div
                 className="bg-warm-gray-200 dark:bg-white/[0.04] rounded-xl p-3 mb-4"
-                style={isDark ? {
-                  backgroundColor: 'rgba(99,157,255,0.06)',
-                  border: '1px solid rgba(99,157,255,0.08)'
-                } : {}}
+                style={
+                  isDark
+                    ? {
+                        backgroundColor: "rgba(99,157,255,0.06)",
+                        border: "1px solid rgba(99,157,255,0.08)",
+                      }
+                    : {}
+                }
               >
                 <div className="text-xs font-semibold text-gray-700 dark:text-[#7A9CC4] mb-1">
-                  {t('raisonDuBlocage')}
+                  {t("raisonDuBlocage")}
                 </div>
                 <div className="text-sm text-gray-900 dark:text-[#E8EFF8]">
                   {translateBlockingReason(employee.blockedReason, t)}
                 </div>
                 <div className="text-xs text-gray-600 dark:text-[#7A9CC4] mt-2">
-                  {t('bloqueLe')} {formatDate(employee.blockedAt)} {t('par')}{' '}
+                  {t("bloqueLe")} {formatDate(employee.blockedAt)} {t("par")}{" "}
                   {employee.blockedBy}
                 </div>
               </div>
@@ -329,62 +384,81 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
                 <button
                   onClick={() => setSelectedEmployee(employee)}
                   className="flex-1 px-4 py-2.5 rounded-xl font-medium text-sm text-gray-600 dark:text-[#7A9CC4] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
-                  style={isDark ? {
-                    backgroundColor: 'transparent'
-                  } : {}}
+                  style={
+                    isDark
+                      ? {
+                          backgroundColor: "transparent",
+                        }
+                      : {}
+                  }
                   onMouseEnter={(e) => {
                     if (isDark) {
-                      e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                      e.currentTarget.style.backgroundColor =
+                        "rgba(99,157,255,0.08)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (isDark) {
-                      e.currentTarget.style.backgroundColor = 'transparent'
+                      e.currentTarget.style.backgroundColor = "transparent";
                     }
                   }}
                 >
-                  {t('voirDetails')}
+                  {t("voirDetails")}
                 </button>
                 <button
-                  onClick={(e) => handleDownloadBlockDetails(employee, employee.blockData, e)}
+                  onClick={(e) =>
+                    handleDownloadBlockDetails(employee, employee.blockData, e)
+                  }
                   className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl font-medium text-sm text-navy dark:text-[#639DFF] border border-navy/20 dark:border-white/[0.12] hover:bg-navy/5 dark:hover:bg-white/[0.04] transition-all duration-200"
-                  style={isDark ? {
-                    borderColor: 'rgba(99,157,255,0.2)',
-                    backgroundColor: 'transparent'
-                  } : {}}
+                  style={
+                    isDark
+                      ? {
+                          borderColor: "rgba(99,157,255,0.2)",
+                          backgroundColor: "transparent",
+                        }
+                      : {}
+                  }
                   onMouseEnter={(e) => {
                     if (isDark) {
-                      e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                      e.currentTarget.style.backgroundColor =
+                        "rgba(99,157,255,0.08)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (isDark) {
-                      e.currentTarget.style.backgroundColor = 'transparent'
+                      e.currentTarget.style.backgroundColor = "transparent";
                     }
                   }}
                 >
                   <Download className="w-3.5 h-3.5" />
-                  {t('telecharger')}
+                  {t("telecharger")}
                 </button>
                 <button
-                  onClick={(e) => handleUnblockClick(employee, employee.blockData, e)}
+                  onClick={(e) =>
+                    handleUnblockClick(employee, employee.blockData, e)
+                  }
                   className="flex items-center justify-center gap-2 border border-status-green/30 dark:border-[rgba(52,199,89,0.2)] text-status-green dark:text-[#34C759] px-4 py-2.5 rounded-xl font-medium text-sm hover:bg-status-green/5 dark:hover:bg-[rgba(52,199,89,0.1)] transition-all duration-200"
-                  style={isDark ? {
-                    backgroundColor: 'transparent'
-                  } : {}}
+                  style={
+                    isDark
+                      ? {
+                          backgroundColor: "transparent",
+                        }
+                      : {}
+                  }
                   onMouseEnter={(e) => {
                     if (isDark) {
-                      e.currentTarget.style.backgroundColor = 'rgba(52,199,89,0.1)'
+                      e.currentTarget.style.backgroundColor =
+                        "rgba(52,199,89,0.1)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (isDark) {
-                      e.currentTarget.style.backgroundColor = 'transparent'
+                      e.currentTarget.style.backgroundColor = "transparent";
                     }
                   }}
                 >
                   <Unlock className="w-4 h-4" strokeWidth={2} />
-                  {t('debloquer')}
+                  {t("debloquer")}
                 </button>
               </div>
             </div>
@@ -396,16 +470,25 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
       {mockBlockedEmployees.length === 0 && (
         <div
           className="bg-white/80 backdrop-blur-xl rounded-2xl p-16 text-center border border-black/6 dark:border-white/[0.07]"
-          style={isDark ? {
-            backgroundColor: '#0B1120',
-            border: '1px solid rgba(99,157,255,0.12)',
-            boxShadow: '0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)'
-          } : {
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
-          }}
+          style={
+            isDark
+              ? {
+                  backgroundColor: "#0B1120",
+                  border: "1px solid rgba(99,157,255,0.12)",
+                  boxShadow:
+                    "0 0 0 1px rgba(99,157,255,0.08), 0 8px 24px rgba(0,0,0,0.5)",
+                }
+              : {
+                  boxShadow:
+                    "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                }
+          }
         >
           <div className="w-16 h-16 rounded-full bg-apple-green/10 dark:bg-[rgba(52,199,89,0.15)] flex items-center justify-center mx-auto mb-4">
-            <ShieldAlert className="w-8 h-8 text-apple-green dark:text-[#34C759]" strokeWidth={2} />
+            <ShieldAlert
+              className="w-8 h-8 text-apple-green dark:text-[#34C759]"
+              strokeWidth={2}
+            />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E8EFF8] mb-2">
             Aucun employé bloqué
@@ -430,11 +513,11 @@ ${t('joursConge')}:   ${block.daysUsed} / 15
         activeBlock={unblockEmployee?.block}
         isOpen={showUnblock}
         onClose={() => {
-          setShowUnblock(false)
-          setUnblockEmployee(null)
+          setShowUnblock(false);
+          setUnblockEmployee(null);
         }}
         onSubmit={handleUnblockSubmit}
       />
     </div>
-  )
+  );
 }
