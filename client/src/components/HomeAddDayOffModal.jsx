@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, Upload, Search, ChevronLeft, AlertTriangle } from 'lucide-react'
+import { X, Upload, Search, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react'
 import { format, isSameDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useEmployees } from '../hooks/useEmployees'
@@ -19,6 +19,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   // Step 1: Employee selection
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedEmployee, setSelectedEmployee] = useState(null)
+  const [calendarOffset, setCalendarOffset] = useState(0)
 
   // Step 2: Dates and reason
   const [startDate, setStartDate] = useState(null)
@@ -76,6 +77,86 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     return dates
   }, [daysOff])
 
+  // Calculate displayed period based on calendar offset
+  const displayedPeriod = useMemo(() => {
+    const today = new Date()
+    const baseMonth = today.getMonth()
+    const baseYear = today.getFullYear()
+
+    // Calculate the display month based on offset
+    const totalMonths = baseYear * 12 + baseMonth + calendarOffset
+    const displayYear = Math.floor(totalMonths / 12)
+    const displayMonth = totalMonths % 12
+
+    // Work period: 20th of displayMonth to 19th of (displayMonth + 1)
+    const periodStart = new Date(displayYear, displayMonth, 20)
+    periodStart.setHours(0, 0, 0, 0)
+
+    const periodEnd = new Date(displayYear, displayMonth + 1, 19)
+    periodEnd.setHours(23, 59, 59, 999)
+
+    return { start: periodStart, end: periodEnd }
+  }, [calendarOffset])
+
+  // Calculate period-specific stats
+  const periodStats = useMemo(() => {
+    if (!selectedEmployee || !daysOff) {
+      return { daysOffCount: 0, workedDays: 0, availableDays: 15 }
+    }
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    // Count day-offs in the displayed period
+    let daysOffCount = 0
+    daysOff.forEach(dayOff => {
+      const start = new Date(dayOff.startDate)
+      const end = new Date(dayOff.endDate)
+      const current = new Date(start)
+
+      while (current <= end) {
+        if (current >= displayedPeriod.start && current <= displayedPeriod.end) {
+          const dayOfWeek = current.getDay()
+          if (dayOfWeek !== 5 && dayOfWeek !== 6) {
+            daysOffCount++
+          }
+        }
+        current.setDate(current.getDate() + 1)
+      }
+    })
+
+    // Calculate worked days
+    let workedDays = 0
+    if (today >= displayedPeriod.start && today <= displayedPeriod.end) {
+      // Current period: count from period start to today
+      const current = new Date(displayedPeriod.start)
+      while (current <= today) {
+        const dayOfWeek = current.getDay()
+        if (dayOfWeek !== 5 && dayOfWeek !== 6) {
+          workedDays++
+        }
+        current.setDate(current.getDate() + 1)
+      }
+      workedDays -= daysOffCount
+    } else if (today > displayedPeriod.end) {
+      // Past period: count all working days
+      const current = new Date(displayedPeriod.start)
+      while (current <= displayedPeriod.end) {
+        const dayOfWeek = current.getDay()
+        if (dayOfWeek !== 5 && dayOfWeek !== 6) {
+          workedDays++
+        }
+        current.setDate(current.getDate() + 1)
+      }
+      workedDays -= daysOffCount
+    }
+    // Future period: workedDays = 0 (already initialized)
+
+    const availableDays = Math.max(0, 15 - daysOffCount)
+
+    return { daysOffCount, workedDays, availableDays }
+  }, [selectedEmployee, daysOff, displayedPeriod])
+
   if (!isOpen) return null
 
   console.log('🔍 MODAL DEBUG:', {
@@ -102,11 +183,8 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
 
   const handleDayClick = (day) => {
     const dayStr = day.toISOString().split('T')[0]
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
 
-    // Check if day is selectable
-    if (day < today) return
+    // Check if day is selectable (only weekends and existing dates are blocked)
     if (day.getDay() === 5 || day.getDay() === 6) return
     if (existingDates.has(dayStr)) return
 
@@ -151,7 +229,6 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const renderCalendarCell = (day, index, { isDark: _, cellSizeClass = 'w-9 h-9', textSizeClass = 'text-[13px]' } = {}) => {
     const dayStr = day.toISOString().split('T')[0]
     const isWeekend = day.getDay() === 5 || day.getDay() === 6
-    const isPast = day < new Date(new Date().setHours(0, 0, 0, 0))
     const isExisting = existingDates.has(dayStr)
     const isStart = startDate && day.toDateString() === startDate.toDateString()
     const isEnd = endDate && day.toDateString() === endDate.toDateString()
@@ -182,10 +259,6 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
       cellStyle.background = isDark ? 'linear-gradient(145deg, rgba(99,157,255,0.12), rgba(99,157,255,0.06))' : 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
       cellStyle.boxShadow = isDark ? '0 0 0 1.5px #639DFF, inset 0 1px 0 rgba(255,255,255,0.06)' : '0 0 0 1.5px #007AFF, inset 0 1px 0 rgba(255,255,255,0.9)'
       textClass += isDark ? ' text-[#639DFF] font-semibold' : ' text-[#007AFF] font-semibold'
-    } else if (isPast) {
-      cellStyle.background = 'transparent'
-      cellStyle.opacity = 0.6
-      textClass += isDark ? ' text-[#4A6A8A] cursor-not-allowed' : ' text-[#C7C7CC] cursor-not-allowed'
     } else {
       cellStyle.background = isDark ? 'rgba(99,157,255,0.05)' : 'rgba(255,255,255,0.8)'
       cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.04), 0 0 0 1px rgba(99,157,255,0.08)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
@@ -196,7 +269,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
       <button
         key={index}
         onClick={() => handleDayClick(day)}
-        disabled={isWeekend || isPast || isExisting}
+        disabled={isWeekend || isExisting}
         className={textClass}
         style={cellStyle}
       >
@@ -263,14 +336,39 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const handleFinalSubmit = async () => {
     if (!selectedEmployee || !startDate || !endDate || !reason || pinStatus !== 'verified') return
 
+    // Get adminId from selectedAdmin or sessionStorage
+    let adminId = selectedAdmin?.id
+    if (!adminId) {
+      try {
+        const stored = sessionStorage.getItem('currentAdmin')
+        const currentAdmin = stored ? JSON.parse(stored) : null
+        adminId = currentAdmin?.id
+      } catch {
+        adminId = null
+      }
+    }
+
+    if (!adminId) {
+      alert('❌ Admin introuvable')
+      return
+    }
+
+    console.log('Submitting day-off:', {
+      employeeId: selectedEmployee.id,
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0],
+      type: reason,
+      adminId
+    })
+
     try {
       await addDayOff({
         employeeId: selectedEmployee.id,
         startDate: startDate.toISOString().split('T')[0],
         endDate: endDate.toISOString().split('T')[0],
-        reason,
-        document: uploadedFile,
-        adminId: selectedAdmin?.id || 1,
+        type: reason,
+        reason: null,
+        adminId
       })
 
       onSuccess?.()
@@ -509,37 +607,83 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                 )}
               </div>
 
-              {/* Selected employee preview */}
+              {/* Selected employee preview with calendar and stats */}
               {selectedEmployee && (
-                <div
-                  className="bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl p-4"
-                  style={isDark ? {
-                    backgroundColor: 'rgba(99,157,255,0.08)',
-                    border: '1px solid rgba(99,157,255,0.12)',
-                    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)'
-                  } : {
-                    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.08)'
-                  }}
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div
-                      className="w-10 h-10 rounded-full bg-warm-gray-300 dark:bg-white/[0.08] flex items-center justify-center text-sm font-semibold text-[#374151] dark:text-[#8E8E93]"
-                      style={isDark ? {
-                        backgroundColor: 'rgba(99,157,255,0.15)',
-                        color: '#7A9CC4'
-                      } : {}}
-                    >
-                      {selectedEmployee.avatar}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-sm text-[#111827] dark:text-[#E8EFF8]">
-                        {selectedEmployee.name}
+                <>
+                  <div
+                    className="bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl p-4"
+                    style={isDark ? {
+                      backgroundColor: 'rgba(99,157,255,0.08)',
+                      border: '1px solid rgba(99,157,255,0.12)',
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)'
+                    } : {
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.08)'
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-10 h-10 rounded-full bg-warm-gray-300 dark:bg-white/[0.08] flex items-center justify-center text-sm font-semibold text-[#374151] dark:text-[#8E8E93]"
+                        style={isDark ? {
+                          backgroundColor: 'rgba(99,157,255,0.15)',
+                          color: '#7A9CC4'
+                        } : {}}
+                      >
+                        {selectedEmployee.avatar}
                       </div>
-                      <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">
-                        {selectedEmployee.matricule} · {selectedEmployee.department}
+                      <div className="flex-1">
+                        <div className="font-semibold text-sm text-[#111827] dark:text-[#E8EFF8]">
+                          {selectedEmployee.name}
+                        </div>
+                        <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">
+                          {selectedEmployee.matricule} · {selectedEmployee.department}
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Calendar navigation */}
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => setCalendarOffset(prev => prev - 1)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
+                      style={isDark ? { backgroundColor: 'transparent' } : {}}
+                      onMouseEnter={(e) => {
+                        if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                      }}
+                      onMouseLeave={(e) => {
+                        if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+                      }}
+                    >
+                      <ChevronLeft size={16} className="text-[#6B7280] dark:text-[#7A9CC4]" />
+                    </button>
+                    <span className="text-[13px] font-semibold text-[#111827] dark:text-[#E8EFF8]">
+                      {format(displayedPeriod.start, 'dd MMM yyyy', { locale: fr })}
+                      {' → '}
+                      {format(displayedPeriod.end, 'dd MMM yyyy', { locale: fr })}
+                    </span>
+                    <button
+                      onClick={() => setCalendarOffset(prev => prev + 1)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
+                      style={isDark ? { backgroundColor: 'transparent' } : {}}
+                      onMouseEnter={(e) => {
+                        if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
+                      }}
+                      onMouseLeave={(e) => {
+                        if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
+                      }}
+                    >
+                      <ChevronRight size={16} className="text-[#6B7280] dark:text-[#7A9CC4]" />
+                    </button>
+                  </div>
+
+                  {/* Calendar */}
+                  <SplitCalendar
+                    currentPeriod={displayedPeriod.start}
+                    isDark={isDark}
+                    renderCell={renderCalendarCell}
+                  />
+
+                  {/* Period stats cards */}
                   <div className="flex gap-2">
                     <div
                       className="flex-1 bg-white dark:bg-[#1C1C28] rounded-lg px-2 py-1.5 text-center"
@@ -549,7 +693,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                       } : {}}
                     >
                       <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{t('joursConge')}</div>
-                      <div className="text-sm font-bold text-navy dark:text-[#639DFF]">{selectedEmployee.daysUsed || 0}</div>
+                      <div className="text-sm font-bold text-navy dark:text-[#639DFF]">{periodStats.daysOffCount}</div>
                     </div>
                     <div
                       className="flex-1 bg-white dark:bg-[#1C1C28] rounded-lg px-2 py-1.5 text-center"
@@ -560,7 +704,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                     >
                       <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{t('joursTravailles')}</div>
                       <div className="text-sm font-bold text-navy dark:text-[#639DFF]">
-                        {30 - (selectedEmployee.daysUsed || 0)}
+                        {periodStats.workedDays}
                       </div>
                     </div>
                     <div
@@ -572,11 +716,11 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                     >
                       <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{t('joursDisponibles')}</div>
                       <div className="text-sm font-bold text-navy dark:text-[#639DFF]">
-                        {selectedEmployee.daysTotal - selectedEmployee.daysUsed}
+                        {periodStats.availableDays}
                       </div>
                     </div>
                   </div>
-                </div>
+                </>
               )}
             </>
           )}
