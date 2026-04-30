@@ -62,45 +62,17 @@ function App() {
               }
             />
             <Route
-              path="/home"
               element={
                 <ProtectedRoute>
-                  <Layout currentAdmin={currentAdmin} onLogout={handleLogout}>
-                    <HomePage />
-                  </Layout>
+                  <Layout currentAdmin={currentAdmin} onLogout={handleLogout} />
                 </ProtectedRoute>
               }
-            />
-            <Route
-              path="/employees"
-              element={
-                <ProtectedRoute>
-                  <Layout currentAdmin={currentAdmin} onLogout={handleLogout}>
-                    <EmployeesPage />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/blocked"
-              element={
-                <ProtectedRoute>
-                  <Layout currentAdmin={currentAdmin} onLogout={handleLogout}>
-                    <BlockedPage />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/calendar"
-              element={
-                <ProtectedRoute>
-                  <Layout currentAdmin={currentAdmin} onLogout={handleLogout}>
-                    <CalendarPage />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
+            >
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/employees" element={<EmployeesPage />} />
+              <Route path="/blocked" element={<BlockedPage />} />
+              <Route path="/calendar" element={<CalendarPage />} />
+            </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>

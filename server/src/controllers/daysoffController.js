@@ -50,6 +50,13 @@ async function getDaysOff(req, res) {
                         matricule: true,
                         department: true,
                     }
+                },
+                admin: {
+                    select: {
+                        id: true,
+                        name: true,
+                        role: true,
+                    }
                 }
             },
             orderBy: { createdAt: 'desc' },
