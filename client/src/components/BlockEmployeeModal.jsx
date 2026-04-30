@@ -1,20 +1,17 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, ShieldAlert, AlertTriangle, ChevronLeft } from 'lucide-react'
+import { X, ShieldAlert, AlertTriangle } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
+import { useCurrentAdmin } from '../contexts/AdminContext'
 import CustomSelect from './CustomSelect'
-import AutorisationStep from './AutorisationStep'
 
 export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit }) {
   // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
   const { t } = useTranslation()
   const { isDark } = useTheme()
-  const [step, setStep] = useState(1)
+  const currentAdmin = useCurrentAdmin()
   const [reason, setReason] = useState('')
   const [description, setDescription] = useState('')
-  const [selectedAdmin, setSelectedAdmin] = useState(null)
-  const [pin, setPin] = useState(['', '', '', ''])
-  const [pinStatus, setPinStatus] = useState('idle')
 
   // Early return AFTER all hooks
   if (!isOpen || !employee) return null
@@ -23,63 +20,73 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
   const canBlock = employee.daysUsed >= 15
 
   const handleClose = () => {
-    setStep(1)
     setReason('')
     setDescription('')
-    setSelectedAdmin(null)
-    setPin(['', '', '', ''])
-    setPinStatus('idle')
     onClose?.()
   }
 
-  const admins = [
-    { id: 1, name: 'Ahmed Benali', role: 'Responsable RH', initials: 'AB' },
-    { id: 2, name: 'Fatima Meziane', role: 'Directeur Admin', initials: 'FM' },
-  ]
+  // Calculate current work period start and end
+  const today = new Date()
+  const currentDay = today.getDate()
+  const currentMonth = today.getMonth()
+  const currentYear = today.getFullYear()
 
-  // Calculate working days elapsed
-  const currentDate = new Date()
-  const periodStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 20)
+  let periodStartDate
+  if (currentDay >= 20) {
+    // Period is 20th of this month to 19th of next month
+    periodStartDate = new Date(currentYear, currentMonth, 20, 0, 0, 0, 0)
+  } else {
+    // Period is 20th of last month to 19th of this month
+    periodStartDate = new Date(currentYear, currentMonth - 1, 20, 0, 0, 0, 0)
+  }
+
+  // Calculate working days elapsed since period start
   let workingDaysElapsed = 0
-  const tempDate = new Date(periodStart)
-  while (tempDate <= currentDate) {
+  const tempDate = new Date(periodStartDate)
+  while (tempDate <= today) {
     const day = tempDate.getDay()
     if (day !== 5 && day !== 6) workingDaysElapsed++
     tempDate.setDate(tempDate.getDate() + 1)
   }
 
-  const handlePinChange = (index, value) => {
-    if (value.length > 1) value = value[value.length - 1]
-    if (value && !/^[0-9]$/.test(value)) return
+  // Determine alert level and styling based on daysUsed
+  const daysUsed = employee.daysUsed || 0
+  let alertLevel, alertBg, alertBorder, alertIcon, alertTitle, alertMessage, canBlock
 
-    const newPin = [...pin]
-    newPin[index] = value
-    setPin(newPin)
-
-    if (value && index < 3) {
-      document.getElementById(`block-pin-${index + 1}`)?.focus()
-    }
-
-    if (newPin.every(d => d !== '')) {
-      handlePinValidate(newPin.join(''))
-    }
+  if (daysUsed < 5) {
+    alertLevel = 'green'
+    alertBg = 'rgba(52,199,89,0.12)'
+    alertBorder = 'rgba(52,199,89,0.2)'
+    alertIcon = '#34C759'
+    alertTitle = 'Blocage impossible'
+    alertMessage = "Cet employé n'a utilisé que " + daysUsed + " jours de congé. Le blocage n'est pas autorisé."
+    canBlock = false
+  } else if (daysUsed >= 5 && daysUsed < 11) {
+    alertLevel = 'yellow'
+    alertBg = 'rgba(255,204,0,0.12)'
+    alertBorder = 'rgba(255,204,0,0.2)'
+    alertIcon = '#FFCC00'
+    alertTitle = 'Attention'
+    alertMessage = "L'employé a utilisé " + daysUsed + " jours de congé."
+    canBlock = true
+  } else if (daysUsed >= 11 && daysUsed <= 15) {
+    alertLevel = 'orange'
+    alertBg = 'rgba(255,159,10,0.12)'
+    alertBorder = 'rgba(255,159,10,0.2)'
+    alertIcon = '#FF9F0A'
+    alertTitle = 'Avertissement'
+    alertMessage = "L'employé a utilisé " + daysUsed + " jours de congé. Approche de la limite."
+    canBlock = true
+  } else {
+    alertLevel = 'red'
+    alertBg = 'rgba(192,57,43,0.15)'
+    alertBorder = 'rgba(192,57,43,0.2)'
+    alertIcon = '#FF6B6B'
+    alertTitle = 'Limite dépassée'
+    alertMessage = "Vous pouvez bloquer cet employé car il a dépassé la limite avec " + daysUsed + " jours de congé."
+    canBlock = true
   }
 
-  const handlePinValidate = async (pinValue) => {
-    setPinStatus('verifying')
-    await new Promise(resolve => setTimeout(resolve, 800))
-
-    if (pinValue === '1234') {
-      setPinStatus('verified')
-    } else {
-      setPinStatus('error')
-      setTimeout(() => {
-        setPin(['', '', '', ''])
-        setPinStatus('idle')
-        document.getElementById('block-pin-0')?.focus()
-      }, 1500)
-    }
-  }
 
   const handleSubmit = () => {
     onSubmit?.({
@@ -88,11 +95,12 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
       description: description.trim(),
       daysUsed: employee.daysUsed,
       daysRemaining: employee.daysTotal - employee.daysUsed,
+      adminId: currentAdmin.id,
     })
     handleClose()
   }
 
-  const isStep2Valid = pinStatus === 'verified'
+  const isFormValid = reason && reason.trim() && canBlock
 
   return (
     <div
@@ -118,20 +126,6 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
           } : {}}
         >
           <div className="flex items-center gap-3">
-            {step === 2 && (
-              <button
-                onClick={() => setStep(1)}
-                className="p-1 hover:bg-black/5 rounded-lg transition-colors"
-                onMouseEnter={(e) => {
-                  if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
-                }}
-                onMouseLeave={(e) => {
-                  if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
-                }}
-              >
-                <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4]" />
-              </button>
-            )}
             <div
               className="w-10 h-10 rounded-full bg-status-red/20 flex items-center justify-center"
               style={isDark ? { backgroundColor: 'rgba(192,57,43,0.2)' } : {}}
@@ -140,10 +134,10 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
             </div>
             <div>
               <h2 className="font-display text-xl font-bold text-[#111827] dark:text-[#E8EFF8]">
-                {step === 1 ? t('bloquerEmploye') : t('autorisationRequise')}
+                {t('bloquerEmploye')}
               </h2>
               <p className="text-xs text-[#6B7280] dark:text-[#7A9CC4] mt-0.5">
-                {t('etape')} {step} {t('sur')} 2
+                {employee.name}
               </p>
             </div>
           </div>
@@ -211,22 +205,25 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
             </div>
           </div>
 
-          {step === 1 ? (
-            <>
-              {/* Warning message */}
-              <div className="flex gap-3 p-4 bg-status-amber/10 border border-status-amber/20 rounded-xl"
+          {/* Dynamic warning message */}
+              <div className="flex gap-3 p-4 rounded-xl"
                 style={isDark ? {
-                  backgroundColor: 'rgba(255,159,10,0.12)',
-                  borderColor: 'rgba(255,159,10,0.2)'
-                } : {}}
+                  backgroundColor: alertBg,
+                  borderColor: alertBorder,
+                  border: `1px solid ${alertBorder}`
+                } : {
+                  backgroundColor: alertBg,
+                  borderColor: alertBorder,
+                  border: `1px solid ${alertBorder}`
+                }}
               >
-                <AlertTriangle className="w-5 h-5 text-status-amber dark:text-[#FF9F0A] flex-shrink-0 mt-0.5" />
+                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: alertIcon }} />
                 <div className="flex-1">
-                  <div className="font-semibold text-status-amber dark:text-[#FF9F0A] text-sm">
-                    {t('minJoursNonRespect')}
+                  <div className="font-semibold text-sm" style={{ color: alertIcon }}>
+                    {alertTitle}
                   </div>
                   <p className="text-xs text-[#374151] dark:text-[#7A9CC4] mt-1">
-                    {t('tropJoursCongeMessage')}
+                    {alertMessage}
                   </p>
                 </div>
               </div>
@@ -292,18 +289,6 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
                   </li>
                 </ul>
               </div>
-            </>
-          ) : (
-            <AutorisationStep
-              admins={admins}
-              selectedAdmin={selectedAdmin}
-              onAdminSelect={(admin) => setSelectedAdmin(admin)}
-              pin={pin}
-              onPinChange={handlePinChange}
-              pinStatus={pinStatus}
-              pinIdPrefix="block-pin"
-            />
-          )}
         </div>
 
         {/* STICKY FOOTER - always visible */}
@@ -315,7 +300,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
           } : {}}
         >
           <button
-            onClick={step === 1 ? handleClose : () => setStep(1)}
+            onClick={handleClose}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#7A9CC4] hover:bg-black/5 transition-all duration-200"
             onMouseEnter={(e) => {
               if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
@@ -324,69 +309,34 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
               if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
             }}
           >
-            {step === 1 ? t('annuler') : t('retourFleche')}
+            {t('annuler')}
           </button>
 
-          {step === 1 ? (
-            <div className="relative group flex-1">
-              <button
-                onClick={canBlock && reason ? () => setStep(2) : undefined}
-                disabled={!canBlock || !reason}
-                className="w-full px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
-                style={{
-                  backgroundColor: (canBlock && reason) ? '#C0392B' : '#9CA3AF',
-                  color: 'white',
-                  ...(isDark && (canBlock && reason) ? {
-                    background: 'linear-gradient(145deg, #C0392B, #8B2E21)',
-                    boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
-                  } : {})
-                }}
-                onMouseEnter={(e) => {
-                  if (canBlock && reason) {
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(192,57,43,0.3)'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = isDark && (canBlock && reason)
-                    ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
-                    : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
-                }}
-              >
-                {t('suivantFleche')}
-              </button>
-              {!canBlock && (
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-800 text-white text-[11px] rounded-lg px-3 py-1.5 whitespace-nowrap pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                  Blocage impossible — l'employé n'a pas atteint 15 jours de congé
-                </div>
-              )}
-            </div>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={!isStep2Valid}
-              className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
-              style={{
-                backgroundColor: isStep2Valid ? '#C0392B' : '#9CA3AF',
-                color: 'white',
-                ...(isDark && isStep2Valid ? {
-                  background: 'linear-gradient(145deg, #C0392B, #8B2E21)',
-                  boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
-                } : {})
-              }}
-              onMouseEnter={(e) => {
-                if (isStep2Valid) {
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(192,57,43,0.3)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = isDark && isStep2Valid
-                  ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
-                  : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
-              }}
-            >
-              Confirmer le blocage
-            </button>
-          )}
+          <button
+            onClick={handleSubmit}
+            disabled={!isFormValid}
+            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
+            style={{
+              backgroundColor: isFormValid ? '#C0392B' : '#9CA3AF',
+              color: 'white',
+              ...(isDark && isFormValid ? {
+                background: 'linear-gradient(145deg, #C0392B, #8B2E21)',
+                boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+              } : {})
+            }}
+            onMouseEnter={(e) => {
+              if (isFormValid) {
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(192,57,43,0.3)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = isDark && isFormValid
+                ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
+                : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
+            }}
+          >
+            Confirmer le blocage
+          </button>
         </div>
       </div>
     </div>

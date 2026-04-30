@@ -13,7 +13,6 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
  */
 async function fetchAPI(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`
-
   const config = {
     headers: {
       'Content-Type': 'application/json',

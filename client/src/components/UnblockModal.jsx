@@ -1,98 +1,42 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, Unlock, CheckCircle2, ChevronLeft, Check } from 'lucide-react'
+import { X, Unlock, CheckCircle2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useTheme } from '../contexts/ThemeContext'
+import { useCurrentAdmin } from '../contexts/AdminContext'
 import CustomSelect from './CustomSelect'
-import { useAdmins } from '../hooks/useAdmins'
 import { translateBlockingReason } from '../utils/translateBlockingReason'
 
 export default function UnblockModal({ employee, activeBlock, isOpen, onClose, onSubmit }) {
   // ALL HOOKS MUST BE AT THE TOP - Rules of Hooks
   const { t } = useTranslation()
   const { isDark } = useTheme()
-  const [step, setStep] = useState(1)
+  const currentAdmin = useCurrentAdmin()
   const [unblockReason, setUnblockReason] = useState('')
   const [description, setDescription] = useState('')
-  const [selectedAdmin, setSelectedAdmin] = useState(null)
-  const [pin, setPin] = useState(['', '', '', ''])
-  const [pinStatus, setPinStatus] = useState('idle')
-
-  // Fetch all admins from API
-  const { admins, loading: loadingAdmins } = useAdmins()
 
   // Early return AFTER all hooks
   if (!isOpen || !employee) return null
 
   const handleClose = () => {
-    setStep(1)
     setUnblockReason('')
     setDescription('')
-    setSelectedAdmin(null)
-    setPin(['', '', '', ''])
-    setPinStatus('idle')
     onClose?.()
-  }
-
-  // Generate initials for admin cards
-  const getInitials = (name) => {
-    if (!name) return 'NA'
-    return name
-      .split(' ')
-      .filter(Boolean)
-      .map((part) => part[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase()
-  }
-
-  const handlePinChange = (index, value) => {
-    if (value.length > 1) value = value[value.length - 1]
-    if (value && !/^[0-9]$/.test(value)) return
-
-    const newPin = [...pin]
-    newPin[index] = value
-    setPin(newPin)
-
-    if (value && index < 3) {
-      document.getElementById(`unblock-pin-${index + 1}`)?.focus()
-    }
-
-    if (newPin.every(d => d !== '')) {
-      handlePinValidate(newPin.join(''))
-    }
-  }
-
-  const handlePinValidate = async (pinValue) => {
-    setPinStatus('verifying')
-    await new Promise(resolve => setTimeout(resolve, 800))
-
-    if (pinValue === '1234') {
-      setPinStatus('verified')
-    } else {
-      setPinStatus('error')
-      setTimeout(() => {
-        setPin(['', '', '', ''])
-        setPinStatus('idle')
-        document.getElementById('unblock-pin-0')?.focus()
-      }, 1500)
-    }
   }
 
   const handleSubmit = () => {
     onSubmit?.({
       blockId: activeBlock?.id,
       employeeId: employee.id,
-      adminId: selectedAdmin?.id,
+      adminId: currentAdmin.id,
       reason: unblockReason,
       description: description.trim(),
     })
     handleClose()
   }
 
-  const isStep1Valid = unblockReason !== ''
-  const isStep2Valid = pinStatus === 'verified'
+  const isFormValid = unblockReason !== ''
 
   const getBlockDate = () => {
     if (!activeBlock?.createdAt) return '—'
@@ -127,20 +71,6 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
           } : {}}
         >
           <div className="flex items-center gap-3">
-            {step === 2 && (
-              <button
-                onClick={() => setStep(1)}
-                className="p-1 hover:bg-black/5 rounded-lg transition-colors"
-                onMouseEnter={(e) => {
-                  if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
-                }}
-                onMouseLeave={(e) => {
-                  if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
-                }}
-              >
-                <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4]" />
-              </button>
-            )}
             <div
               className="w-10 h-10 rounded-full bg-status-green/20 flex items-center justify-center"
               style={isDark ? { backgroundColor: 'rgba(52,199,89,0.15)' } : {}}
@@ -149,10 +79,10 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
             </div>
             <div>
               <h2 className="font-display text-xl font-bold text-[#111827] dark:text-[#E8EFF8]">
-                {step === 1 ? t('debloquerEmploye') : t('autorisationRequise')}
+                {t('debloquerEmploye')}
               </h2>
               <p className="text-xs text-[#6B7280] dark:text-[#7A9CC4] mt-0.5">
-                {t('etape')} {step} {t('sur')} 2
+                {employee.name}
               </p>
             </div>
           </div>
@@ -201,9 +131,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
             </div>
           </div>
 
-          {step === 1 ? (
-            <>
-              {/* Block summary card */}
+          {/* Block summary card */}
               <div
                 className="bg-warm-gray-200 rounded-xl p-4 shadow-inner"
                 style={isDark ? {
@@ -290,116 +218,6 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
                   </p>
                 </div>
               </div>
-            </>
-          ) : (
-            <>
-              {/* Admin Selector */}
-              <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-3">
-                  {t('administrateur')}
-                </label>
-                {loadingAdmins ? (
-                  <div className="text-center py-4 text-sm text-[#6B7280] dark:text-[#7A9CC4]">
-                    Chargement des administrateurs...
-                  </div>
-                ) : admins.length === 0 ? (
-                  <div className="text-center py-4 text-sm text-status-red dark:text-[#FF6B6B]">
-                    Aucun administrateur disponible
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {admins.map(admin => (
-                      <button
-                        key={admin.id}
-                        onClick={() => setSelectedAdmin(admin)}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                          selectedAdmin?.id === admin.id
-                            ? 'border-navy bg-navy/5'
-                            : 'border-warm-gray-400 hover:border-navy/40'
-                        }`}
-                        style={isDark ? (
-                          selectedAdmin?.id === admin.id
-                            ? {
-                                borderColor: 'rgba(99,157,255,0.3)',
-                                backgroundColor: 'rgba(99,157,255,0.08)'
-                              }
-                            : {
-                                borderColor: 'rgba(99,157,255,0.12)'
-                              }
-                        ) : {}}
-                      >
-                        <div
-                          className="w-10 h-10 rounded-full bg-navy/10 flex items-center justify-center text-sm font-semibold text-navy"
-                          style={isDark ? {
-                            backgroundColor: 'rgba(99,157,255,0.15)',
-                            color: '#639DFF'
-                          } : {}}
-                        >
-                          {getInitials(admin.name)}
-                        </div>
-                        <div className="flex-1 text-left">
-                          <div className="font-semibold text-[#111827] dark:text-[#E8EFF8]">{admin.name}</div>
-                          <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{admin.role}</div>
-                        </div>
-                        {selectedAdmin?.id === admin.id && (
-                          <Check className="w-5 h-5 text-navy dark:text-[#639DFF]" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* PIN Input */}
-              <div>
-                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-3">
-                  {t('codePIN')}
-                </label>
-                <div className="flex justify-center gap-3">
-                  {[0, 1, 2, 3].map(index => (
-                    <input
-                      key={index}
-                      id={`unblock-pin-${index}`}
-                      type="password"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={1}
-                      value={pin[index]}
-                      onChange={(e) => handlePinChange(index, e.target.value)}
-                      disabled={pinStatus === 'verifying' || pinStatus === 'verified'}
-                      className={`w-14 h-14 text-center text-xl font-semibold text-[#111827] rounded-xl border-2 transition-all shadow-inner focus:outline-none ${
-                        pinStatus === 'error'
-                          ? 'border-status-red bg-status-red/5'
-                          : pinStatus === 'verified'
-                          ? 'border-status-green bg-status-green/5'
-                          : pin[index]
-                          ? 'border-navy bg-warm-gray-200'
-                          : 'border-transparent bg-warm-gray-200 focus:border-navy'
-                      }`}
-                      style={isDark ? (
-                        pinStatus === 'error'
-                          ? { borderColor: '#C0392B', backgroundColor: 'rgba(192,57,43,0.08)', color: '#E8EFF8' }
-                          : pinStatus === 'verified'
-                          ? { borderColor: '#34C759', backgroundColor: 'rgba(52,199,89,0.08)', color: '#E8EFF8' }
-                          : pin[index]
-                          ? { borderColor: 'rgba(99,157,255,0.3)', backgroundColor: 'rgba(99,157,255,0.08)', color: '#E8EFF8' }
-                          : { borderColor: 'transparent', backgroundColor: 'rgba(99,157,255,0.06)', color: '#E8EFF8' }
-                      ) : {}}
-                    />
-                  ))}
-                </div>
-                {pinStatus === 'verifying' && (
-                  <p className="text-xs text-navy dark:text-[#639DFF] text-center mt-2">{t('verification')}</p>
-                )}
-                {pinStatus === 'error' && (
-                  <p className="text-xs text-status-red dark:text-[#FF6B6B] text-center mt-2">Code incorrect</p>
-                )}
-                {pinStatus === 'verified' && (
-                  <p className="text-xs text-status-green dark:text-[#34C759] text-center mt-2">✓ Code correct</p>
-                )}
-              </div>
-            </>
-          )}
         </div>
 
         {/* STICKY FOOTER - always visible */}
@@ -411,7 +229,7 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
           } : {}}
         >
           <button
-            onClick={step === 1 ? handleClose : () => setStep(1)}
+            onClick={handleClose}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#7A9CC4] hover:bg-black/5 transition-all duration-200"
             onMouseEnter={(e) => {
               if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
@@ -420,22 +238,22 @@ export default function UnblockModal({ employee, activeBlock, isOpen, onClose, o
               if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
             }}
           >
-            {step === 1 ? t('annuler') : t('retourFleche')}
+            {t('annuler')}
           </button>
           <button
-            onClick={step === 1 ? () => setStep(2) : handleSubmit}
-            disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
+            onClick={handleSubmit}
+            disabled={!isFormValid}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient hover:shadow-modal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              backgroundColor: (step === 1 ? isStep1Valid : isStep2Valid) ? '#2D8653' : '#9CA3AF',
+              backgroundColor: isFormValid ? '#2D8653' : '#9CA3AF',
               color: 'white',
-              ...(isDark && (step === 1 ? isStep1Valid : isStep2Valid) ? {
+              ...(isDark && isFormValid ? {
                 background: 'linear-gradient(145deg, #2D8653, #1F5F39)',
                 boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4)'
               } : {})
             }}
           >
-            {step === 1 ? t('suivantFleche') : t('confirmerDeblocage')}
+            {t('confirmerDeblocage')}
           </button>
         </div>
       </div>

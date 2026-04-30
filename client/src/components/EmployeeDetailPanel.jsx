@@ -126,13 +126,40 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
   const periodEndMonth = format(new Date(calendarYear, calendarMonth + 1, 19), 'MMMM', { locale })
   const periodYearDisplay = calendarYear
 
-  // Calculate total day-off days taken from actual records
+  // Calculate current work period start and end
+  const today = new Date()
+  const currentDay = today.getDate()
+  const currentMonth = today.getMonth()
+  const currentYear = today.getFullYear()
+
+  let periodStartDate, periodEndDate
+  if (currentDay >= 20) {
+    // Period is 20th of this month to 19th of next month
+    periodStartDate = new Date(currentYear, currentMonth, 20, 0, 0, 0, 0)
+    periodEndDate = new Date(currentYear, currentMonth + 1, 19, 23, 59, 59, 999)
+  } else {
+    // Period is 20th of last month to 19th of this month
+    periodStartDate = new Date(currentYear, currentMonth - 1, 20, 0, 0, 0, 0)
+    periodEndDate = new Date(currentYear, currentMonth, 19, 23, 59, 59, 999)
+  }
+
+  // Calculate total day-off days taken ONLY in current period
   const totalDayOffDays = daysOff.reduce((sum, dayOff) => {
-    const start = new Date(dayOff.startDate)
-    const end = new Date(dayOff.endDate)
+    const dayOffStart = new Date(dayOff.startDate)
+    const dayOffEnd = new Date(dayOff.endDate)
+
+    // Skip if day-off is completely outside current period
+    if (dayOffEnd < periodStartDate || dayOffStart > periodEndDate) {
+      return sum
+    }
+
+    // Calculate overlap with current period
+    const overlapStart = dayOffStart < periodStartDate ? periodStartDate : dayOffStart
+    const overlapEnd = dayOffEnd > periodEndDate ? periodEndDate : dayOffEnd
+
     let count = 0
-    const current = new Date(start)
-    while (current <= end) {
+    const current = new Date(overlapStart)
+    while (current <= overlapEnd) {
       const day = current.getDay()
       // Exclude Friday (5) and Saturday (6) weekends
       if (day !== 5 && day !== 6) {
@@ -143,11 +170,11 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     return sum + count
   }, 0)
 
-  // Calculate working days elapsed since period start (20th of month)
-  const today = new Date()
+  // Calculate working days elapsed since period start
   let workingDaysElapsed = 0
-  const tempDate = new Date(periodStart)
-  while (tempDate <= today) {
+  const tempDate = new Date(periodStartDate)
+  const todayForCalc = new Date()
+  while (tempDate <= todayForCalc && tempDate <= periodEndDate) {
     const day = tempDate.getDay()
     if (day !== 5 && day !== 6) {
       workingDaysElapsed++
@@ -388,6 +415,16 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
                     <CalendarIcon className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#7A9CC4]" />
                     <span className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{getStartDate()}</span>
                   </div>
+                  {employee.ssn && (
+                    <div
+                      className="flex items-center gap-2 px-3 py-1.5 bg-warm-gray-200 rounded-lg"
+                      style={isDark ? {
+                        backgroundColor: 'rgba(99,157,255,0.06)'
+                      } : {}}
+                    >
+                      <span className="text-xs font-mono text-[#6B7280] dark:text-[#7A9CC4]">NSS: {employee.ssn}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

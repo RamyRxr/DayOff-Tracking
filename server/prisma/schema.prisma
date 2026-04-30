@@ -19,6 +19,7 @@ model Employee {
   lastName   String
   email      String   @unique
   phone      String?
+  ssn        String?
   department String
   position   String
   status     String   @default("actif")
