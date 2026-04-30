@@ -11,13 +11,19 @@ export default function EmployeeCard({ employee, onDetailsClick }) {
       bgColor: 'bg-status-green/10',
       textColor: 'text-status-green',
     },
-    risque: {
+    a_risque: {
       label: t('aRisqueStatus'),
       dotColor: 'bg-status-amber',
       bgColor: 'bg-status-amber/10',
       textColor: 'text-status-amber',
     },
-    bloqué: {
+    doit_bloquer: {
+      label: t('doitBloquer'),
+      dotColor: 'bg-[#FF6B6B]',
+      bgColor: 'bg-[rgba(255,107,107,0.15)]',
+      textColor: 'text-[#FF6B6B]',
+    },
+    bloque: {
       label: t('bloque'),
       dotColor: 'bg-status-red',
       bgColor: 'bg-status-red/10',

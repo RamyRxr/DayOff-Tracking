@@ -147,8 +147,6 @@ async function createDayOff(req, res) {
         const sandwichDetected = isSandwich(parsedStartDate, parsedEndDate)
         const totalDaysUsed = sumDaysUsed(existingInPeriod) + workingDays
 
-        let autoBlocked = false
-
         const result = await prisma.$transaction(async (tx) => {
             const dayOff = await tx.dayOff.create({
                 data: {
@@ -162,54 +160,18 @@ async function createDayOff(req, res) {
                 },
             })
 
-            const activeBlock = await tx.block.findFirst({
-                where: {
-                    employeeId: String(employeeId),
-                    isActive: true,
-                },
-            })
-
-            if (shouldBlock(totalDaysUsed) && !activeBlock) {
-                const firstAdmin = await tx.admin.findFirst({
-                    orderBy: { createdAt: 'asc' },
-                    select: { id: true },
-                })
-
-                if (!firstAdmin) {
-                    throw new Error('No admin found for automatic block')
-                }
-
-                await tx.block.create({
-                    data: {
-                        employeeId: String(employeeId),
-                        adminId: firstAdmin.id,
-                        reason: 'Dépassement du quota de congés',
-                        description: 'Blocage automatique — seuil de 16 jours atteint',
-                        isActive: true,
-                    },
-                })
-
-                await tx.employee.update({
-                    where: { id: String(employeeId) },
-                    data: {
-                        status: 'bloque',
-                    },
-                })
-
-                autoBlocked = true
-            } else {
-                const nextStatus = (30 - totalDaysUsed) < 16 ? 'a_risque' : 'actif'
-                await tx.employee.update({
-                    where: { id: String(employeeId) },
-                    data: {
-                        status: nextStatus,
-                    },
-                })
+            // Update employee status based on days used (no auto-block)
+            let nextStatus = 'actif'
+            if (totalDaysUsed > 15) {
+                nextStatus = 'doit_bloquer'  // Must block - admin needs to block manually
+            } else if ((30 - totalDaysUsed) < 16) {
+                nextStatus = 'a_risque'
             }
 
             await tx.employee.update({
                 where: { id: String(employeeId) },
                 data: {
+                    status: nextStatus,
                     updatedAt: new Date(),
                 },
             })
@@ -222,7 +184,6 @@ async function createDayOff(req, res) {
                 dayOff: result,
                 sandwichDetected,
                 workingDays,
-                autoBlocked,
             },
         })
     } catch (error) {

@@ -11,13 +11,19 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
       bgColor: 'bg-status-green/10 dark:bg-[rgba(52,199,89,0.15)] border border-transparent dark:border-[rgba(52,199,89,0.2)]',
       textColor: 'text-status-green dark:text-[#34C759]',
     },
-    risque: {
+    a_risque: {
       label: 'À risque',
       dotColor: 'bg-status-amber dark:bg-[#FF9F0A]',
       bgColor: 'bg-status-amber/10 dark:bg-[rgba(255,159,10,0.15)] border border-transparent dark:border-[rgba(255,159,10,0.2)]',
       textColor: 'text-status-amber dark:text-[#FF9F0A]',
     },
-    bloqué: {
+    doit_bloquer: {
+      label: t('doitBloquer'),
+      dotColor: 'bg-[#FF6B6B]',
+      bgColor: 'bg-[rgba(255,107,107,0.15)] border border-[rgba(255,107,107,0.3)]',
+      textColor: 'text-[#FF6B6B]',
+    },
+    bloque: {
       label: 'Bloqué',
       dotColor: 'bg-status-red dark:bg-[#FF6B6B]',
       bgColor: 'bg-status-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-transparent dark:border-[rgba(255,59,48,0.2)]',

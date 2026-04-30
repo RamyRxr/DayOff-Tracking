@@ -24,30 +24,66 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
 
   // Calculate current work period start and end
   const today = new Date()
+  today.setHours(0, 0, 0, 0)
   const currentDay = today.getDate()
   const currentMonth = today.getMonth()
   const currentYear = today.getFullYear()
 
-  let periodStartDate
+  let periodStartDate, periodEndDate
   if (currentDay >= 20) {
     // Period is 20th of this month to 19th of next month
     periodStartDate = new Date(currentYear, currentMonth, 20, 0, 0, 0, 0)
+    periodEndDate = new Date(currentYear, currentMonth + 1, 19, 23, 59, 59, 999)
   } else {
     // Period is 20th of last month to 19th of this month
     periodStartDate = new Date(currentYear, currentMonth - 1, 20, 0, 0, 0, 0)
+    periodEndDate = new Date(currentYear, currentMonth, 19, 23, 59, 59, 999)
+  }
+
+  // Calculate day-offs in current period (only working days)
+  let daysUsed = 0
+  let pastDaysUsed = 0
+
+  if (employee.daysOff && Array.isArray(employee.daysOff)) {
+    employee.daysOff.forEach(dayOff => {
+      const start = new Date(dayOff.startDate)
+      const end = new Date(dayOff.endDate)
+
+      // Skip if completely outside current period
+      if (end < periodStartDate || start > periodEndDate) return
+
+      // Calculate overlap with current period
+      const overlapStart = start < periodStartDate ? periodStartDate : start
+      const overlapEnd = end > periodEndDate ? periodEndDate : end
+
+      const current = new Date(overlapStart)
+      while (current <= overlapEnd) {
+        const dayOfWeek = current.getDay()
+        // Exclude Friday (5) and Saturday (6)
+        if (dayOfWeek !== 5 && dayOfWeek !== 6) {
+          daysUsed++
+          if (current <= today) {
+            pastDaysUsed++
+          }
+        }
+        current.setDate(current.getDate() + 1)
+      }
+    })
   }
 
   // Calculate working days elapsed since period start
   let workingDaysElapsed = 0
   const tempDate = new Date(periodStartDate)
-  while (tempDate <= today) {
+  while (tempDate <= today && tempDate <= periodEndDate) {
     const day = tempDate.getDay()
     if (day !== 5 && day !== 6) workingDaysElapsed++
     tempDate.setDate(tempDate.getDate() + 1)
   }
 
+  // Calculate actual worked days
+  const daysActuallyWorked = Math.max(0, workingDaysElapsed - pastDaysUsed)
+
   // Determine alert level and styling based on daysUsed
-  const daysUsed = employee.daysUsed || 0
   let alertLevel, alertBg, alertBorder, alertIcon, alertTitle, alertMessage, canBlock
 
   if (daysUsed < 5) {
@@ -196,7 +232,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
               <div>
                 <div className="text-xs text-[#6B7280] dark:text-[#7A9CC4]">{t('joursTravaillesLabel2')}</div>
                 <div className="text-lg font-bold text-[#111827] dark:text-[#E8EFF8] mt-0.5">
-                  {workingDaysElapsed}
+                  {daysActuallyWorked}
                 </div>
               </div>
             </div>
