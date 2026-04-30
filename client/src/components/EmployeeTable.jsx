@@ -90,7 +90,7 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
           style={isDark ? { borderColor: 'rgba(99,157,255,0.08)' } : {}}
         >
           {employees.map((employee) => {
-            const status = statusConfig[employee.status]
+            const status = statusConfig[employee.status] || statusConfig.actif
 
             return (
               <tr
