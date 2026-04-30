@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useTheme } from '../contexts/ThemeContext'
 
 const navItems = [
-  { to: '/', labelKey: 'accueil', icon: Home },
+  { to: '/home', labelKey: 'accueil', icon: Home },
   { to: '/employees', labelKey: 'employes', icon: Users },
   { to: '/blocked', labelKey: 'bloques', icon: ShieldAlert },
   { to: '/calendar', labelKey: 'calendrier', icon: Calendar },
@@ -45,7 +45,7 @@ export default function Sidebar({ currentAdmin, onLogout }) {
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.to === '/'}
+              end={item.to === '/home'}
               style={({ isActive }) => {
                 if (isActive && isDark) {
                   return {

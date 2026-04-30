@@ -189,15 +189,14 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
         employeeId: employee.id,
         startDate: startDate.toISOString().split('T')[0],
         endDate: endDate.toISOString().split('T')[0],
-        workingDays,
-        reason,
-        file: uploadedFile,
-        adminId: currentAdmin.id,
+        type: reason, // Backend expects 'type' not 'reason'
+        reason: null,
+        justification: uploadedFile ? uploadedFile.name : null,
       })
 
       handleClose()
       alert('✅ Congé ajouté avec succès')
-      navigate('/')
+      // Don't navigate, just close the modal
     } catch (error) {
       alert(`❌ ${t("erreur")}: ${error.message}`)
       // Stay on current page if error
