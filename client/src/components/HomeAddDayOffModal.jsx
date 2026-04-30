@@ -316,8 +316,9 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const getStatusConfig = (status) => {
     const configs = {
       actif: { label: t('actif'), dotColor: 'bg-status-green', bgColor: 'bg-status-green/10', textColor: 'text-status-green' },
-      risque: { label: t('aRisqueStatus'), dotColor: 'bg-status-amber', bgColor: 'bg-status-amber/10', textColor: 'text-status-amber' },
-      bloqué: { label: t('bloque'), dotColor: 'bg-status-red', bgColor: 'bg-status-red/10', textColor: 'text-status-red' },
+      a_risque: { label: t('aRisqueStatus'), dotColor: 'bg-status-amber', bgColor: 'bg-status-amber/10', textColor: 'text-status-amber' },
+      doit_bloquer: { label: t('doitBloquer'), dotColor: 'bg-[#FF6B6B]', bgColor: 'bg-[rgba(255,107,107,0.15)]', textColor: 'text-[#FF6B6B]' },
+      bloque: { label: t('bloque'), dotColor: 'bg-status-red', bgColor: 'bg-status-red/10', textColor: 'text-status-red' },
     }
     return configs[status] || configs.actif
   }

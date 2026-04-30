@@ -267,8 +267,8 @@ export default function EmployeeDetailPanel({
     const end = new Date(dayOff.endDate);
 
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const dateObj = new Date(d);
-      dayOffDates.add(dateObj.setHours(0, 0, 0, 0));
+      const timestamp = new Date(d).setHours(0, 0, 0, 0);
+      dayOffDates.add(timestamp);
     }
   });
 
@@ -294,7 +294,8 @@ export default function EmployeeDetailPanel({
     { isDark, cellSizeClass = "w-12 h-12", textSizeClass = "text-[15px]" },
   ) => {
     const isWeekend = day.getDay() === 5 || day.getDay() === 6;
-    const isExisting = dayOffDates.has(day.setHours(0, 0, 0, 0));
+    const dayTimestamp = new Date(day).setHours(0, 0, 0, 0);
+    const isExisting = dayOffDates.has(dayTimestamp);
     const isToday = isSameDay(day, new Date());
 
     let cellStyle = {};
@@ -355,12 +356,17 @@ export default function EmployeeDetailPanel({
       color: "text-status-green",
       bg: "bg-status-green/10",
     },
-    risque: {
+    a_risque: {
       label: t("aRisque"),
       color: "text-status-amber",
       bg: "bg-status-amber/10",
     },
-    bloqué: {
+    doit_bloquer: {
+      label: t("doitBloquer"),
+      color: "text-[#FF6B6B]",
+      bg: "bg-[rgba(255,107,107,0.15)]",
+    },
+    bloque: {
       label: t("bloque"),
       color: "text-status-red",
       bg: "bg-status-red/10",
