@@ -164,12 +164,7 @@ async function main() {
 
   console.log(`✅ ${admins.length} admins created`)
 
-  // 2) Create 60 employees (10 per department), 8 with status "bloque".
-  const blockedSlots = new Set()
-  while (blockedSlots.size < 8) {
-    blockedSlots.add(randomInt(0, 59))
-  }
-
+  // 2) Create 60 employees (10 per department), all active.
   const createdEmployees = []
   const usedEmails = new Set()
   let globalIndex = 0
@@ -191,7 +186,7 @@ async function main() {
       usedEmails.add(email)
       const matricule = `NAF-${String(1001 + globalIndex).padStart(4, '0')}`
       const position = randomFrom(positionsByDepartment[department])
-      const status = blockedSlots.has(globalIndex) ? 'bloque' : 'actif'
+      const status = 'actif'
 
       const employee = await prisma.employee.create({
         data: {
@@ -219,25 +214,9 @@ async function main() {
   const allDayOffRecords = []
   console.log(`✅ ${allDayOffRecords.length} day-off records created (none for testing)`)
 
-  // 4) Create one active block for each blocked employee.
-  const blockedEmployees = createdEmployees.filter((employee) => employee.status === 'bloque')
-  const blockReasons = ['Absences non justifiées', 'Dépassement du quota de congés']
+  // 4) NO blocks for testing
   const blocks = []
-
-  for (const employee of blockedEmployees) {
-    const block = await prisma.block.create({
-      data: {
-        employeeId: employee.id,
-        adminId: randomFrom(admins).id,
-        reason: randomFrom(blockReasons),
-        description: 'Blocage manuel actif',
-        isActive: true,
-      },
-    })
-    blocks.push(block)
-  }
-
-  console.log(`✅ ${blocks.length} active block records created`)
+  console.log(`✅ ${blocks.length} active block records created (none for testing)`)
 
   console.log('\n📊 Seed summary')
   console.log(`- Admins: ${admins.length}`)
