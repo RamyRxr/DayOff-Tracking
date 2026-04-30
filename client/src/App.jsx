@@ -32,29 +32,79 @@ function App() {
     sessionStorage.removeItem('currentAdmin')
   }
 
+  // Protected route wrapper
+  const ProtectedRoute = ({ children }) => {
+    if (!currentAdmin) {
+      return <Navigate to="/" replace />
+    }
+    return children
+  }
+
   return (
     <ThemeProvider>
-      <BrowserRouter>
-        {!currentAdmin ? (
+      <AdminProvider admin={currentAdmin}>
+        <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LoginPage onLoginSuccess={handleLoginSuccess} />} />
+            <Route
+              path="/"
+              element={
+                currentAdmin
+                  ? <Navigate to="/home" replace />
+                  : <LoginPage onLoginSuccess={handleLoginSuccess} />
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                currentAdmin
+                  ? <Navigate to="/home" replace />
+                  : <LoginPage onLoginSuccess={handleLoginSuccess} />
+              }
+            />
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <Layout currentAdmin={currentAdmin} onLogout={handleLogout}>
+                    <HomePage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employees"
+              element={
+                <ProtectedRoute>
+                  <Layout currentAdmin={currentAdmin} onLogout={handleLogout}>
+                    <EmployeesPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/blocked"
+              element={
+                <ProtectedRoute>
+                  <Layout currentAdmin={currentAdmin} onLogout={handleLogout}>
+                    <BlockedPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <ProtectedRoute>
+                  <Layout currentAdmin={currentAdmin} onLogout={handleLogout}>
+                    <CalendarPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        ) : (
-          <AdminProvider admin={currentAdmin}>
-            <Routes>
-              <Route path="/" element={<Layout currentAdmin={currentAdmin} onLogout={handleLogout} />}>
-                <Route index element={<Navigate to="/home" replace />} />
-                <Route path="home" element={<HomePage />} />
-                <Route path="employees" element={<EmployeesPage />} />
-                <Route path="blocked" element={<BlockedPage />} />
-                <Route path="calendar" element={<CalendarPage />} />
-              </Route>
-              <Route path="*" element={<Navigate to="/home" replace />} />
-            </Routes>
-          </AdminProvider>
-        )}
-      </BrowserRouter>
+        </BrowserRouter>
+      </AdminProvider>
     </ThemeProvider>
   )
 }
