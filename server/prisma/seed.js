@@ -141,23 +141,23 @@ async function main() {
   const admins = await Promise.all([
     prisma.admin.create({
       data: {
-        name: 'Mohammed Saïd',
-        role: 'Directeur RH',
+        name: 'Ramy Test',
+        role: 'HR Admin',
         pinHash: await bcrypt.hash('1234', 10),
       },
     }),
     prisma.admin.create({
       data: {
-        name: 'Fatima Zohra',
-        role: 'RH Sénior',
+        name: 'Rey Test',
+        role: 'HR Senior',
         pinHash: await bcrypt.hash('5678', 10),
       },
     }),
     prisma.admin.create({
       data: {
-        name: 'Ahmed Bachir',
-        role: 'RH Junior',
-        pinHash: await bcrypt.hash('9999', 10),
+        name: 'Rxr Test',
+        role: 'HR Junior',
+        pinHash: await bcrypt.hash('1010', 10),
       },
     }),
   ])
