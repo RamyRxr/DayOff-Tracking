@@ -25,7 +25,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   // Step 2: Dates and reason
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
-  const [uploadedFile, setUploadedFile] = useState(null)
+  const [_uploadedFile, setUploadedFile] = useState(null)
   const [reason, setReason] = useState('')
   const [showSuccess, setShowSuccess] = useState(false)
   const typeSelectRef = useRef(null)
@@ -41,21 +41,6 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
       emp.matricule.toLowerCase().includes(query)
     )
   }, [employees, searchQuery])
-
-  // Generate existing day-off dates set
-  const existingDates = useMemo(() => {
-    const dates = new Set()
-    daysOff?.forEach(dayOff => {
-      const start = new Date(dayOff.startDate)
-      const end = new Date(dayOff.endDate)
-      const current = new Date(start)
-      while (current <= end) {
-        dates.add(current.toISOString().split('T')[0])
-        current.setDate(current.getDate() + 1)
-      }
-    })
-    return dates
-  }, [daysOff])
 
   // Calculate displayed period based on calendar offset
   const displayedPeriod = useMemo(() => {
@@ -92,6 +77,21 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     periodStart,
     periodEnd,
   })
+
+  // Generate existing day-off dates set
+  const existingDates = useMemo(() => {
+    const dates = new Set()
+    daysOff?.forEach(dayOff => {
+      const start = new Date(dayOff.startDate)
+      const end = new Date(dayOff.endDate)
+      const current = new Date(start)
+      while (current <= end) {
+        dates.add(current.toISOString().split('T')[0])
+        current.setDate(current.getDate() + 1)
+      }
+    })
+    return dates
+  }, [daysOff])
 
   // Calculate period-specific stats
   const periodStats = useMemo(() => {
@@ -226,7 +226,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const hasSandwich = totalCalendarDays > workingDays
 
   // Custom cell renderer for range selection
-  const renderCalendarCell = (day, index, { isDark: _, cellSizeClass = 'w-9 h-9', textSizeClass = 'text-[13px]' } = {}) => {
+  const renderCalendarCell = (day, index, { cellSizeClass = 'w-9 h-9', textSizeClass = 'text-[13px]' } = {}) => {
     const dayStr = day.toISOString().split('T')[0]
     const isWeekend = day.getDay() === 5 || day.getDay() === 6
     const isExisting = existingDates.has(dayStr)
@@ -278,18 +278,6 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     )
   }
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (file.size > 5 * 1024 * 1024) {
-      console.error(t('fichierTropVolumineux'))
-      return
-    }
-
-    setUploadedFile(file)
-  }
-
   const handleFinalSubmit = async () => {
     if (!selectedEmployee || !startDate || !endDate || !reason || !currentAdmin?.id) return
 
@@ -335,12 +323,13 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   }
 
   return (
-    <div
-      className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
-      style={isDark ? {
-        backgroundColor: 'rgba(0,0,0,0.75)'
-      } : {}}
-    >
+    <>
+      <div
+        className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
+        style={isDark ? {
+          backgroundColor: 'rgba(0,0,0,0.75)'
+        } : {}}
+      >
       <div
         className="bg-white dark:bg-[#16161E] rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col h-[92vh] sm:max-h-[88vh] overflow-hidden"
         style={isDark ? {
@@ -915,13 +904,14 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
 
-    <SuccessModal
-      isOpen={showSuccess}
-      title={t('congeAjouteSuccesTitre')}
-      message={t('congeAjouteSuccesMessage')}
-      onConfirm={handleSuccessClose}
-    />
+      <SuccessModal
+        isOpen={showSuccess}
+        title={t('congeAjouteSuccesTitre')}
+        message={t('congeAjouteSuccesMessage')}
+        onConfirm={handleSuccessClose}
+      />
+    </>
   )
 }
