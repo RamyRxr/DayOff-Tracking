@@ -260,15 +260,24 @@ export default function EmployeeDetailPanel({
   };
 
   // Generate calendar for current period (20th to 19th)
-  // Create set of day-off dates for quick lookup (using timestamps)
+  // Create set of day-off dates for quick lookup (using date strings to avoid timezone issues)
   const dayOffDates = new Set();
   daysOff.forEach((dayOff) => {
-    const start = new Date(dayOff.startDate);
-    const end = new Date(dayOff.endDate);
+    // Parse dates as local dates (ignore time and timezone)
+    const startStr = dayOff.startDate.split('T')[0];
+    const endStr = dayOff.endDate.split('T')[0];
+    const [startY, startM, startD] = startStr.split('-').map(Number);
+    const [endY, endM, endD] = endStr.split('-').map(Number);
 
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const timestamp = new Date(d).setHours(0, 0, 0, 0);
-      dayOffDates.add(timestamp);
+    const start = new Date(startY, startM - 1, startD);
+    const end = new Date(endY, endM - 1, endD);
+
+    const current = new Date(start);
+    while (current <= end) {
+      // Store as YYYY-MM-DD string to avoid timezone issues
+      const dateStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
+      dayOffDates.add(dateStr);
+      current.setDate(current.getDate() + 1);
     }
   });
 
@@ -294,8 +303,9 @@ export default function EmployeeDetailPanel({
     { isDark, cellSizeClass = "w-12 h-12", textSizeClass = "text-[15px]" },
   ) => {
     const isWeekend = day.getDay() === 5 || day.getDay() === 6;
-    const dayTimestamp = new Date(day).setHours(0, 0, 0, 0);
-    const isExisting = dayOffDates.has(dayTimestamp);
+    // Use date string to avoid timezone issues
+    const dayStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
+    const isExisting = dayOffDates.has(dayStr);
     const isToday = isSameDay(day, new Date());
 
     let cellStyle = {};

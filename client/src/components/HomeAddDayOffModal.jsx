@@ -82,11 +82,20 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const existingDates = useMemo(() => {
     const dates = new Set()
     daysOff?.forEach(dayOff => {
-      const start = new Date(dayOff.startDate)
-      const end = new Date(dayOff.endDate)
+      // Parse dates as local dates (ignore time and timezone)
+      const startStr = dayOff.startDate.split('T')[0]
+      const endStr = dayOff.endDate.split('T')[0]
+      const [startY, startM, startD] = startStr.split('-').map(Number)
+      const [endY, endM, endD] = endStr.split('-').map(Number)
+
+      const start = new Date(startY, startM - 1, startD)
+      const end = new Date(endY, endM - 1, endD)
+
       const current = new Date(start)
       while (current <= end) {
-        dates.add(current.toISOString().split('T')[0])
+        // Store as YYYY-MM-DD string using local date
+        const dateStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`
+        dates.add(dateStr)
         current.setDate(current.getDate() + 1)
       }
     })
@@ -111,8 +120,14 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     let daysOffCountTotal = 0
     let daysOffCountPast = 0
     daysOff.forEach(dayOff => {
-      const start = new Date(dayOff.startDate)
-      const end = new Date(dayOff.endDate)
+      // Parse dates as local dates (ignore time and timezone)
+      const startStr = dayOff.startDate.split('T')[0]
+      const endStr = dayOff.endDate.split('T')[0]
+      const [startY, startM, startD] = startStr.split('-').map(Number)
+      const [endY, endM, endD] = endStr.split('-').map(Number)
+
+      const start = new Date(startY, startM - 1, startD)
+      const end = new Date(endY, endM - 1, endD)
       const current = new Date(start)
 
       while (current <= end) {
