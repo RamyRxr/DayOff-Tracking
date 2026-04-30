@@ -48,13 +48,16 @@ export default function BlockedPage() {
     matricule: block.employee.matricule,
     department: block.employee.department,
     position: block.employee.position,
+    email: block.employee.email,
+    phone: block.employee.phone,
     daysUsed: block.daysUsed,
     daysTotal: block.employee.daysTotal,
     status: 'bloqué',
     avatar: block.employee.avatar,
-    blockedAt: block.blockedAt,
+    blockedAt: block.createdAt,
     blockedReason: block.reason,
-    blockedBy: block.blockedBy.name,
+    blockedBy: block.admin?.name || '—',
+    blockedByRole: block.admin?.role || '—',
     blockId: block.id,
     blockData: block,
   }))
@@ -124,10 +127,10 @@ ${t('poste')}:            ${emp.position}
 ${t('email')}:            ${email}
 ${t('telephone')}:        ${emp.phone || '—'}
 ────────────────────────────────────────
-${t('dateBlocage')}:  ${formatDate(block.blockedAt)}
+${t('dateBlocage')}:  ${formatDate(block.createdAt)}
 ${t('motif')}:            ${block.reason}
 ${t('description')}:      ${block.description || '—'}
-${t('bloquePar')}:       ${block.blockedBy?.name || '—'} — ${block.blockedBy?.role || '—'}
+${t('bloquePar')}:       ${block.admin?.name || '—'} — ${block.admin?.role || '—'}
 ────────────────────────────────────────
 ${t('periodeLabel')}:          ${periodStartFormatted} → ${periodEndFormatted}
 ${t('joursConge')}:   ${block.daysUsed} / 15
