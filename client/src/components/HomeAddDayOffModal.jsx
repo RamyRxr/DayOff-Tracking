@@ -9,6 +9,7 @@ import { useCurrentAdmin } from '../contexts/AdminContext'
 import { useTheme } from '../contexts/ThemeContext'
 import CustomSelect from './CustomSelect'
 import SplitCalendar from './SplitCalendar'
+import SuccessModal from './SuccessModal'
 
 export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const { t } = useTranslation()
@@ -26,11 +27,10 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const [endDate, setEndDate] = useState(null)
   const [uploadedFile, setUploadedFile] = useState(null)
   const [reason, setReason] = useState('')
-  const [successMsg, setSuccessMsg] = useState('')
+  const [showSuccess, setShowSuccess] = useState(false)
   const typeSelectRef = useRef(null)
 
   const { employees, loading } = useEmployees()
-  const { daysOff, addDayOff } = useDaysOff({ employeeId: selectedEmployee?.id })
 
   // Filter employees based on search query
   const filteredEmployees = useMemo(() => {
@@ -78,17 +78,38 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     return { start: periodStart, end: periodEnd }
   }, [calendarOffset])
 
+  const periodStart = useMemo(
+    () => format(displayedPeriod.start, 'yyyy-MM-dd'),
+    [displayedPeriod]
+  )
+  const periodEnd = useMemo(
+    () => format(displayedPeriod.end, 'yyyy-MM-dd'),
+    [displayedPeriod]
+  )
+
+  const { daysOff, addDayOff } = useDaysOff({
+    employeeId: selectedEmployee?.id,
+    periodStart,
+    periodEnd,
+  })
+
   // Calculate period-specific stats
   const periodStats = useMemo(() => {
     if (!selectedEmployee || !daysOff) {
-      return { daysOffCount: 0, workedDays: 0, availableDays: 15 }
+      return {
+        daysOffCountPast: 0,
+        daysOffCountTotal: 0,
+        workedDays: 0,
+        availableDays: 15,
+      }
     }
 
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
     // Count day-offs in the displayed period
-    let daysOffCount = 0
+    let daysOffCountTotal = 0
+    let daysOffCountPast = 0
     daysOff.forEach(dayOff => {
       const start = new Date(dayOff.startDate)
       const end = new Date(dayOff.endDate)
@@ -98,7 +119,10 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
         if (current >= displayedPeriod.start && current <= displayedPeriod.end) {
           const dayOfWeek = current.getDay()
           if (dayOfWeek !== 5 && dayOfWeek !== 6) {
-            daysOffCount++
+            daysOffCountTotal++
+            if (current <= today) {
+              daysOffCountPast++
+            }
           }
         }
         current.setDate(current.getDate() + 1)
@@ -117,7 +141,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
         }
         current.setDate(current.getDate() + 1)
       }
-      workedDays -= daysOffCount
+      workedDays -= daysOffCountPast
     } else if (today > displayedPeriod.end) {
       // Past period: count all working days
       const current = new Date(displayedPeriod.start)
@@ -128,13 +152,18 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
         }
         current.setDate(current.getDate() + 1)
       }
-      workedDays -= daysOffCount
+      workedDays -= daysOffCountTotal
     }
     // Future period: workedDays = 0 (already initialized)
 
-    const availableDays = Math.max(0, 15 - daysOffCount)
+    const availableDays = Math.max(0, 15 - daysOffCountTotal)
 
-    return { daysOffCount, workedDays, availableDays }
+    return {
+      daysOffCountPast,
+      daysOffCountTotal,
+      workedDays,
+      availableDays,
+    }
   }, [selectedEmployee, daysOff, displayedPeriod])
 
   if (!isOpen) return null
@@ -148,7 +177,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     setEndDate(null)
     setUploadedFile(null)
     setReason('')
-    setSuccessMsg('')
+    setShowSuccess(false)
     onClose?.()
   }
 
@@ -254,7 +283,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('Fichier trop volumineux (max 5 Mo)')
+      console.error(t('fichierTropVolumineux'))
       return
     }
 
@@ -281,16 +310,16 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
         adminId: currentAdmin.id
       })
 
-      setSuccessMsg('Congé ajouté avec succès')
-      setTimeout(() => {
-        setSuccessMsg('')
-        handleClose()
-        onSuccess?.()
-      }, 1500)
+      setShowSuccess(true)
     } catch (error) {
-      setSuccessMsg(`Erreur: ${error.message}`)
-      setTimeout(() => setSuccessMsg(''), 3000)
+      console.error(`${t('erreur')}: ${error.message}`)
     }
+  }
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false)
+    handleClose()
+    onSuccess?.()
   }
 
   const isStep1Valid = !!selectedEmployee && !!startDate && !!endDate && !!reason
@@ -358,7 +387,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
               </h2>
               <p className="text-xs text-[#6B7280] dark:text-[#7A9CC4] mt-0.5">
                 {t('etape')} {step} {t('sur')} 2 — {
-                  step === 1 ? 'Sélection et dates' : 'Confirmation'
+                  step === 1 ? t('etapeSelectionDates') : t('etapeConfirmation')
                 }
               </p>
             </div>
@@ -605,23 +634,23 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                     }}
                   >
                     <span className="text-xs" style={{ color: isDark ? '#8E8E93' : '#6B7280' }}>
-                      Jours de congé déjà pris
+                      {t('joursCongeDejaPris')}
                     </span>
                     <span
                       className="text-sm font-bold"
                       style={{
-                        color: periodStats.daysOffCount >= 15 ? '#C0392B'
-                             : periodStats.daysOffCount >= 10 ? '#FF9F0A'
+                        color: periodStats.daysOffCountPast >= 15 ? '#C0392B'
+                             : periodStats.daysOffCountPast >= 10 ? '#FF9F0A'
                              : '#34C759'
                       }}
                     >
-                      {periodStats.daysOffCount} / 15 jours
+                      {periodStats.daysOffCountPast} / 15 {t('jours')}
                     </span>
                   </div>
 
                   {/* Conditional alert cards (shown when dates selected) */}
                   {startDate && endDate && (() => {
-                    const totalAfter = periodStats.daysOffCount + workingDays
+                    const totalAfter = periodStats.daysOffCountTotal + workingDays
 
                     if (totalAfter > 15) {
                       return (
@@ -633,10 +662,10 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                             color: '#C0392B'
                           }}
                         >
-                          🚫 Dépassement — {totalAfter} jours au total (limite: 15). Blocage activé.
+                          {t('statutCongeDepassement', { total: totalAfter })}
                         </div>
                       )
-                    } else if (periodStats.daysOffCount >= 10 && periodStats.daysOffCount < 15) {
+                    } else if (periodStats.daysOffCountTotal >= 10 && periodStats.daysOffCountTotal < 15) {
                       return (
                         <div
                           className="rounded-xl p-3 text-xs"
@@ -646,10 +675,10 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                             color: '#FF9F0A'
                           }}
                         >
-                          ⚠️ Attention — {periodStats.daysOffCount} jours utilisés. Limite: 15 jours
+                          {t('statutCongeAttention', { count: periodStats.daysOffCountTotal })}
                         </div>
                       )
-                    } else if (periodStats.daysOffCount >= 5 && periodStats.daysOffCount < 10) {
+                    } else if (periodStats.daysOffCountTotal >= 5 && periodStats.daysOffCountTotal < 10) {
                       return (
                         <div
                           className="rounded-xl p-3 text-xs"
@@ -659,10 +688,10 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                             color: '#FFC200'
                           }}
                         >
-                          ℹ️ Rappel — {periodStats.daysOffCount} jours de congé utilisés
+                          {t('statutCongeRappel', { count: periodStats.daysOffCountTotal })}
                         </div>
                       )
-                    } else if (periodStats.daysOffCount < 5) {
+                    } else if (periodStats.daysOffCountTotal < 5) {
                       return (
                         <div
                           className="rounded-xl p-3 text-xs"
@@ -672,7 +701,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                             color: '#34C759'
                           }}
                         >
-                          ✅ Employé en règle — {periodStats.daysOffCount} jours utilisés sur 15
+                          {t('statutCongeRegle', { count: periodStats.daysOffCountTotal })}
                         </div>
                       )
                     }
@@ -689,8 +718,10 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                         color: '#FF9F0A'
                       }}
                     >
-                      <div className="font-medium mb-1">🥪 Détection sandwich — Week-end inclus dans la période</div>
-                      <div className="text-[11px]">Jours ouvrables: {workingDays} · Jours calendaires: {totalCalendarDays}</div>
+                      <div className="font-medium mb-1">{t('sandwichPeriode')}</div>
+                      <div className="text-[11px]">
+                        {t('sandwichDetails', { calendar: totalCalendarDays, working: workingDays })}
+                      </div>
                     </div>
                   )}
 
@@ -738,29 +769,29 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                 </div>
                 <div className="space-y-2 text-sm text-[#6B7280] dark:text-[#7A9CC4]">
                   <div className="flex justify-between">
-                    <span>Employé:</span>
+                    <span>{t('employeLabel')}:</span>
                     <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">{selectedEmployee?.name}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Période:</span>
+                    <span>{t('periodeLabel')}:</span>
                     <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">
                       {startDate && endDate && `${format(startDate, 'dd MMM', { locale: fr })} – ${format(endDate, 'dd MMM yyyy', { locale: fr })}`}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Jours ouvrables:</span>
-                    <span className="font-bold text-navy dark:text-[#639DFF]">{workingDays} jours</span>
+                    <span>{t('joursOuvrablesLong')}:</span>
+                    <span className="font-bold text-navy dark:text-[#639DFF]">{workingDays} {t('jours')}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Type:</span>
+                    <span>{t('typeConge')}:</span>
                     <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">
-                      {reason === 'annual' ? t('congeAnnuel') : reason === 'sick' ? t('congeMaladie') : reason === 'unpaid' ? t('congeSansSolde') : t('autre')}
+                      {reason || t('autre')}
                     </span>
                   </div>
                   {hasSandwich && (
                     <div className="flex items-center gap-2 text-status-amber dark:text-[#FF9F0A] pt-2 border-t border-black/6 dark:border-white/[0.06]">
                       <AlertTriangle className="w-4 h-4" />
-                      <span className="text-xs font-medium">Détection sandwich — Week-end inclus</span>
+                      <span className="text-xs font-medium">{t('sandwichPeriode')}</span>
                     </div>
                   )}
                 </div>
@@ -769,7 +800,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
               <div
                 className="bg-blue-50 dark:bg-[rgba(99,157,255,0.08)] border border-blue-200 dark:border-[rgba(99,157,255,0.15)] rounded-xl p-3 text-xs text-blue-800 dark:text-[#639DFF]"
               >
-                Ajouté par: {currentAdmin?.name} — {currentAdmin?.role}
+                {t('ajoutePar')}: {currentAdmin?.name} — {currentAdmin?.role}
               </div>
             </>
           )}
@@ -837,46 +868,33 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
             borderColor: 'rgba(99,157,255,0.12)'
           } : {}}
         >
-          {/* Success message */}
-          {successMsg && (
-            <div className={`mb-3 px-4 py-2 rounded-lg text-sm text-center ${
-              successMsg.includes('Erreur') || successMsg.includes('erreur')
-                ? 'bg-red-50 dark:bg-[rgba(192,57,43,0.15)] text-red-700 dark:text-[#FF6B6B] border border-red-200 dark:border-[rgba(255,59,48,0.2)]'
-                : 'bg-green-50 dark:bg-[rgba(52,199,89,0.15)] text-green-700 dark:text-[#34C759] border border-green-200 dark:border-[rgba(52,199,89,0.2)]'
-            }`}>
-              {successMsg}
-            </div>
-          )}
-
           <div className="flex items-center gap-3">
             <button
               onClick={step === 1 ? handleClose : () => setStep(1)}
-              disabled={!!successMsg}
-              className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#7A9CC4] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200 disabled:opacity-50"
+              className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#7A9CC4] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
               style={isDark ? { backgroundColor: 'transparent' } : {}}
               onMouseEnter={(e) => {
-                if (isDark && !successMsg) {
+                if (isDark) {
                   e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
                 }
               }}
               onMouseLeave={(e) => {
-                if (isDark && !successMsg) {
+                if (isDark) {
                   e.currentTarget.style.backgroundColor = 'transparent'
                 }
               }}
             >
-              {step === 1 ? t('annuler') : 'Retour'}
+              {step === 1 ? t('annuler') : t('retour')}
             </button>
             <button
               onClick={step === 2 ? handleFinalSubmit : () => setStep(2)}
               disabled={
                 (step === 1 && !isStep1Valid) ||
-                (step === 2 && !isStep2Valid) ||
-                !!successMsg
+                (step === 2 && !isStep2Valid)
               }
               className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
               style={
-                ((step === 1 && isStep1Valid) || (step === 2 && isStep2Valid)) && !successMsg
+                (step === 1 && isStep1Valid) || (step === 2 && isStep2Valid)
                   ? (isDark ? {
                       background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
                       color: 'white',
@@ -892,11 +910,18 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                     }
               }
             >
-              {step === 2 ? 'Confirmer le congé' : 'Suivant →'}
+              {step === 2 ? t('confirmerConge') : t('suivant')}
             </button>
           </div>
         </div>
       </div>
     </div>
+
+    <SuccessModal
+      isOpen={showSuccess}
+      title={t('congeAjouteSuccesTitre')}
+      message={t('congeAjouteSuccesMessage')}
+      onConfirm={handleSuccessClose}
+    />
   )
 }

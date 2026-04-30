@@ -36,6 +36,7 @@ model Admin {
   role      String
   pinHash   String
   createdAt DateTime @default(now())
+  dayOffs   DayOff[]
   blocks    Block[]  @relation("BlockedBy")
   unblocks  Block[]  @relation("UnblockedBy")
 }
@@ -44,6 +45,8 @@ model DayOff {
   id            String   @id @default(uuid())
   employeeId    String
   employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  adminId       String?
+  admin         Admin?   @relation(fields: [adminId], references: [id])
   startDate     DateTime
   endDate       DateTime
   type          String
