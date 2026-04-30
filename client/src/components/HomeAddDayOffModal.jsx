@@ -638,64 +638,48 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                     </span>
                   </div>
 
-                  {/* Conditional alert cards (shown when dates selected) */}
+                  {/* Selected date range and total (shown when dates selected) */}
                   {startDate && endDate && (() => {
                     const totalAfter = periodStats.daysOffCountTotal + workingDays
+                    let bgColor, borderColor, textColor
 
                     if (totalAfter > 15) {
-                      return (
-                        <div
-                          className="rounded-xl p-3 text-xs"
-                          style={{
-                            background: 'rgba(192,57,43,0.1)',
-                            border: '1px solid rgba(192,57,43,0.2)',
-                            color: '#C0392B'
-                          }}
-                        >
-                          {t('statutCongeDepassement', { total: totalAfter })}
-                        </div>
-                      )
-                    } else if (periodStats.daysOffCountTotal >= 10 && periodStats.daysOffCountTotal < 15) {
-                      return (
-                        <div
-                          className="rounded-xl p-3 text-xs"
-                          style={{
-                            background: 'rgba(255,159,10,0.1)',
-                            border: '1px solid rgba(255,159,10,0.2)',
-                            color: '#FF9F0A'
-                          }}
-                        >
-                          {t('statutCongeAttention', { count: periodStats.daysOffCountTotal })}
-                        </div>
-                      )
-                    } else if (periodStats.daysOffCountTotal >= 5 && periodStats.daysOffCountTotal < 10) {
-                      return (
-                        <div
-                          className="rounded-xl p-3 text-xs"
-                          style={{
-                            background: 'rgba(255,204,0,0.08)',
-                            border: '1px solid rgba(255,204,0,0.2)',
-                            color: '#FFC200'
-                          }}
-                        >
-                          {t('statutCongeRappel', { count: periodStats.daysOffCountTotal })}
-                        </div>
-                      )
-                    } else if (periodStats.daysOffCountTotal < 5) {
-                      return (
-                        <div
-                          className="rounded-xl p-3 text-xs"
-                          style={{
-                            background: 'rgba(52,199,89,0.08)',
-                            border: '1px solid rgba(52,199,89,0.2)',
-                            color: '#34C759'
-                          }}
-                        >
-                          {t('statutCongeRegle', { count: periodStats.daysOffCountTotal })}
-                        </div>
-                      )
+                      bgColor = 'rgba(192,57,43,0.1)'
+                      borderColor = 'rgba(192,57,43,0.2)'
+                      textColor = '#C0392B'
+                    } else if (totalAfter >= 10) {
+                      bgColor = 'rgba(255,159,10,0.1)'
+                      borderColor = 'rgba(255,159,10,0.2)'
+                      textColor = '#FF9F0A'
+                    } else {
+                      bgColor = 'rgba(52,199,89,0.08)'
+                      borderColor = 'rgba(52,199,89,0.2)'
+                      textColor = '#34C759'
                     }
-                    return null
+
+                    return (
+                      <div
+                        className="rounded-xl p-3"
+                        style={{
+                          background: bgColor,
+                          border: `1px solid ${borderColor}`,
+                        }}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium" style={{ color: textColor }}>
+                            {format(startDate, 'dd MMMM', { locale: fr })} → {format(endDate, 'dd MMMM yyyy', { locale: fr })}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs" style={{ color: isDark ? '#8E8E93' : '#6B7280' }}>
+                            Total avec cette sélection
+                          </span>
+                          <span className="text-sm font-bold" style={{ color: textColor }}>
+                            {totalAfter} / 15 {t('jours')}
+                          </span>
+                        </div>
+                      </div>
+                    )
                   })()}
 
                   {/* Sandwich detection card */}
