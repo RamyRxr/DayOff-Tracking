@@ -1,8 +1,12 @@
+import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { translateDepartment } from '../utils/translateDepartment'
 
 export default function EmployeeTable({ employees, onDetails, isDark }) {
   const { t } = useTranslation()
+  const [sortBy, setSortBy] = useState(null)
+  const [sortOrder, setSortOrder] = useState('asc')
 
   const statusConfig = {
     actif: {
@@ -29,6 +33,52 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
       bgColor: 'bg-status-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-transparent dark:border-[rgba(255,59,48,0.2)]',
       textColor: 'text-status-red dark:text-[#FF6B6B]',
     },
+  }
+
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('asc')
+    }
+  }
+
+  const sortedEmployees = useMemo(() => {
+    if (!sortBy) return employees
+
+    return [...employees].sort((a, b) => {
+      let aVal, bVal
+
+      switch (sortBy) {
+        case 'employee':
+          aVal = a.name.toLowerCase()
+          bVal = b.name.toLowerCase()
+          break
+        case 'conges':
+          aVal = a.daysUsed || 0
+          bVal = b.daysUsed || 0
+          break
+        case 'statut':
+          const statusOrder = { actif: 0, a_risque: 1, doit_bloquer: 2, bloque: 3 }
+          aVal = statusOrder[a.status] || 0
+          bVal = statusOrder[b.status] || 0
+          break
+        default:
+          return 0
+      }
+
+      if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1
+      if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1
+      return 0
+    })
+  }, [employees, sortBy, sortOrder])
+
+  const SortIcon = ({ column }) => {
+    if (sortBy !== column) return <ArrowUpDown className="w-3 h-3 opacity-30" />
+    return sortOrder === 'asc'
+      ? <ArrowUp className="w-3 h-3" />
+      : <ArrowDown className="w-3 h-3" />
   }
 
   if (!employees || employees.length === 0) {
@@ -68,17 +118,35 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
           } : {}}
         >
           <tr>
-            <th className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
-              {t('employeLabel')}
+            <th
+              className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider cursor-pointer hover:bg-black/5 dark:hover:bg-white/[0.04] transition-colors"
+              onClick={() => handleSort('employee')}
+            >
+              <div className="flex items-center gap-2">
+                {t('employeLabel')}
+                <SortIcon column="employee" />
+              </div>
             </th>
             <th className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
               {t('departement')}
             </th>
-            <th className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
-              {t('conges')}
+            <th
+              className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider cursor-pointer hover:bg-black/5 dark:hover:bg-white/[0.04] transition-colors"
+              onClick={() => handleSort('conges')}
+            >
+              <div className="flex items-center gap-2">
+                {t('conges')}
+                <SortIcon column="conges" />
+              </div>
             </th>
-            <th className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
-              {t('statut')}
+            <th
+              className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider cursor-pointer hover:bg-black/5 dark:hover:bg-white/[0.04] transition-colors"
+              onClick={() => handleSort('statut')}
+            >
+              <div className="flex items-center gap-2">
+                {t('statut')}
+                <SortIcon column="statut" />
+              </div>
             </th>
             <th className="text-right px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
               {t('actions')}
@@ -89,7 +157,7 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
           className="divide-y divide-warm-gray-300"
           style={isDark ? { borderColor: 'rgba(99,157,255,0.08)' } : {}}
         >
-          {employees.map((employee) => {
+          {sortedEmployees.map((employee) => {
             const status = statusConfig[employee.status] || statusConfig.actif
 
             return (
