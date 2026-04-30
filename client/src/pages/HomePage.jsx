@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Plus, Loader2, AlertCircle } from 'lucide-react'
@@ -7,6 +7,7 @@ import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import AddEmployeeModal from '../components/AddEmployeeModal'
 import AddDayOffModal from '../components/AddDayOffModal'
 import HomeAddDayOffModal from '../components/HomeAddDayOffModal'
+import EmployeeTable from '../components/EmployeeTable'
 import { useEmployees } from '../hooks/useEmployees'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useTheme } from '../contexts/ThemeContext'
@@ -44,6 +45,16 @@ export default function HomePage() {
   const filteredEmployees = activeFilter
     ? employees.filter((e) => e.status === activeFilter)
     : employees
+
+  // Get recent employees (sorted by updatedAt DESC, top 10)
+  const recentEmployees = useMemo(() => {
+    const sorted = [...filteredEmployees].sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.createdAt)
+      const dateB = new Date(b.updatedAt || b.createdAt)
+      return dateB - dateA
+    })
+    return sorted.slice(0, 10)
+  }, [filteredEmployees])
 
   // Get filter label for display
   const getFilterLabel = () => {
@@ -369,154 +380,11 @@ export default function HomePage() {
       </h2>
 
       {/* Employee table */}
-      <div
-        className="bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden border border-black/6 dark:border-white/[0.07]"
-        style={isDark ? {
-          backgroundColor: 'rgba(13,21,38,0.85)',
-          backdropFilter: 'blur(16px)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset'
-        } : {
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
-        }}
-      >
-        {filteredEmployees.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="text-[#6B7280] dark:text-[#7A9CC4]">{t('aucunEmployeTrouve')}</p>
-          </div>
-        ) : (
-          <table className="w-full">
-            <thead
-              className="bg-warm-gray-200 border-b border-black/6"
-              style={isDark ? {
-                backgroundColor: 'rgba(99,157,255,0.06)',
-                borderColor: 'rgba(99,157,255,0.12)'
-              } : {}}
-            >
-              <tr>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
-                  {t('employe')}
-                </th>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
-                  {t('departement')}
-                </th>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
-                  {t('conge')}
-                </th>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
-                  {t('statut')}
-                </th>
-                <th className="text-right px-6 py-3 text-[11px] font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
-                  {t('actions')}
-                </th>
-              </tr>
-            </thead>
-            <tbody
-              className="divide-y divide-black/6"
-              style={isDark ? { borderColor: 'rgba(99,157,255,0.08)' } : {}}
-            >
-              {filteredEmployees.slice(0, 5).map((employee) => {
-                const statusConfig = {
-                  actif: {
-                    label: t('actif'),
-                    dotColor: 'bg-status-green dark:bg-[#34C759]',
-                    bgColor: 'bg-status-green/10 dark:bg-[rgba(52,199,89,0.15)] border border-transparent dark:border-[rgba(52,199,89,0.2)]',
-                    textColor: 'text-status-green dark:text-[#34C759]'
-                  },
-                  risque: {
-                    label: t('aRisqueStatus'),
-                    dotColor: 'bg-status-amber dark:bg-[#FF9F0A]',
-                    bgColor: 'bg-status-amber/10 dark:bg-[rgba(255,159,10,0.15)] border border-transparent dark:border-[rgba(255,159,10,0.2)]',
-                    textColor: 'text-status-amber dark:text-[#FF9F0A]'
-                  },
-                  bloqué: {
-                    label: t('bloque'),
-                    dotColor: 'bg-status-red dark:bg-[#FF6B6B]',
-                    bgColor: 'bg-status-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-transparent dark:border-[rgba(255,59,48,0.2)]',
-                    textColor: 'text-status-red dark:text-[#FF6B6B]'
-                  },
-                }
-                const status = statusConfig[employee.status] || statusConfig.actif
-
-                return (
-                  <tr
-                    key={employee.id}
-                    className="h-[52px] hover:bg-black/[0.02] transition-colors cursor-pointer"
-                    style={isDark ? {} : {}}
-                    onMouseEnter={(e) => {
-                      if (isDark) {
-                        e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.04)'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (isDark) {
-                        e.currentTarget.style.backgroundColor = 'transparent'
-                      }
-                    }}
-                    onClick={() => setSelectedEmployee(employee)}
-                  >
-                    <td className="px-6 py-3">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-8 h-8 rounded-full bg-warm-gray-200 flex items-center justify-center text-xs font-semibold text-[#374151]"
-                          style={isDark ? {
-                            backgroundColor: 'rgba(99,157,255,0.08)',
-                            color: '#7A9CC4'
-                          } : {}}
-                        >
-                          {employee.avatar}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-sm text-[#111827] dark:text-[#E8EFF8]">
-                            {employee.name}
-                          </div>
-                          <div className="text-[11px] font-mono text-[#6B7280] dark:text-[#7A9CC4]">
-                            {employee.matricule}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-3">
-                      <span
-                        className="inline-block px-2 py-0.5 bg-warm-gray-300 text-[#374151] text-[11px] rounded-md"
-                        style={isDark ? {
-                          backgroundColor: 'rgba(99,157,255,0.08)',
-                          color: '#7A9CC4'
-                        } : {}}
-                      >
-                        {translateDepartment(employee.department, t)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3">
-                      <div className="text-sm text-[#111827] dark:text-[#E8EFF8]">
-                        {employee.daysUsed} {t('jours')}
-                      </div>
-                    </td>
-                    <td className="px-6 py-3">
-                      <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${status.bgColor}`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${status.dotColor}`} />
-                        <span className={`text-[11px] font-medium ${status.textColor}`}>
-                          {status.label}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-3 text-right">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedEmployee(employee)
-                        }}
-                        className="text-xs font-medium text-[#6B7280] dark:text-[#7A9CC4] hover:text-navy dark:hover:text-[#639DFF] transition-colors px-2 py-1"
-                      >
-                        {t('details')}
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <EmployeeTable
+        employees={recentEmployees}
+        onDetails={(emp) => setSelectedEmployee(emp)}
+        isDark={isDark}
+      />
 
       {/* Floating FAB - Only show on home page when no modals are open */}
       {isHomePage && (
