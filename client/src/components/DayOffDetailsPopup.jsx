@@ -88,16 +88,29 @@ export default function DayOffDetailsPopup({ dayOff, position, onClose }) {
         )}
 
         {/* File (optional) */}
-        <div className="flex items-start gap-2">
-          <Paperclip className="w-3.5 h-3.5 text-gray-400 mt-0.5 flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            {dayOff.justification ? (
-              <>
-                <div className="text-xs text-gray-600 truncate" title={dayOff.justification}>
-                  {dayOff.justification.split('/').pop()?.slice(0, 24)}
-                  {dayOff.justification.split('/').pop()?.length > 24 && '...'}
-                </div>
-                <a
+        {dayOff.justification && (
+          <div className="flex items-start gap-2 mb-3">
+            <Paperclip className="w-3.5 h-3.5 text-gray-400 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-xs text-gray-600 truncate" title={dayOff.justification}>
+                {dayOff.justification.split('/').pop()?.slice(0, 24)}
+                {dayOff.justification.split('/').pop()?.length > 24 && '...'}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Admin info */}
+        {dayOff.admin && (
+          <div className="border-t border-gray-100 pt-2 mt-2">
+            <div className="text-xs text-gray-500 font-medium">
+              Ajouté par: <span className="text-gray-700 font-semibold">{dayOff.admin.name}</span>
+            </div>
+            <div className="text-[11px] text-gray-500 mt-1">
+              {format(new Date(dayOff.createdAt), 'dd MMM yyyy', { locale: fr })}
+            </div>
+          </div>
+        )}a
                   href={`http://localhost:3001${dayOff.justification}`}
                   target="_blank"
                   rel="noopener noreferrer"
