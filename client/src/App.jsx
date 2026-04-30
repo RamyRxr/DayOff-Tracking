@@ -10,7 +10,16 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import { AdminProvider } from './contexts/AdminContext'
 
 function App() {
-  const [currentAdmin, setCurrentAdmin] = useState(null)
+  const [currentAdmin, setCurrentAdmin] = useState(() => {
+    const savedAdmin = localStorage.getItem('currentAdmin')
+    if (!savedAdmin) return null
+    try {
+      return JSON.parse(savedAdmin)
+    } catch {
+      localStorage.removeItem('currentAdmin')
+      return null
+    }
+  })
 
   const handleLoginSuccess = (admin) => {
     setCurrentAdmin(admin)

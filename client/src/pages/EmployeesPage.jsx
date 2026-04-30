@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Filter, Plus, ChevronDown, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
@@ -20,6 +20,16 @@ export default function EmployeesPage() {
   const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false)
   const [sortField, setSortField] = useState('name')
   const [sortDirection, setSortDirection] = useState('asc')
+
+  // Update selectedEmployee when employees array changes (after refetch)
+  useEffect(() => {
+    if (selectedEmployee && employees.length > 0) {
+      const updatedEmployee = employees.find(emp => emp.id === selectedEmployee.id)
+      if (updatedEmployee) {
+        setSelectedEmployee(updatedEmployee)
+      }
+    }
+  }, [employees])
 
   // Filter employees
   const filteredEmployees = employees.filter((emp) => {
