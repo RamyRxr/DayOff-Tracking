@@ -66,8 +66,9 @@ export default function HomePage() {
     const count = filteredEmployees.length;
     const labels = {
       actif: t("actifs"),
-      risque: t("aRisque"),
-      bloqué: t("bloques_"),
+      a_risque: t("aRisque"),
+      doit_bloquer: t("doitBloquer"),
+      bloque: t("bloques_"),
     };
     return `${t("affichage")} : ${count} ${count > 1 ? t("employesPlural") : t("employe")} ${labels[activeFilter]}`;
   };
