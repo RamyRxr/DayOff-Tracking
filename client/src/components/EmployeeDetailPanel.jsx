@@ -30,7 +30,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
   const [calendarYear, setCalendarYear] = useState(currentDate.getFullYear())
 
   // Fetch day-off records for this employee
-  const { daysOff, addDayOff } = useDaysOff({ employeeId: employee?.id })
+  const { daysOff, addDayOff, refetch: refetchDaysOff } = useDaysOff({ employeeId: employee?.id })
 
   // Block management
   const { blocks, block, unblock } = useBlocks()
@@ -45,8 +45,11 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
       const result = await addDayOff(dayOffData)
       setShowAddDayOff(false)
 
-      // Refresh employee data
-      if (onUpdate) onUpdate()
+      // Refresh day-offs data immediately
+      await refetchDaysOff()
+
+      // Refresh employee data in parent
+      if (onUpdate) await onUpdate()
 
       // Show alert if employee was auto-blocked
       if (result.block) {
@@ -181,6 +184,9 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
     }
     tempDate.setDate(tempDate.getDate() + 1)
   }
+
+  // Calculate days actually worked (elapsed days minus days off taken)
+  const daysActuallyWorked = workingDaysElapsed - totalDayOffDays
 
   const daysAvailable = 30 - totalDayOffDays
 
@@ -460,7 +466,7 @@ export default function EmployeeDetailPanel({ employee, isOpen, onClose, onUpdat
               }}
             >
               <div className="text-xl font-bold text-gray-900 dark:text-[#E8EFF8]">
-                {workingDaysElapsed}
+                {daysActuallyWorked}
               </div>
               <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#7A9CC4] font-medium">
                 {t('joursTravaillesLabel')}
