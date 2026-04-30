@@ -16,14 +16,16 @@ server/prisma/dev.db-journal
 client/.env
 server/.env
 
-# Claude Code
+# Claude Code - exclude entire directory
+.claude/
 CLAUDE.local.md
-.claude/settings.local.json
-.claude/projects/
 *ChangePrompt*
 *changePrompt*
 *changesPrompt*
 *.prompt
+
+# PDF files (reports, documentation)
+*.pdf
 
 # Build outputs
 dist/
