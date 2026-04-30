@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import HomePage from './pages/HomePage'
 import EmployeesPage from './pages/EmployeesPage'
@@ -10,50 +10,51 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import { AdminProvider } from './contexts/AdminContext'
 
 function App() {
+  // Use sessionStorage for login persistence on refresh, but clear on browser close
   const [currentAdmin, setCurrentAdmin] = useState(() => {
-    const savedAdmin = localStorage.getItem('currentAdmin')
+    const savedAdmin = sessionStorage.getItem('currentAdmin')
     if (!savedAdmin) return null
     try {
       return JSON.parse(savedAdmin)
     } catch {
-      localStorage.removeItem('currentAdmin')
+      sessionStorage.removeItem('currentAdmin')
       return null
     }
   })
 
   const handleLoginSuccess = (admin) => {
     setCurrentAdmin(admin)
-    localStorage.setItem('currentAdmin', JSON.stringify(admin))
+    sessionStorage.setItem('currentAdmin', JSON.stringify(admin))
   }
 
   const handleLogout = () => {
     setCurrentAdmin(null)
-    localStorage.removeItem('currentAdmin')
-  }
-
-  // Show login page if not authenticated
-  if (!currentAdmin) {
-    return (
-      <ThemeProvider>
-        <LoginPage onLoginSuccess={handleLoginSuccess} />
-      </ThemeProvider>
-    )
+    sessionStorage.removeItem('currentAdmin')
   }
 
   return (
     <ThemeProvider>
-      <AdminProvider admin={currentAdmin}>
-        <BrowserRouter>
+      <BrowserRouter>
+        {!currentAdmin ? (
           <Routes>
-            <Route path="/" element={<Layout currentAdmin={currentAdmin} onLogout={handleLogout} />}>
-              <Route index element={<HomePage />} />
-              <Route path="employees" element={<EmployeesPage />} />
-              <Route path="blocked" element={<BlockedPage />} />
-              <Route path="calendar" element={<CalendarPage />} />
-            </Route>
+            <Route path="/" element={<LoginPage onLoginSuccess={handleLoginSuccess} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </BrowserRouter>
-      </AdminProvider>
+        ) : (
+          <AdminProvider admin={currentAdmin}>
+            <Routes>
+              <Route path="/" element={<Layout currentAdmin={currentAdmin} onLogout={handleLogout} />}>
+                <Route index element={<Navigate to="/home" replace />} />
+                <Route path="home" element={<HomePage />} />
+                <Route path="employees" element={<EmployeesPage />} />
+                <Route path="blocked" element={<BlockedPage />} />
+                <Route path="calendar" element={<CalendarPage />} />
+              </Route>
+              <Route path="*" element={<Navigate to="/home" replace />} />
+            </Routes>
+          </AdminProvider>
+        )}
+      </BrowserRouter>
     </ThemeProvider>
   )
 }
