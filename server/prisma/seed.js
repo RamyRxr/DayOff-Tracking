@@ -61,6 +61,17 @@ function randomPhone() {
   return `+213 ${randomInt(50, 79)} ${randomInt(10, 99)} ${randomInt(10, 99)} ${randomInt(10, 99)}`
 }
 
+function randomSSN() {
+  // Algerian NSS format: YY MM WW DDD NNN KK (15 digits)
+  const year = randomInt(60, 99)
+  const month = String(randomInt(1, 12)).padStart(2, '0')
+  const wilaya = String(randomInt(1, 58)).padStart(2, '0')
+  const day = String(randomInt(1, 999)).padStart(3, '0')
+  const seq = String(randomInt(1, 999)).padStart(3, '0')
+  const key = String(randomInt(10, 99))
+  return `${year}${month}${wilaya}${day}${seq}${key}`
+}
+
 function getCurrentWorkPeriodForSeed() {
   const now = new Date()
   const year = now.getFullYear()
@@ -189,6 +200,7 @@ async function main() {
           lastName,
           email,
           phone: randomPhone(),
+          ssn: randomSSN(),
           department,
           position,
           status,
@@ -203,31 +215,9 @@ async function main() {
 
   console.log(`✅ ${createdEmployees.length} employees created`)
 
-  // 3) Create day-off records for each employee (3 to 12 records), no overlaps.
-  const { start: periodStart, end: periodEnd } = getCurrentWorkPeriodForSeed()
+  // 3) NO day-off records for testing
   const allDayOffRecords = []
-
-  for (const employee of createdEmployees) {
-    const wantedCount = randomInt(3, 12)
-    const ranges = buildNonOverlappingRanges(periodStart, periodEnd, wantedCount)
-
-    for (const range of ranges) {
-      const type = randomFrom(dayOffTypes)
-      const dayOff = await prisma.dayOff.create({
-        data: {
-          employeeId: employee.id,
-          startDate: range.startDate,
-          endDate: range.endDate,
-          type,
-          reason: type === 'Autre' ? 'Besoin personnel' : `${type} validé`,
-          justification: null,
-        },
-      })
-      allDayOffRecords.push(dayOff)
-    }
-  }
-
-  console.log(`✅ ${allDayOffRecords.length} day-off records created`)
+  console.log(`✅ ${allDayOffRecords.length} day-off records created (none for testing)`)
 
   // 4) Create one active block for each blocked employee.
   const blockedEmployees = createdEmployees.filter((employee) => employee.status === 'bloque')

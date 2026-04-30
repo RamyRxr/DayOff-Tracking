@@ -51,6 +51,7 @@ export default function AddEmployeeModal({
     position: "",
     email: "",
     phone: "",
+    ssn: "",
     startDate: "",
   });
   const [errors, setErrors] = useState({});
@@ -192,6 +193,7 @@ export default function AddEmployeeModal({
       position: formData.position,
       email: formData.email,
       phone: formData.phone || null,
+      ssn: formData.ssn || null,
       startDate: formData.startDate,
       avatar,
       daysTotal: 30,
@@ -223,6 +225,7 @@ export default function AddEmployeeModal({
       position: "",
       email: "",
       phone: "",
+      ssn: "",
       startDate: "",
     });
     setErrors({});
@@ -490,6 +493,29 @@ export default function AddEmployeeModal({
                   value={formData.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
                   className="w-full px-4 py-3 bg-white border border-warm-gray-400 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20"
+                  style={isDark ? {
+                    backgroundColor: 'rgba(13,21,38,0.75)',
+                    borderColor: 'rgba(99,157,255,0.12)',
+                    color: '#E8EFF8'
+                  } : {}}
+                />
+              </div>
+
+              {/* Numéro de sécurité sociale (NSS) */}
+              <div>
+                <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
+                  NSS
+                  <span className="text-[#6B7280] font-normal ml-1">
+                    ({t('optionnel')})
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="15 chiffres"
+                  value={formData.ssn}
+                  onChange={(e) => handleChange("ssn", e.target.value)}
+                  maxLength={15}
+                  className="w-full px-4 py-3 bg-white border border-warm-gray-400 rounded-xl font-mono transition-all focus:outline-none focus:ring-2 focus:ring-navy/20"
                   style={isDark ? {
                     backgroundColor: 'rgba(13,21,38,0.75)',
                     borderColor: 'rgba(99,157,255,0.12)',

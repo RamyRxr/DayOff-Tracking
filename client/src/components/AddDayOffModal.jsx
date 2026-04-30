@@ -1,27 +1,24 @@
 import { useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { X, Upload, AlertTriangle, ChevronLeft } from 'lucide-react'
+import { X, Upload, AlertTriangle, AlertCircle } from 'lucide-react'
 import { format, isSameDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useTheme } from '../contexts/ThemeContext'
+import { useCurrentAdmin } from '../contexts/AdminContext'
 import CustomSelect from './CustomSelect'
-import AutorisationStep from './AutorisationStep'
 import SplitCalendar from './SplitCalendar'
 
 export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { isDark } = useTheme()
-  const [step, setStep] = useState(1)
+  const currentAdmin = useCurrentAdmin()
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
   const [uploadedFile, setUploadedFile] = useState(null)
   const [reason, setReason] = useState('')
-  const [selectedAdmin, setSelectedAdmin] = useState(null)
-  const [pin, setPin] = useState(['', '', '', ''])
-  const [pinStatus, setPinStatus] = useState('idle') // idle | verifying | verified | error
   const typeSelectRef = useRef(null)
 
   const { daysOff } = useDaysOff({ employeeId: employee?.id })
@@ -41,35 +38,40 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
     return dates
   }, [daysOff])
 
+  // Calculate employee's current total day-off days
+  const currentDayOffTotal = useMemo(() => {
+    if (!daysOff) return 0
+    return daysOff.reduce((sum, dayOff) => {
+      const start = new Date(dayOff.startDate)
+      const end = new Date(dayOff.endDate)
+      let count = 0
+      const current = new Date(start)
+      while (current <= end) {
+        const day = current.getDay()
+        if (day !== 5 && day !== 6) count++
+        current.setDate(current.getDate() + 1)
+      }
+      return sum + count
+    }, 0)
+  }, [daysOff])
+
   // Early return AFTER all hooks
   if (!isOpen) return null
   if (!employee) return null
 
   const handleClose = () => {
-    setStep(1)
     setStartDate(null)
     setEndDate(null)
     setUploadedFile(null)
     setReason('')
-    setSelectedAdmin(null)
-    setPin(['', '', '', ''])
-    setPinStatus('idle')
     onClose?.()
   }
 
-  // Mock admins
-  const admins = [
-    { id: 1, name: 'Ahmed Benali', role: 'Responsable RH', initials: 'AB' },
-    { id: 2, name: 'Fatima Meziane', role: 'Directeur Admin', initials: 'FM' },
-  ]
 
   const handleDayClick = (day) => {
     const dayStr = day.toISOString().split('T')[0]
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
 
-    // Check if day is selectable
-    if (day < today) return
+    // Check if day is selectable (only weekends and existing dates are blocked)
     if (day.getDay() === 5 || day.getDay() === 6) return
     if (existingDates.has(dayStr)) return
 
@@ -109,12 +111,14 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
   const workingDays = calculateWorkingDays()
   const totalCalendarDays = calculateCalendarDays()
   const hasSandwich = totalCalendarDays > workingDays
+  const newTotal = currentDayOffTotal + workingDays
+  const hasHighDayOffCount = currentDayOffTotal >= 10
+  const willExceedLimit = newTotal > 15
 
   // Custom cell renderer for range selection
   const renderCalendarCell = (day, index, { isDark: _, cellSizeClass = 'w-9 h-9', textSizeClass = 'text-[13px]' } = {}) => {
     const dayStr = day.toISOString().split('T')[0]
     const isWeekend = day.getDay() === 5 || day.getDay() === 6
-    const isPast = day < new Date(new Date().setHours(0, 0, 0, 0))
     const isExisting = existingDates.has(dayStr)
     const isStart = startDate && day.toDateString() === startDate.toDateString()
     const isEnd = endDate && day.toDateString() === endDate.toDateString()
@@ -145,10 +149,6 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
       cellStyle.background = isDark ? 'linear-gradient(145deg, rgba(99,157,255,0.12), rgba(99,157,255,0.06))' : 'linear-gradient(145deg, rgba(0,122,255,0.08), rgba(0,122,255,0.04))'
       cellStyle.boxShadow = isDark ? '0 0 0 1.5px #639DFF, inset 0 1px 0 rgba(255,255,255,0.06)' : '0 0 0 1.5px #007AFF, inset 0 1px 0 rgba(255,255,255,0.9)'
       textClass += isDark ? ' text-[#639DFF] font-semibold' : ' text-[#007AFF] font-semibold'
-    } else if (isPast) {
-      cellStyle.background = 'transparent'
-      cellStyle.opacity = 0.6
-      textClass += isDark ? ' text-[#4A6A8A] cursor-not-allowed' : ' text-[#C7C7CC] cursor-not-allowed'
     } else {
       cellStyle.background = isDark ? 'rgba(99,157,255,0.05)' : 'rgba(255,255,255,0.8)'
       cellStyle.boxShadow = isDark ? 'inset 0 1px 1px rgba(255,255,255,0.04), 0 0 0 1px rgba(99,157,255,0.08)' : 'inset 0 1px 1px rgba(255,255,255,0.9), 0 0 0 1px rgba(0,0,0,0.04)'
@@ -159,7 +159,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
       <button
         key={index}
         onClick={() => handleDayClick(day)}
-        disabled={isWeekend || isPast || isExisting}
+        disabled={isWeekend || isExisting}
         className={textClass}
         style={cellStyle}
       >
@@ -180,43 +180,9 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
     setUploadedFile(file)
   }
 
-  const handlePinChange = (index, value) => {
-    if (value.length > 1) value = value[value.length - 1]
-    if (value && !/^[0-9]$/.test(value)) return
-
-    const newPin = [...pin]
-    newPin[index] = value
-    setPin(newPin)
-
-    // Auto-focus next
-    if (value && index < 3) {
-      document.getElementById(`pin-${index + 1}`)?.focus()
-    }
-
-    // Auto-validate
-    if (newPin.every(d => d !== '') && newPin.length === 4) {
-      handlePinValidate(newPin.join(''))
-    }
-  }
-
-  const handlePinValidate = async (pinValue) => {
-    setPinStatus('verifying')
-    await new Promise(resolve => setTimeout(resolve, 800))
-
-    if (pinValue === '1234') {
-      setPinStatus('verified')
-    } else {
-      setPinStatus('error')
-      setTimeout(() => {
-        setPin(['', '', '', ''])
-        setPinStatus('idle')
-        document.getElementById('pin-0')?.focus()
-      }, 1500)
-    }
-  }
 
   const handleSubmit = async () => {
-    if (!employee?.id || !startDate || !endDate) return
+    if (!employee?.id || !startDate || !endDate || !currentAdmin) return
 
     try {
       await onSubmit?.({
@@ -226,6 +192,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
         workingDays,
         reason,
         file: uploadedFile,
+        adminId: currentAdmin.id,
       })
 
       handleClose()
@@ -237,8 +204,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
     }
   }
 
-  const isStep1Valid = startDate && endDate && reason
-  const isStep2Valid = pinStatus === 'verified'
+  const isFormValid = startDate && endDate && reason
 
   return (
     <div
@@ -267,54 +233,19 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
         >
           <div className="flex-1">
             <div className="flex items-center gap-3">
-              {step === 2 && (
-                <button
-                  onClick={() => setStep(1)}
-                  className="p-1 hover:bg-black/5 dark:hover:bg-white/[0.06] rounded-lg transition-colors"
-                  style={isDark ? {
-                    backgroundColor: 'transparent'
-                  } : {}}
-                  onMouseEnter={(e) => {
-                    if (isDark) {
-                      e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (isDark) {
-                      e.currentTarget.style.backgroundColor = 'transparent'
-                    }
-                  }}
-                >
-                  <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4]" />
-                </button>
-              )}
               <div>
                 <h2 className="text-[17px] font-semibold text-[#111827] dark:text-[#E8EFF8]">
-                  {step === 1 ? t('ajouterCongeTitle') : t('autorisationTitle')}
+                  {t('ajouterCongeTitle')}
                 </h2>
-                {step === 1 && employee && (
+                {employee && (
                   <p className="text-xs text-gray-500 dark:text-[#7A9CC4] mt-1">
-                    {employee.name} · {employee.matricule}
-                  </p>
-                )}
-                {step === 2 && startDate && endDate && (
-                  <p className="text-xs text-gray-500 dark:text-[#7A9CC4] mt-1">
-                    {format(startDate, 'd', { locale: fr })}–{format(endDate, 'd MMM', { locale: fr })} · {workingDays} jours · {reason}
+                    {employee.name} · {employee.matricule} · {currentDayOffTotal} {t('joursConge')}
                   </p>
                 )}
               </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span
-              className="bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-[#8E8E93] text-xs rounded-full px-2 py-0.5"
-              style={isDark ? {
-                backgroundColor: 'rgba(99,157,255,0.1)',
-                color: '#7A9CC4'
-              } : {}}
-            >
-              {t('etape')} {step} {t('etapeDe')} 2
-            </span>
             <button
               onClick={handleClose}
               className="w-8 h-8 rounded-lg hover:bg-black/5 dark:hover:bg-white/[0.06] flex items-center justify-center transition-colors"
@@ -339,9 +270,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
 
         {/* SCROLLABLE BODY */}
         <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-5 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
-          {step === 1 ? (
-            <>
-              {/* Calendar */}
+          {/* Calendar */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-3">
                   {t('datesConge')}
@@ -378,6 +307,26 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                   </div>
                 )}
               </div>
+
+          {/* High day-off count alert */}
+          {hasHighDayOffCount && (
+            <div className="flex gap-2 p-3 bg-status-amber/10 dark:bg-[rgba(255,159,10,0.15)] border border-status-amber/20 dark:border-[rgba(255,159,10,0.2)] rounded-xl">
+              <AlertCircle className="w-5 h-5 text-status-amber dark:text-[#FF9F0A] flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-status-amber dark:text-[#FF9F0A]">
+                {t('attention')}: {employee?.name} a déjà {currentDayOffTotal} jours de congé
+              </div>
+            </div>
+          )}
+
+          {/* Exceeding limit alert */}
+          {willExceedLimit && startDate && endDate && (
+            <div className="flex gap-2 p-3 bg-status-red/10 dark:bg-[rgba(255,59,48,0.15)] border border-status-red/20 dark:border-[rgba(255,59,48,0.2)] rounded-xl">
+              <AlertCircle className="w-5 h-5 text-status-red dark:text-[#FF6B6B] flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-status-red dark:text-[#FF6B6B]">
+                ⚠ {t('depassementLimite')}: {newTotal} jours (limite: 15 jours)
+              </div>
+            </div>
+          )}
 
               {/* File Upload */}
               <div>
@@ -458,18 +407,6 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                   }}
                 />
               </div>
-            </>
-          ) : (
-            <AutorisationStep
-              admins={admins}
-              selectedAdmin={selectedAdmin}
-              onAdminSelect={(admin) => setSelectedAdmin(admin)}
-              pin={pin}
-              onPinChange={handlePinChange}
-              pinStatus={pinStatus}
-              pinIdPrefix="pin"
-            />
-          )}
 
           {/* Extra padding at bottom so last field not hidden */}
           <div className="h-6" />
@@ -484,7 +421,7 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
           } : {}}
         >
           <button
-            onClick={step === 1 ? handleClose : () => setStep(1)}
+            onClick={handleClose}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#7A9CC4] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
             style={isDark ? {
               backgroundColor: 'transparent'
@@ -500,14 +437,14 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
               }
             }}
           >
-            {step === 1 ? t('annuler') : t('retourFleche')}
+            {t('annuler')}
           </button>
           <button
-            onClick={step === 1 ? () => setStep(2) : handleSubmit}
-            disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
+            onClick={handleSubmit}
+            disabled={!isFormValid}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
             style={
-              (step === 1 ? isStep1Valid : isStep2Valid)
+              isFormValid
                 ? (isDark ? {
                     background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
                     color: 'white',
@@ -523,19 +460,19 @@ export default function AddDayOffModal({ employee, isOpen, onClose, onSubmit }) 
                   }
             }
             onMouseEnter={(e) => {
-              if ((step === 1 ? isStep1Valid : isStep2Valid) && !isDark) {
+              if (isFormValid && !isDark) {
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,47,79,0.3)'
               }
             }}
             onMouseLeave={(e) => {
-              if ((step === 1 ? isStep1Valid : isStep2Valid)) {
+              if (isFormValid) {
                 e.currentTarget.style.boxShadow = isDark
                   ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
                   : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
               }
             }}
           >
-            {step === 1 ? t('suivantFleche') : t('confirmerConge')}
+            {t('confirmerConge')}
           </button>
         </div>
       </div>
