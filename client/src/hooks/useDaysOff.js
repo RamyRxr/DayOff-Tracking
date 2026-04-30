@@ -95,6 +95,7 @@ export function useDaysOff(filters = {}) {
                 type: dayOffData.type || 'Congé annuel',
                 reason: dayOffData.reason || null,
                 justification: dayOffData.justification || null,
+                adminId: dayOffData.adminId ? String(dayOffData.adminId) : null,
             }
 
             const response = await createDayOff(payload)

@@ -5,15 +5,15 @@ import { format, isSameDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useEmployees } from '../hooks/useEmployees'
 import { useDaysOff } from '../hooks/useDaysOff'
-import { useAdmins, useAdminPin } from '../hooks/useAdmins'
+import { useCurrentAdmin } from '../contexts/AdminContext'
 import { useTheme } from '../contexts/ThemeContext'
 import CustomSelect from './CustomSelect'
-import AutorisationStep from './AutorisationStep'
 import SplitCalendar from './SplitCalendar'
 
 export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const { t } = useTranslation()
   const { isDark } = useTheme()
+  const currentAdmin = useCurrentAdmin()
   const [step, setStep] = useState(1)
 
   // Step 1: Employee selection
@@ -26,31 +26,11 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const [endDate, setEndDate] = useState(null)
   const [uploadedFile, setUploadedFile] = useState(null)
   const [reason, setReason] = useState('')
-
-  // Step 3: Admin authorization
-  const [selectedAdmin, setSelectedAdmin] = useState(null)
-  const [pin, setPin] = useState(['', '', '', ''])
-  const [pinStatus, setPinStatus] = useState('idle')
+  const [successMsg, setSuccessMsg] = useState('')
   const typeSelectRef = useRef(null)
 
   const { employees, loading } = useEmployees()
   const { daysOff, addDayOff } = useDaysOff({ employeeId: selectedEmployee?.id })
-  const { admins: rawAdmins, loading: adminsLoading } = useAdmins()
-  const { verify: verifyPin } = useAdminPin()
-
-  // Transform admins to add initials
-  const admins = useMemo(() => {
-    return rawAdmins.map(admin => ({
-      ...admin,
-      initials: admin.name
-        .split(' ')
-        .filter(Boolean)
-        .map(part => part[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase()
-    }))
-  }, [rawAdmins])
 
   // Filter employees based on search query
   const filteredEmployees = useMemo(() => {
@@ -159,25 +139,16 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
 
   if (!isOpen) return null
 
-  console.log('🔍 MODAL DEBUG:', {
-    step,
-    adminsCount: admins.length,
-    adminsLoading,
-    selectedAdmin: selectedAdmin?.id,
-    selectedAdminName: selectedAdmin?.name
-  })
-
   const handleClose = () => {
     setStep(1)
     setSearchQuery('')
     setSelectedEmployee(null)
+    setCalendarOffset(0)
     setStartDate(null)
     setEndDate(null)
     setUploadedFile(null)
     setReason('')
-    setSelectedAdmin(null)
-    setPin(['', '', '', ''])
-    setPinStatus('idle')
+    setSuccessMsg('')
     onClose?.()
   }
 
@@ -290,97 +261,40 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     setUploadedFile(file)
   }
 
-  const handlePinChange = (index, value) => {
-    if (value.length > 1) value = value[value.length - 1]
-    if (value && !/^[0-9]$/.test(value)) return
-
-    const newPin = [...pin]
-    newPin[index] = value
-    setPin(newPin)
-
-    // Auto-focus next
-    if (value && index < 3) {
-      document.getElementById(`home-pin-${index + 1}`)?.focus()
-    }
-
-    // Auto-verify when all 4 digits entered
-    if (newPin.every(d => d !== '')) {
-      handlePinValidate(newPin.join(''))
-    }
-  }
-
-  const handlePinValidate = async (pinValue) => {
-    if (!selectedAdmin?.id) {
-      console.error('❌ No admin selected')
-      return
-    }
-
-    console.log('🔐 Validating PIN for admin:', selectedAdmin.id)
-    setPinStatus('verifying')
-
-    try {
-      await verifyPin(selectedAdmin.id, pinValue)
-      console.log('✅ PIN verified successfully')
-      setPinStatus('verified')
-    } catch (error) {
-      console.error('❌ PIN verification failed:', error)
-      setPinStatus('error')
-      setTimeout(() => {
-        setPin(['', '', '', ''])
-        setPinStatus('idle')
-        document.getElementById('home-pin-0')?.focus()
-      }, 1500)
-    }
-  }
-
   const handleFinalSubmit = async () => {
-    if (!selectedEmployee || !startDate || !endDate || !reason || pinStatus !== 'verified') return
+    if (!selectedEmployee || !startDate || !endDate || !reason || !currentAdmin?.id) return
 
-    // Get adminId from selectedAdmin or sessionStorage
-    let adminId = selectedAdmin?.id
-    if (!adminId) {
-      try {
-        const stored = sessionStorage.getItem('currentAdmin')
-        const currentAdmin = stored ? JSON.parse(stored) : null
-        adminId = currentAdmin?.id
-      } catch {
-        adminId = null
-      }
-    }
-
-    if (!adminId) {
-      alert('❌ Admin introuvable')
-      return
-    }
-
-    console.log('Submitting day-off:', {
+    console.log('[DayOff Submit]', {
       employeeId: selectedEmployee.id,
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0],
+      startDate: format(startDate, 'yyyy-MM-dd'),
+      endDate: format(endDate, 'yyyy-MM-dd'),
       type: reason,
-      adminId
+      adminId: currentAdmin.id
     })
 
     try {
       await addDayOff({
         employeeId: selectedEmployee.id,
-        startDate: startDate.toISOString().split('T')[0],
-        endDate: endDate.toISOString().split('T')[0],
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
         type: reason,
-        reason: null,
-        adminId
+        adminId: currentAdmin.id
       })
 
-      onSuccess?.()
-      handleClose()
+      setSuccessMsg('Congé ajouté avec succès')
+      setTimeout(() => {
+        setSuccessMsg('')
+        handleClose()
+        onSuccess?.()
+      }, 1500)
     } catch (error) {
-      alert(`❌ ${t('erreur')}: ${error.message}`)
+      setSuccessMsg(`Erreur: ${error.message}`)
+      setTimeout(() => setSuccessMsg(''), 3000)
     }
   }
 
-  const isStep1Valid = !!selectedEmployee
-  const isStep2Valid = !!startDate && !!endDate && !!reason
-  const isStep3Valid = !!selectedAdmin && pinStatus === 'verified'
+  const isStep1Valid = !!selectedEmployee && !!startDate && !!endDate && !!reason
+  const isStep2Valid = true
 
   const getStatusConfig = (status) => {
     const configs = {
@@ -443,10 +357,8 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                 {t('ajouterConge')}
               </h2>
               <p className="text-xs text-[#6B7280] dark:text-[#7A9CC4] mt-0.5">
-                {t('etape')} {step} {t('sur')} 3 — {
-                  step === 1 ? t('choisirEmploye') :
-                  step === 2 ? t('datesEtMotif') :
-                  t('autorisation')
+                {t('etape')} {step} {t('sur')} 2 — {
+                  step === 1 ? 'Sélection et dates' : 'Confirmation'
                 }
               </p>
             </div>
@@ -838,34 +750,54 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
             </>
           )}
 
-          {step === 3 && (
+          {step === 2 && (
             <>
               {/* Summary */}
               <div
-                className="bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl p-4"
+                className="bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl p-4 mb-4"
                 style={isDark ? {
                   backgroundColor: 'rgba(99,157,255,0.08)',
                   border: '1px solid rgba(99,157,255,0.12)'
                 } : {}}
               >
-                <div className="text-sm font-medium text-[#111827] dark:text-[#E8EFF8]">
-                  {selectedEmployee?.name} · {startDate && endDate && `${format(startDate, 'dd MMM', { locale: fr })}–${format(endDate, 'dd MMM', { locale: fr })}`} · {workingDays} {t('jours')} · {reason === 'annual' ? t('congeAnnuel') : reason === 'sick' ? t('congeMaladie') : reason === 'unpaid' ? t('congeSansSolde') : t('autre')}
+                <div className="text-sm font-semibold text-[#111827] dark:text-[#E8EFF8] mb-2">
+                  Résumé du congé
+                </div>
+                <div className="space-y-2 text-sm text-[#6B7280] dark:text-[#7A9CC4]">
+                  <div className="flex justify-between">
+                    <span>Employé:</span>
+                    <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">{selectedEmployee?.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Période:</span>
+                    <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">
+                      {startDate && endDate && `${format(startDate, 'dd MMM', { locale: fr })} – ${format(endDate, 'dd MMM yyyy', { locale: fr })}`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Jours ouvrables:</span>
+                    <span className="font-bold text-navy dark:text-[#639DFF]">{workingDays} jours</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Type:</span>
+                    <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">
+                      {reason === 'annual' ? t('congeAnnuel') : reason === 'sick' ? t('congeMaladie') : reason === 'unpaid' ? t('congeSansSolde') : t('autre')}
+                    </span>
+                  </div>
+                  {hasSandwich && (
+                    <div className="flex items-center gap-2 text-status-amber dark:text-[#FF9F0A] pt-2 border-t border-black/6 dark:border-white/[0.06]">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span className="text-xs font-medium">Détection sandwich — Week-end inclus</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <AutorisationStep
-                admins={admins}
-                selectedAdmin={selectedAdmin}
-                onAdminSelect={(admin) => {
-                  setSelectedAdmin(admin)
-                  setPin(['', '', '', ''])
-                  setPinStatus('idle')
-                }}
-                pin={pin}
-                onPinChange={handlePinChange}
-                pinStatus={pinStatus}
-                pinIdPrefix="home-pin"
-              />
+              <div
+                className="bg-blue-50 dark:bg-[rgba(99,157,255,0.08)] border border-blue-200 dark:border-[rgba(99,157,255,0.15)] rounded-xl p-3 text-xs text-blue-800 dark:text-[#639DFF]"
+              >
+                Ajouté par: {currentAdmin?.name} — {currentAdmin?.role}
+              </div>
             </>
           )}
 
@@ -875,72 +807,70 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
 
         {/* STICKY FOOTER */}
         <div
-          className="flex-shrink-0 flex items-center gap-3 px-5 py-4 border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#16161E]"
+          className="flex-shrink-0 px-5 py-4 border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#16161E]"
           style={isDark ? {
             backgroundColor: '#0B1120',
             borderColor: 'rgba(99,157,255,0.12)'
           } : {}}
         >
-          <button
-            onClick={step === 1 ? handleClose : () => setStep(step - 1)}
-            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#7A9CC4] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200"
-            style={isDark ? {
-              backgroundColor: 'transparent'
-            } : {}}
-            onMouseEnter={(e) => {
-              if (isDark) {
-                e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (isDark) {
-                e.currentTarget.style.backgroundColor = 'transparent'
-              }
-            }}
-          >
-            {step === 1 ? t('annuler') : t('retourFleche')}
-          </button>
-          <button
-            onClick={step === 3 ? handleFinalSubmit : () => setStep(step + 1)}
-            disabled={
-              (step === 1 && !isStep1Valid) ||
-              (step === 2 && !isStep2Valid) ||
-              (step === 3 && !isStep3Valid)
-            }
-            className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
-            style={
-              ((step === 1 && isStep1Valid) || (step === 2 && isStep2Valid) || (step === 3 && isStep3Valid))
-                ? (isDark ? {
-                    background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
-                    color: 'white',
-                    border: '1px solid rgba(99,157,255,0.2)',
-                    boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
-                  } : {
-                    backgroundColor: '#1A2F4F',
-                    color: 'white'
-                  })
-                : {
-                    backgroundColor: '#9CA3AF',
-                    color: 'white'
-                  }
-            }
-            onMouseEnter={(e) => {
-              if ((step === 1 && isStep1Valid) || (step === 2 && isStep2Valid) || (step === 3 && isStep3Valid)) {
-                if (!isDark) {
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,47,79,0.3)'
+          {/* Success message */}
+          {successMsg && (
+            <div className={`mb-3 px-4 py-2 rounded-lg text-sm text-center ${
+              successMsg.includes('Erreur') || successMsg.includes('erreur')
+                ? 'bg-red-50 dark:bg-[rgba(192,57,43,0.15)] text-red-700 dark:text-[#FF6B6B] border border-red-200 dark:border-[rgba(255,59,48,0.2)]'
+                : 'bg-green-50 dark:bg-[rgba(52,199,89,0.15)] text-green-700 dark:text-[#34C759] border border-green-200 dark:border-[rgba(52,199,89,0.2)]'
+            }`}>
+              {successMsg}
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={step === 1 ? handleClose : () => setStep(1)}
+              disabled={!!successMsg}
+              className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#7A9CC4] hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all duration-200 disabled:opacity-50"
+              style={isDark ? { backgroundColor: 'transparent' } : {}}
+              onMouseEnter={(e) => {
+                if (isDark && !successMsg) {
+                  e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
                 }
+              }}
+              onMouseLeave={(e) => {
+                if (isDark && !successMsg) {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }
+              }}
+            >
+              {step === 1 ? t('annuler') : 'Retour'}
+            </button>
+            <button
+              onClick={step === 2 ? handleFinalSubmit : () => setStep(2)}
+              disabled={
+                (step === 1 && !isStep1Valid) ||
+                (step === 2 && !isStep2Valid) ||
+                !!successMsg
               }
-            }}
-            onMouseLeave={(e) => {
-              if ((step === 1 && isStep1Valid) || (step === 2 && isStep2Valid) || (step === 3 && isStep3Valid)) {
-                e.currentTarget.style.boxShadow = isDark
-                  ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
-                  : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
+              className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
+              style={
+                ((step === 1 && isStep1Valid) || (step === 2 && isStep2Valid)) && !successMsg
+                  ? (isDark ? {
+                      background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
+                      color: 'white',
+                      border: '1px solid rgba(99,157,255,0.2)',
+                      boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
+                    } : {
+                      backgroundColor: '#1A2F4F',
+                      color: 'white'
+                    })
+                  : {
+                      backgroundColor: '#9CA3AF',
+                      color: 'white'
+                    }
               }
-            }}
-          >
-            {step === 3 ? t('confirmerConge') : t('suivantFleche')}
-          </button>
+            >
+              {step === 2 ? 'Confirmer le congé' : 'Suivant →'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
