@@ -20,24 +20,34 @@ function sumDaysUsed(records) {
 
 async function getDaysOff(req, res) {
     try {
-        const { employeeId } = req.query
-        const period = getCurrentPeriod()
+        const { employeeId, periodStart, periodEnd } = req.query
+        const currentPeriod = getCurrentPeriod()
 
-        // ALWAYS filter by current period for consistency
-        const where = employeeId
-            ? {
-                employeeId: String(employeeId),
-                startDate: {
-                    gte: period.start,
-                    lte: period.end,
-                },
+        let rangeStart = currentPeriod.start
+        let rangeEnd = currentPeriod.end
+
+        if (periodStart || periodEnd) {
+            const parsedStart = periodStart ? new Date(periodStart) : null
+            const parsedEnd = periodEnd ? new Date(periodEnd) : null
+
+            if (parsedStart && Number.isNaN(parsedStart.getTime())) {
+                return res.status(400).json({ error: 'Invalid periodStart' })
             }
-            : {
-                startDate: {
-                    gte: period.start,
-                    lte: period.end,
-                },
+            if (parsedEnd && Number.isNaN(parsedEnd.getTime())) {
+                return res.status(400).json({ error: 'Invalid periodEnd' })
             }
+
+            rangeStart = parsedStart || currentPeriod.start
+            rangeEnd = parsedEnd || currentPeriod.end
+        }
+
+        const where = {
+            ...(employeeId ? { employeeId: String(employeeId) } : {}),
+            AND: [
+                { endDate: { gte: rangeStart } },
+                { startDate: { lte: rangeEnd } },
+            ],
+        }
 
         const records = await prisma.dayOff.findMany({
             where,

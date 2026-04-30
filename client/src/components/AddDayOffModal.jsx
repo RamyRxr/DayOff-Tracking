@@ -1,7 +1,12 @@
 import { useState, useMemo, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { X, Upload, AlertTriangle, AlertCircle } from "lucide-react";
+import {
+  X,
+  Upload,
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { format, isSameDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useDaysOff } from "../hooks/useDaysOff";
@@ -9,6 +14,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useCurrentAdmin } from "../contexts/AdminContext";
 import CustomSelect from "./CustomSelect";
 import SplitCalendar from "./SplitCalendar";
+import SuccessModal from "./SuccessModal";
 
 export default function AddDayOffModal({
   employee,
@@ -17,16 +23,48 @@ export default function AddDayOffModal({
   onSubmit,
 }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { isDark } = useTheme();
   const currentAdmin = useCurrentAdmin();
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [reason, setReason] = useState("");
+  const [calendarOffset, setCalendarOffset] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
   const typeSelectRef = useRef(null);
 
-  const { daysOff } = useDaysOff({ employeeId: employee?.id });
+  const displayedPeriod = useMemo(() => {
+    const today = new Date();
+    const baseMonth = today.getMonth();
+    const baseYear = today.getFullYear();
+
+    const totalMonths = baseYear * 12 + baseMonth + calendarOffset;
+    const displayYear = Math.floor(totalMonths / 12);
+    const displayMonth = totalMonths % 12;
+
+    const periodStart = new Date(displayYear, displayMonth, 20);
+    periodStart.setHours(0, 0, 0, 0);
+
+    const periodEnd = new Date(displayYear, displayMonth + 1, 19);
+    periodEnd.setHours(23, 59, 59, 999);
+
+    return { start: periodStart, end: periodEnd };
+  }, [calendarOffset]);
+
+  const periodStart = useMemo(
+    () => format(displayedPeriod.start, "yyyy-MM-dd"),
+    [displayedPeriod],
+  );
+  const periodEnd = useMemo(
+    () => format(displayedPeriod.end, "yyyy-MM-dd"),
+    [displayedPeriod],
+  );
+
+  const { daysOff } = useDaysOff({
+    employeeId: employee?.id,
+    periodStart,
+    periodEnd,
+  });
 
   // Generate existing day-off dates set
   const existingDates = useMemo(() => {
@@ -69,6 +107,8 @@ export default function AddDayOffModal({
     setEndDate(null);
     setUploadedFile(null);
     setReason("");
+    setCalendarOffset(0);
+    setShowSuccess(false);
     onClose?.();
   };
 
@@ -213,7 +253,7 @@ export default function AddDayOffModal({
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("Fichier trop volumineux (max 5 Mo)");
+      alert(t("fichierTropVolumineux"));
       return;
     }
 
@@ -232,14 +272,16 @@ export default function AddDayOffModal({
         reason: null,
         justification: uploadedFile ? uploadedFile.name : null,
       });
-
-      handleClose();
-      alert("✅ Congé ajouté avec succès");
-      // Don't navigate, just close the modal
+      setShowSuccess(true);
     } catch (error) {
-      alert(`❌ ${t("erreur")}: ${error.message}`);
+      alert(`${t("erreur")}: ${error.message}`);
       // Stay on current page if error
     }
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
+    handleClose();
   };
 
   const isFormValid = startDate && endDate && reason;
@@ -334,8 +376,28 @@ export default function AddDayOffModal({
               {t("datesConge")}
             </label>
 
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => setCalendarOffset((prev) => prev - 1)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4 text-[#6B7280] dark:text-[#7A9CC4]" />
+              </button>
+              <span className="text-[13px] font-semibold text-[#111827] dark:text-[#E8EFF8]">
+                {format(displayedPeriod.start, "dd MMM yyyy", { locale: fr })}
+                {" → "}
+                {format(displayedPeriod.end, "dd MMM yyyy", { locale: fr })}
+              </span>
+              <button
+                onClick={() => setCalendarOffset((prev) => prev + 1)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
+              >
+                <ChevronRight className="w-4 h-4 text-[#6B7280] dark:text-[#7A9CC4]" />
+              </button>
+            </div>
+
             <SplitCalendar
-              currentPeriod={new Date()}
+              currentPeriod={displayedPeriod.start}
               isDark={isDark}
               renderCell={renderCalendarCell}
             />
@@ -365,8 +427,10 @@ export default function AddDayOffModal({
               <div className="flex gap-2 p-3 bg-status-amber/10 dark:bg-[rgba(255,159,10,0.15)] border border-status-amber/20 dark:border-[rgba(255,159,10,0.2)] rounded-xl mt-2">
                 <AlertTriangle className="w-4 h-4 text-status-amber dark:text-[#FF9F0A] flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-status-amber dark:text-[#FF9F0A]">
-                  🥪 Détection sandwich — Jours calendaires: {totalCalendarDays}{" "}
-                  · Jours ouvrables: {workingDays}
+                  {t("sandwichDetails", {
+                    calendar: totalCalendarDays,
+                    working: workingDays,
+                  })}
                 </div>
               </div>
             )}
@@ -395,7 +459,7 @@ export default function AddDayOffModal({
                 fontWeight: 500,
               }}
             >
-              Jours de congé déjà pris
+              {t("joursCongeDejaPris")}
             </span>
             <span
               style={{
@@ -409,7 +473,7 @@ export default function AddDayOffModal({
                       : "#34C759",
               }}
             >
-              {currentDayOffTotal} / 15 jours
+              {currentDayOffTotal} / 15 {t("jours")}
             </span>
           </div>
 
@@ -431,12 +495,10 @@ export default function AddDayOffModal({
                     gap: "8px",
                   }}
                 >
-                  <span style={{ color: "#34C759", fontSize: 14 }}>✅</span>
                   <span
                     style={{ color: "#34C759", fontSize: 14, fontWeight: 500 }}
                   >
-                    Employé en règle — {currentDayOffTotal} jours utilisés sur
-                    15
+                    {t("statutCongeRegle", { count: currentDayOffTotal })}
                   </span>
                 </div>
               )}
@@ -456,11 +518,10 @@ export default function AddDayOffModal({
                     gap: "8px",
                   }}
                 >
-                  <span style={{ color: "#FFC200", fontSize: 14 }}>ℹ️</span>
                   <span
                     style={{ color: "#FFC200", fontSize: 14, fontWeight: 500 }}
                   >
-                    Rappel — {currentDayOffTotal} jours de congé utilisés
+                    {t("statutCongeRappel", { count: currentDayOffTotal })}
                   </span>
                 </div>
               )}
@@ -480,12 +541,10 @@ export default function AddDayOffModal({
                     gap: "8px",
                   }}
                 >
-                  <span style={{ color: "#FF9F0A", fontSize: 14 }}>⚠️</span>
                   <span
                     style={{ color: "#FF9F0A", fontSize: 14, fontWeight: 500 }}
                   >
-                    Attention — {currentDayOffTotal} jours utilisés. Limite: 15
-                    jours
+                    {t("statutCongeAttention", { count: currentDayOffTotal })}
                   </span>
                 </div>
               )}
@@ -505,12 +564,10 @@ export default function AddDayOffModal({
                     gap: "8px",
                   }}
                 >
-                  <span style={{ color: "#C0392B", fontSize: 14 }}>🚫</span>
                   <span
                     style={{ color: "#C0392B", fontSize: 14, fontWeight: 500 }}
                   >
-                    Dépassement — {newTotal} jours au total (limite: 15).
-                    Blocage activé.
+                    {t("statutCongeDepassement", { total: newTotal })}
                   </span>
                 </div>
               )}
@@ -569,7 +626,7 @@ export default function AddDayOffModal({
               >
                 <Upload className="w-8 h-8 text-[#6B7280] dark:text-[#7A9CC4] mx-auto mb-2" />
                 <div className="text-sm text-[#6B7280] dark:text-[#7A9CC4]">
-                  Glisser ou cliquer
+                  {t("glisserCliquer")}
                 </div>
                 <div className="text-xs text-[#9CA3AF] dark:text-[#7A9CC4] mt-1">
                   {t("fichierFormats")}
@@ -689,6 +746,13 @@ export default function AddDayOffModal({
           </button>
         </div>
       </div>
+
+      <SuccessModal
+        isOpen={showSuccess}
+        title={t("congeAjouteSuccesTitre")}
+        message={t("congeAjouteSuccesMessage")}
+        onConfirm={handleSuccessClose}
+      />
     </div>
   );
 }
