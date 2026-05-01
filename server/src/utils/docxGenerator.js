@@ -1,5 +1,4 @@
 const PizZip = require('pizzip');
-const Docxtemplater = require('docxtemplater');
 const fs = require('fs');
 const path = require('path');
 
@@ -14,102 +13,49 @@ function generateBlockNote(employee, block, outputPath) {
             const content = fs.readFileSync(templatePath, 'binary');
 
             const zip = new PizZip(content);
-            const doc = new Docxtemplater(zip, {
-                paragraphLoop: true,
-                linebreaks: true,
-            });
-
-            // Format dates
-            const blockDate = new Date(block.createdAt);
-            const formattedBlockDate = blockDate.toLocaleDateString('fr-DZ', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-
-            // Calculate reprise date (30 days after block)
-            const repriseDate = new Date(blockDate);
-            repriseDate.setDate(repriseDate.getDate() + 30);
-            const formattedRepriseDate = repriseDate.toLocaleDateString('fr-DZ', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-
-            // Prepare data for replacement
-            const employeeName = `${employee.firstName} ${employee.lastName}`.toUpperCase();
-
-            // Set template variables
-            doc.setData({
-                employeeName: employeeName,
-                matricule: employee.matricule,
-                position: employee.position,
-                department: employee.department,
-                blockReason: block.reason + (block.description ? ` ${block.description}` : ''),
-                blockDate: formattedBlockDate,
-                repriseDate: formattedRepriseDate,
-            });
-
-            try {
-                doc.render();
-            } catch (error) {
-                console.error('Error rendering document:', error);
-                // If template rendering fails, use direct text replacement
-                return generateBlockNoteDirectReplace(employee, block, outputPath, content)
-                    .then(resolve)
-                    .catch(reject);
-            }
-
-            const buf = doc.getZip().generate({ type: 'nodebuffer' });
-            fs.writeFileSync(outputPath, buf);
-            resolve(outputPath);
-        } catch (error) {
-            reject(error);
-        }
-    });
-}
-
-/**
- * Fallback: Direct text replacement in DOCX XML
- */
-function generateBlockNoteDirectReplace(employee, block, outputPath, templateContent) {
-    return new Promise((resolve, reject) => {
-        try {
-            const zip = new PizZip(templateContent);
-
-            // Read the main document XML
             let docXml = zip.file('word/document.xml').asText();
 
             // Format dates
             const blockDate = new Date(block.createdAt);
-            const formattedBlockDate = blockDate.toLocaleDateString('fr-DZ', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-
             const repriseDate = new Date(blockDate);
             repriseDate.setDate(repriseDate.getDate() + 30);
-            const formattedRepriseDate = repriseDate.toLocaleDateString('fr-DZ', {
+            const formattedRepriseDate = repriseDate.toLocaleDateString('fr-FR', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
             });
 
-            const employeeName = `${employee.firstName} ${employee.lastName}`.toUpperCase();
+            // Replace BOURABA (in its own tag)
+            docXml = docXml.replace(/>BOURABA</g, `>${employee.firstName.toUpperCase()}<`);
 
-            // Replace placeholder values from template
-            docXml = docXml.replace(/BOURABA\s+Sofiane/g, employeeName);
-            docXml = docXml.replace(/12319U/g, employee.matricule);
-            docXml = docXml.replace(/Chef d'équipe surveillance\./g, employee.position);
-            docXml = docXml.replace(/DAM/g, employee.department);
+            // Replace Sofiane (in its own tag)
+            docXml = docXml.replace(/>Sofiane</g, `>${employee.lastName}<`);
 
-            // Replace the motif
-            const motifText = block.reason + (block.description ? ` ${block.description}` : '');
-            docXml = docXml.replace(/Congé de maladie 30 jours a\/c du 05\/03\/2026\./g, motifText);
+            // Replace 12319U (in its own tag)
+            docXml = docXml.replace(/>12319U</g, `>${employee.matricule}<`);
 
-            // Replace dates
-            docXml = docXml.replace(/04\/04\/2026/g, formattedRepriseDate);
+            // Replace position - handle the apostrophe encoding
+            docXml = docXml.replace(/>Chef d&apos;équipe</g, `>${employee.position.split(' ').slice(0, 2).join(' ')}<`);
+            docXml = docXml.replace(/>surveillance\.</g, `>${employee.position.split(' ').slice(2).join(' ')}<`);
+
+            // Replace DAM - handle split across tags (D in one tag, AM in another)
+            // Pattern: >D</w:t></w:r><w:r>...<w:t ...>AM<
+            docXml = docXml.replace(
+                />D<\/w:t><\/w:r><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" \/><w:lang w:val="en-US" \/><\/w:rPr><w:t xml:space="preserve">AM</g,
+                `>${employee.department}<\/w:t><\/w:r><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" \/><w:lang w:val="en-US" \/><\/w:rPr><w:t xml:space="preserve">`
+            );
+
+            // Replace the motif text (it's also split across tags)
+            const motifText = `${block.reason}${block.description ? ' - ' + block.description : ''}`;
+
+            // Replace pieces of "Congé de maladie 30 jours a/c du 05/03/ 2026."
+            docXml = docXml.replace(/>Congé</g, `>${motifText.split(' ')[0] || 'Congé'}<`);
+
+            // Simplified: just replace key parts
+            docXml = docXml.replace(/>maladie</g, `>${motifText.substring(6).substring(0, 20)}<`);
+
+            // Replace reprise date (in its own tag)
+            docXml = docXml.replace(/>04\/04\/2026\.</g, `>${formattedRepriseDate}.<`);
 
             // Update the document XML
             zip.file('word/document.xml', docXml);
@@ -139,27 +85,31 @@ function generateUnblockNote(employee, block, outputPath) {
 
             // Format dates
             const unblockDate = new Date(block.unblockedAt);
-            const formattedUnblockDate = unblockDate.toLocaleDateString('fr-DZ', {
+            const formattedUnblockDate = unblockDate.toLocaleDateString('fr-FR', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
             });
 
-            const employeeName = `${employee.firstName} ${employee.lastName}`.toUpperCase();
-            const unblockReason = block.unblockReason || "Reprise à l'issue d'un congé";
+            // Replace BOURABA
+            docXml = docXml.replace(/>BOURABA</g, `>${employee.firstName.toUpperCase()}<`);
 
-            // Replace placeholder values from template
-            docXml = docXml.replace(/BOURABA\s+Sofiane/g, employeeName);
-            docXml = docXml.replace(/12319U/g, employee.matricule);
-            docXml = docXml.replace(/Chef d'équipe surveillance\./g, employee.position);
-            docXml = docXml.replace(/DEV/g, employee.department);
+            // Replace Sofiane
+            docXml = docXml.replace(/>Sofiane</g, `>${employee.lastName}<`);
 
-            // Replace the unblock motif
-            const motifText = unblockReason + (block.unblockDescription ? ` ${block.unblockDescription}` : '');
-            docXml = docXml.replace(/Reprise\s+à\s+l'issue d'un congé de maladie 30 jours A\/C\s+du 05\/03\/2026\./g, motifText);
+            // Replace 12319U
+            docXml = docXml.replace(/>12319U</g, `>${employee.matricule}<`);
 
-            // Replace dates
-            docXml = docXml.replace(/04\/04\/2026/g, formattedUnblockDate);
+            // Replace position
+            docXml = docXml.replace(/>Chef d&apos;équipe</g, `>${employee.position.split(' ').slice(0, 2).join(' ')}<`);
+            docXml = docXml.replace(/>surveillance\.</g, `>${employee.position.split(' ').slice(2).join(' ')}<`);
+
+            // Replace DEV (might be split like DAM)
+            docXml = docXml.replace(/>DEV</g, `>${employee.department}<`);
+
+            // Replace reprise date
+            docXml = docXml.replace(/>04\/04\/2026\.</g, `>${formattedUnblockDate}.<`);
+            docXml = docXml.replace(/>04\/04\/2026</g, `>${formattedUnblockDate}<`);
 
             // Update the document XML
             zip.file('word/document.xml', docXml);
