@@ -7,12 +7,14 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
-import { format, isBefore, isAfter, startOfDay, isSameDay } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { getDateLocale } from "../utils/getDateLocale";
 import { useTranslation } from "react-i18next";
 import { useDaysOff } from "../hooks/useDaysOff";
 import { useBlocks } from "../hooks/useBlocks";
 import { useTheme } from "../contexts/ThemeContext";
+import { useEmployeeDayOffStats } from "../hooks/useEmployeeDayOffStats";
+import { toLocalDateString } from "../utils/localDate";
 import {
   useNotifications,
   createBlockNotification,
@@ -42,15 +44,49 @@ export default function EmployeeDetailPanel({
 
   // Calendar navigation state - start with current period
   const currentDate = new Date();
-  const [calendarMonth, setCalendarMonth] = useState(currentDate.getMonth());
-  const [calendarYear, setCalendarYear] = useState(currentDate.getFullYear());
+  const todayDate = currentDate.getDate();
+
+  // Calculate initial period containing today
+  // If today is 1-19, we're in the period that started last month on the 20th
+  // If today is 20-31, we're in the period that started this month on the 20th
+  const getInitialMonth = () => {
+    let month = currentDate.getMonth();
+    let year = currentDate.getFullYear();
+
+    if (todayDate < 20) {
+      month -= 1;
+      if (month < 0) {
+        month = 11;
+        year -= 1;
+      }
+    }
+
+    return { month, year };
+  };
+
+  const initialPeriod = getInitialMonth();
+  const [calendarMonth, setCalendarMonth] = useState(initialPeriod.month);
+  const [calendarYear, setCalendarYear] = useState(initialPeriod.year);
+
+  const periodStartDate = new Date(calendarYear, calendarMonth, 20, 0, 0, 0, 0);
+  const periodEndDate = new Date(
+    calendarYear,
+    calendarMonth + 1,
+    19,
+    23,
+    59,
+    59,
+    999,
+  );
+  const periodStart = format(periodStartDate, "yyyy-MM-dd");
+  const periodEnd = format(periodEndDate, "yyyy-MM-dd");
 
   // Fetch day-off records for this employee
   const {
     daysOff,
     addDayOff,
     refetch: refetchDaysOff,
-  } = useDaysOff({ employeeId: employee?.id });
+  } = useDaysOff({ employeeId: employee?.id, periodStart, periodEnd });
 
   // Block management
   const { blocks, block, unblock } = useBlocks();
@@ -58,22 +94,31 @@ export default function EmployeeDetailPanel({
   // Notifications
   const { addNotification } = useNotifications();
 
+  // Use the calendar navigation state to determine the displayed period
+  const {
+    dayOffDates,
+    totalDayOffDays,
+    daysActuallyWorked,
+    daysAvailable,
+  } = useEmployeeDayOffStats({
+    daysOff,
+    periodStartDate,
+    periodEndDate,
+  });
+
+  // Early return AFTER all hooks
   if (!isOpen || !employee) return null;
 
   const handleAddDayOffSubmit = async (dayOffData) => {
-    try {
-      const result = await addDayOff(dayOffData);
+    const result = await addDayOff(dayOffData);
 
-      // Refresh day-offs data immediately
-      await refetchDaysOff();
+    // Refresh day-offs data immediately
+    await refetchDaysOff();
 
-      // Refresh employee data in parent
-      if (onUpdate) await onUpdate();
+    // Refresh employee data in parent
+    if (onUpdate) await onUpdate();
 
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    return result;
   };
 
   const handleBlockSubmit = async (blockData) => {
@@ -84,7 +129,8 @@ export default function EmployeeDetailPanel({
       // Create notification
       addNotification(createBlockNotification(employee, blockData.reason, t));
 
-      if (onUpdate) onUpdate();
+      // Refresh employee data in parent
+      if (onUpdate) await onUpdate();
     } catch (error) {
       console.error(`${t("erreur")}: ${error.message}`);
     }
@@ -93,8 +139,7 @@ export default function EmployeeDetailPanel({
   const handleUnblockSubmit = async (unblockData) => {
     try {
       await unblock(unblockData.blockId, {
-        adminId: 1,
-        pin: "1234",
+        adminId: unblockData.adminId,
         reason: unblockData.reason,
         description: unblockData.description,
       });
@@ -103,7 +148,8 @@ export default function EmployeeDetailPanel({
       // Create notification
       addNotification(createUnblockNotification(employee, t));
 
-      if (onUpdate) onUpdate();
+      // Refresh employee data in parent
+      if (onUpdate) await onUpdate();
     } catch (error) {
       console.error(`${t("erreur")}: ${error.message}`);
     }
@@ -113,9 +159,6 @@ export default function EmployeeDetailPanel({
   const activeBlock = blocks.find(
     (b) => b.employeeId === employee?.id && b.isActive,
   );
-
-  // Period start for the displayed calendar (20th of selected month)
-  const periodStart = new Date(calendarYear, calendarMonth, 20);
 
   // Navigation functions
   const handlePreviousPeriod = () => {
@@ -151,93 +194,6 @@ export default function EmployeeDetailPanel({
   );
   const periodYearDisplay = calendarYear;
 
-  // Calculate displayed period based on calendar navigation
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // Use the calendar navigation state to determine the displayed period
-  const periodStartDate = new Date(calendarYear, calendarMonth, 20, 0, 0, 0, 0);
-  const periodEndDate = new Date(
-    calendarYear,
-    calendarMonth + 1,
-    19,
-    23,
-    59,
-    59,
-    999,
-  );
-
-  // Calculate total day-off days taken ONLY in current period
-  const dayOffTotals = daysOff.reduce(
-    (sum, dayOff) => {
-      const dayOffStart = new Date(dayOff.startDate);
-      const dayOffEnd = new Date(dayOff.endDate);
-      const todayForCalc = new Date();
-      todayForCalc.setHours(0, 0, 0, 0);
-
-      // Skip if day-off is completely outside current period
-      if (dayOffEnd < periodStartDate || dayOffStart > periodEndDate) {
-        return sum;
-      }
-
-      // Calculate overlap with current period
-      const overlapStart =
-        dayOffStart < periodStartDate ? periodStartDate : dayOffStart;
-      const overlapEnd = dayOffEnd > periodEndDate ? periodEndDate : dayOffEnd;
-
-      let count = 0;
-      const current = new Date(overlapStart);
-      while (current <= overlapEnd) {
-        const day = current.getDay();
-        // Exclude Friday (5) and Saturday (6) weekends
-        if (day !== 5 && day !== 6) {
-          count++;
-          if (current <= todayForCalc) {
-            sum.past += 1;
-          }
-        }
-        current.setDate(current.getDate() + 1);
-      }
-      sum.total += count;
-      return sum;
-    },
-    { total: 0, past: 0 },
-  );
-
-  const totalDayOffDays = dayOffTotals.total;
-  const pastDayOffDays = dayOffTotals.past;
-
-  // Calculate working days based on displayed period
-  let daysActuallyWorked = 0;
-  if (today >= periodStartDate && today <= periodEndDate) {
-    // Current period: count from period start to today
-    let workingDaysElapsed = 0;
-    const tempDate = new Date(periodStartDate);
-    while (tempDate <= today && tempDate <= periodEndDate) {
-      const day = tempDate.getDay();
-      if (day !== 5 && day !== 6) {
-        workingDaysElapsed++;
-      }
-      tempDate.setDate(tempDate.getDate() + 1);
-    }
-    daysActuallyWorked = Math.max(0, workingDaysElapsed - pastDayOffDays);
-  } else if (today > periodEndDate) {
-    // Past period: count all working days in the period
-    let totalWorkingDays = 0;
-    const tempDate = new Date(periodStartDate);
-    while (tempDate <= periodEndDate) {
-      const day = tempDate.getDay();
-      if (day !== 5 && day !== 6) {
-        totalWorkingDays++;
-      }
-      tempDate.setDate(tempDate.getDate() + 1);
-    }
-    daysActuallyWorked = Math.max(0, totalWorkingDays - totalDayOffDays);
-  }
-  // Future period: daysActuallyWorked = 0 (already initialized)
-
-  const daysAvailable = Math.max(0, 15 - totalDayOffDays);
-
   // Generate email from name if not present
   const getEmail = () => {
     if (employee.email) return employee.email;
@@ -253,42 +209,21 @@ export default function EmployeeDetailPanel({
     const date = employee.startDate || employee.createdAt;
     if (!date) return "—";
     try {
-      return format(new Date(date), "dd MMM yyyy", { locale: fr });
+      return format(new Date(date), "dd MMM yyyy", { locale });
     } catch {
       return "—";
     }
   };
 
-  // Generate calendar for current period (20th to 19th)
-  // Create set of day-off dates for quick lookup (using date strings to avoid timezone issues)
-  const dayOffDates = new Set();
-  daysOff.forEach((dayOff) => {
-    // Parse dates as local dates (ignore time and timezone)
-    const startStr = dayOff.startDate.split('T')[0];
-    const endStr = dayOff.endDate.split('T')[0];
-    const [startY, startM, startD] = startStr.split('-').map(Number);
-    const [endY, endM, endD] = endStr.split('-').map(Number);
-
-    const start = new Date(startY, startM - 1, startD);
-    const end = new Date(endY, endM - 1, endD);
-
-    const current = new Date(start);
-    while (current <= end) {
-      // Store as YYYY-MM-DD string to avoid timezone issues
-      const dateStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
-      dayOffDates.add(dateStr);
-      current.setDate(current.getDate() + 1);
-    }
-  });
-
   // Handler for clicking on day-off cells
   const handleDayOffClick = (date, e) => {
-    // Find the day-off record for this day
-    const dayOffRecord = employee?.daysOff?.find(
-      (d) =>
-        !isBefore(date, startOfDay(new Date(d.startDate))) &&
-        !isAfter(date, startOfDay(new Date(d.endDate))),
-    );
+    const dateStr = toLocalDateString(date);
+
+    const dayOffRecord = daysOff.find((d) => {
+      const startStr = d.startDate.split("T")[0];
+      const endStr = d.endDate.split("T")[0];
+      return dateStr >= startStr && dateStr <= endStr;
+    });
 
     if (dayOffRecord) {
       setSelectedDayOff(dayOffRecord);
@@ -296,35 +231,28 @@ export default function EmployeeDetailPanel({
     }
   };
 
-  // Custom cell renderer - exact copy from AddDayOffModal with dynamic sizing
+  // Custom cell renderer - exact copy from AddDayOffModal adapted for detail view
   const renderCalendarCell = (
     day,
     index,
     { isDark, cellSizeClass = "w-12 h-12", textSizeClass = "text-[15px]" },
   ) => {
+    // Use same date format as AddDayOffModal (local date, not UTC)
+    const dayStr = toLocalDateString(day);
     const isWeekend = day.getDay() === 5 || day.getDay() === 6;
-    // Use date string to avoid timezone issues
-    const dayStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
     const isExisting = dayOffDates.has(dayStr);
     const isToday = isSameDay(day, new Date());
 
     let cellStyle = {};
     let textClass = `${cellSizeClass} flex items-center justify-center transition-all duration-150 rounded-lg ${textSizeClass}`;
 
-    // Apply complex styling logic - exact same as AddDayOffModal
+    // Priority order: existing > today > weekend > default
+    // This ensures today shows with blue border even if it's a weekend
     if (isExisting) {
       cellStyle.background =
         "linear-gradient(145deg, rgba(255,59,48,0.12), rgba(192,57,43,0.08))";
       cellStyle.boxShadow = "inset 0 1px 2px rgba(0,0,0,0.1)";
       textClass += " text-[#C0392B] font-semibold cursor-pointer";
-    } else if (isWeekend) {
-      cellStyle.background = isDark ? "rgba(99,157,255,0.03)" : "#F2F2F7";
-      cellStyle.boxShadow = isDark
-        ? "inset 0 1px 2px rgba(0,0,0,0.2)"
-        : "inset 0 1px 2px rgba(0,0,0,0.04)";
-      textClass += isDark
-        ? " text-[#4A6A8A] cursor-not-allowed"
-        : " text-[#C7C7CC] cursor-not-allowed";
     } else if (isToday) {
       cellStyle.background = isDark
         ? "linear-gradient(145deg, rgba(99,157,255,0.12), rgba(99,157,255,0.06))"
@@ -335,6 +263,14 @@ export default function EmployeeDetailPanel({
       textClass += isDark
         ? " text-[#639DFF] font-semibold"
         : " text-[#007AFF] font-semibold";
+    } else if (isWeekend) {
+      cellStyle.background = isDark ? "rgba(99,157,255,0.03)" : "#F2F2F7";
+      cellStyle.boxShadow = isDark
+        ? "inset 0 1px 2px rgba(0,0,0,0.2)"
+        : "inset 0 1px 2px rgba(0,0,0,0.04)";
+      textClass += isDark
+        ? " text-[#4A6A8A] cursor-not-allowed"
+        : " text-[#C7C7CC] cursor-not-allowed";
     } else {
       cellStyle.background = isDark
         ? "rgba(99,157,255,0.05)"
@@ -432,7 +368,7 @@ export default function EmployeeDetailPanel({
               style={
                 isDark
                   ? {
-                      ":hover": { backgroundColor: "rgba(99,157,255,0.08)" },
+                      backgroundColor: "transparent",
                     }
                   : {}
               }
@@ -737,7 +673,7 @@ export default function EmployeeDetailPanel({
 
               {/* Split Calendar */}
               <SplitCalendar
-                currentPeriod={periodStart}
+                currentPeriod={periodStartDate}
                 dayOffDates={dayOffDates}
                 onDayOffClick={handleDayOffClick}
                 isDark={isDark}
@@ -793,19 +729,19 @@ export default function EmployeeDetailPanel({
           >
             <button
               onClick={() => setShowAddDayOff(true)}
-              disabled={employee.status === "bloqué"}
+              disabled={employee.status === "bloque"}
               className={`flex-1 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
-                employee.status === "bloqué"
+                employee.status === "bloque"
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-navy text-white shadow-ambient hover:shadow-modal"
               }`}
               style={
-                employee.status === "bloqué" && isDark
+                employee.status === "bloque" && isDark
                   ? {
                       backgroundColor: "rgba(99,157,255,0.06)",
                       color: "#4A6A8A",
                     }
-                  : employee.status !== "bloqué" && isDark
+                  : employee.status !== "bloque" && isDark
                     ? {
                         background: "linear-gradient(145deg, #2A5494, #1E3D6B)",
                         border: "1px solid rgba(99,157,255,0.2)",
@@ -816,7 +752,7 @@ export default function EmployeeDetailPanel({
             >
               {t("ajouterUnConge")}
             </button>
-            {employee.status !== "bloqué" && (
+            {employee.status !== "bloque" && (
               <button
                 onClick={() => setShowBlock(true)}
                 className="px-4 py-3 border border-status-red/20 dark:border-[#FF6B6B]/20 text-status-red dark:text-[#FF6B6B] rounded-xl font-medium text-sm hover:bg-status-red/5 dark:hover:bg-[rgba(255,107,107,0.1)] transition-all duration-200"
@@ -824,7 +760,7 @@ export default function EmployeeDetailPanel({
                 {t("bloquer")}
               </button>
             )}
-            {employee.status === "bloqué" && (
+            {employee.status === "bloque" && (
               <button
                 onClick={() => setShowUnblock(true)}
                 className="px-4 py-3 border border-status-green/20 dark:border-[#34C759]/20 text-status-green dark:text-[#34C759] rounded-xl font-medium text-sm hover:bg-status-green/5 dark:hover:bg-[rgba(52,199,89,0.1)] transition-all duration-200"

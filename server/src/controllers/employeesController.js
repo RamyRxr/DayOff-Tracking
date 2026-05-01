@@ -1,7 +1,7 @@
 const prisma = require('../lib/prisma')
 const {
     getCurrentPeriod,
-    countWorkingDays,
+    countDayOffDays,
     shouldBlock,
     workingDaysElapsed,
 } = require('../utils/period')
@@ -20,8 +20,8 @@ function getDaysUsedInPeriod(daysOff, period) {
         const overlapStart = start < period.start ? period.start : start
         const overlapEnd = end > period.end ? period.end : end
 
-        // Count only working days in the overlap
-        return sum + countWorkingDays(overlapStart, overlapEnd)
+        // Count day-off days with sandwich detection
+        return sum + countDayOffDays(overlapStart, overlapEnd)
     }, 0)
 }
 
@@ -57,11 +57,27 @@ async function getEmployees(req, res) {
         const result = employees.map((employee) => {
             const daysUsed = getDaysUsedInPeriod(employee.daysOff, period)
             const daysAvailable = 30 - daysUsed
-            const activeBlock = employee.status === 'bloque' ? employee.blocks[0] || null : null
+
+            // Check if employee has an active block
+            const activeBlock = employee.blocks.find(b => b.isActive) || null
+
+            // Calculate status based on blocks and days available
+            let status
+            if (activeBlock) {
+                status = 'bloque'
+            } else if (daysAvailable < 0) {
+                status = 'doit_bloquer'
+            } else if (daysAvailable < 16) {
+                status = 'a_risque'
+            } else {
+                status = 'actif'
+            }
+
             const isAtRisk = daysAvailable < 16 && !activeBlock
 
             return {
                 ...employee,
+                status,
                 daysUsed,
                 daysWorked,
                 daysAvailable,
@@ -120,12 +136,28 @@ async function getEmployeeById(req, res) {
         const daysUsed = getDaysUsedInPeriod(currentPeriodDaysOff, period)
         const daysWorked = workingDaysElapsed()
         const daysAvailable = 30 - daysUsed
-        const activeBlock = employee.status === 'bloque' ? employee.blocks[0] || null : null
+
+        // Check if employee has an active block
+        const activeBlock = employee.blocks.find(b => b.isActive) || null
+
+        // Calculate status based on blocks and days available
+        let status
+        if (activeBlock) {
+            status = 'bloque'
+        } else if (daysAvailable < 0) {
+            status = 'doit_bloquer'
+        } else if (daysAvailable < 16) {
+            status = 'a_risque'
+        } else {
+            status = 'actif'
+        }
+
         const isAtRisk = daysAvailable < 16 && !activeBlock
 
         return res.json({
             data: {
                 ...employee,
+                status,
                 daysOff: currentPeriodDaysOff,
                 activeBlock,
                 daysUsed,
