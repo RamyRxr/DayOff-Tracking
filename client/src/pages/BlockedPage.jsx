@@ -144,7 +144,7 @@ export default function BlockedPage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `note-blocage-${employee.matricule}.pdf`;
+      a.download = `note-blocage-${employee.matricule}.docx`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -169,7 +169,7 @@ export default function BlockedPage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `note-deblocage-${employee.matricule}.pdf`;
+      a.download = `note-deblocage-${employee.matricule}.docx`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);

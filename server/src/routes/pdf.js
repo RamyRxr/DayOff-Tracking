@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../lib/prisma');
-const { generateBlockNote, generateUnblockNote } = require('../utils/pdfGenerator');
+const { generateBlockNote, generateUnblockNote } = require('../utils/docxGenerator');
 const path = require('path');
 const fs = require('fs');
 
@@ -26,7 +26,7 @@ router.get('/block/:blockId', async (req, res) => {
         }
 
         const employee = block.employee;
-        const filename = `note-blocage-${employee.matricule}-${Date.now()}.pdf`;
+        const filename = `note-blocage-${employee.matricule}-${Date.now()}.docx`;
         const outputPath = path.join(__dirname, '../../temp', filename);
 
         // Ensure temp directory exists
@@ -76,7 +76,7 @@ router.get('/unblock/:blockId', async (req, res) => {
         }
 
         const employee = block.employee;
-        const filename = `note-deblocage-${employee.matricule}-${Date.now()}.pdf`;
+        const filename = `note-deblocage-${employee.matricule}-${Date.now()}.docx`;
         const outputPath = path.join(__dirname, '../../temp', filename);
 
         // Ensure temp directory exists
