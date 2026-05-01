@@ -15,6 +15,11 @@ import { useCurrentAdmin } from "../contexts/AdminContext";
 import CustomSelect from "./CustomSelect";
 import SplitCalendar from "./SplitCalendar";
 import SuccessModal from "./SuccessModal";
+import { MAX_DAY_OFF_DAYS } from "../utils/leavePolicy";
+import {
+  parseLocalDateString,
+  toLocalDateString,
+} from "../utils/localDate";
 
 export default function AddDayOffModal({
   employee,
@@ -35,8 +40,20 @@ export default function AddDayOffModal({
 
   const displayedPeriod = useMemo(() => {
     const today = new Date();
-    const baseMonth = today.getMonth();
-    const baseYear = today.getFullYear();
+    const todayDate = today.getDate();
+    let baseMonth = today.getMonth();
+    let baseYear = today.getFullYear();
+
+    // Determine which period contains today
+    // If today is 1-19, we're in the period that started last month on the 20th
+    // If today is 20-31, we're in the period that started this month on the 20th
+    if (todayDate < 20) {
+      baseMonth -= 1;
+      if (baseMonth < 0) {
+        baseMonth = 11;
+        baseYear -= 1;
+      }
+    }
 
     const totalMonths = baseYear * 12 + baseMonth + calendarOffset;
     const displayYear = Math.floor(totalMonths / 12);
@@ -71,18 +88,15 @@ export default function AddDayOffModal({
     const dates = new Set();
     daysOff?.forEach((dayOff) => {
       // Parse dates as local dates (ignore time and timezone)
-      const startStr = dayOff.startDate.split('T')[0];
-      const endStr = dayOff.endDate.split('T')[0];
-      const [startY, startM, startD] = startStr.split('-').map(Number);
-      const [endY, endM, endD] = endStr.split('-').map(Number);
-
-      const start = new Date(startY, startM - 1, startD);
-      const end = new Date(endY, endM - 1, endD);
+      const startStr = dayOff.startDate.split("T")[0];
+      const endStr = dayOff.endDate.split("T")[0];
+      const start = parseLocalDateString(startStr);
+      const end = parseLocalDateString(endStr);
 
       const current = new Date(start);
       while (current <= end) {
         // Store as YYYY-MM-DD string using local date
-        const dateStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
+        const dateStr = toLocalDateString(current);
         dates.add(dateStr);
         current.setDate(current.getDate() + 1);
       }
@@ -90,26 +104,36 @@ export default function AddDayOffModal({
     return dates;
   }, [daysOff]);
 
-  // Calculate employee's current total day-off days
+  // Calculate employee's current total day-off days (with sandwich detection)
   const currentDayOffTotal = useMemo(() => {
     if (!daysOff) return 0;
     return daysOff.reduce((sum, dayOff) => {
       // Parse dates as local dates (ignore time and timezone)
-      const startStr = dayOff.startDate.split('T')[0];
-      const endStr = dayOff.endDate.split('T')[0];
-      const [startY, startM, startD] = startStr.split('-').map(Number);
-      const [endY, endM, endD] = endStr.split('-').map(Number);
+      const startStr = dayOff.startDate.split("T")[0];
+      const endStr = dayOff.endDate.split("T")[0];
+      const start = parseLocalDateString(startStr);
+      const end = parseLocalDateString(endStr);
 
-      const start = new Date(startY, startM - 1, startD);
-      const end = new Date(endY, endM - 1, endD);
-
-      let count = 0;
+      // Calculate total days and working days
+      const totalDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      let workingDayCount = 0;
       const current = new Date(start);
       while (current <= end) {
         const day = current.getDay();
-        if (day !== 5 && day !== 6) count++;
+        if (day !== 5 && day !== 6) workingDayCount++;
         current.setDate(current.getDate() + 1);
       }
+
+      // Detect sandwich: working days on both ends with weekends in between
+      const startDayOfWeek = start.getDay();
+      const endDayOfWeek = end.getDay();
+      const isStartWorkingDay = startDayOfWeek !== 5 && startDayOfWeek !== 6;
+      const isEndWorkingDay = endDayOfWeek !== 5 && endDayOfWeek !== 6;
+      const isSandwich = isStartWorkingDay && isEndWorkingDay && totalDays > workingDayCount;
+
+      // If sandwich, count all days; otherwise count only working days
+      const count = isSandwich ? totalDays : workingDayCount;
+
       return sum + count;
     }, 0);
   }, [daysOff]);
@@ -129,7 +153,7 @@ export default function AddDayOffModal({
   };
 
   const handleDayClick = (day) => {
-    const dayStr = day.toISOString().split("T")[0];
+    const dayStr = toLocalDateString(day);
 
     // Check if day is selectable (only weekends and existing dates are blocked)
     if (day.getDay() === 5 || day.getDay() === 6) return;
@@ -152,14 +176,17 @@ export default function AddDayOffModal({
 
   const calculateWorkingDays = () => {
     if (!startDate || !endDate) return 0;
-    let count = 0;
+
+    // Count pure working days in the range
+    let workingDayCount = 0;
     const current = new Date(startDate);
     while (current <= endDate) {
       const day = current.getDay();
-      if (day !== 5 && day !== 6) count++;
+      if (day !== 5 && day !== 6) workingDayCount++;
       current.setDate(current.getDate() + 1);
     }
-    return count;
+
+    return workingDayCount;
   };
 
   const calculateCalendarDays = () => {
@@ -168,24 +195,44 @@ export default function AddDayOffModal({
     return diff + 1;
   };
 
+  const calculateDayOffDays = () => {
+    if (!startDate || !endDate) return 0;
+
+    const totalDays = calculateCalendarDays();
+    const workingDayCount = calculateWorkingDays();
+
+    // Check if there are working days on both sides (sandwich detection)
+    const startDayOfWeek = startDate.getDay();
+    const endDayOfWeek = endDate.getDay();
+    const isStartWorkingDay = startDayOfWeek !== 5 && startDayOfWeek !== 6;
+    const isEndWorkingDay = endDayOfWeek !== 5 && endDayOfWeek !== 6;
+
+    // If there are working days on both sides and total > working days, it's a sandwich
+    // In sandwich cases, count ALL calendar days as day-off
+    if (isStartWorkingDay && isEndWorkingDay && totalDays > workingDayCount) {
+      return totalDays;
+    }
+
+    // Otherwise, just count working days
+    return workingDayCount;
+  };
+
   const workingDays = calculateWorkingDays();
   const totalCalendarDays = calculateCalendarDays();
+  const dayOffDays = calculateDayOffDays();
   const hasSandwich = totalCalendarDays > workingDays;
-  const newTotal = currentDayOffTotal + workingDays;
-  const hasHighDayOffCount = currentDayOffTotal >= 10;
-  const willExceedLimit = newTotal > 15;
+  const newTotal = currentDayOffTotal + dayOffDays;
 
   // Custom cell renderer for range selection
   const renderCalendarCell = (
     day,
     index,
     {
-      isDark: _,
       cellSizeClass = "w-9 h-9",
       textSizeClass = "text-[13px]",
     } = {},
   ) => {
-    const dayStr = day.toISOString().split("T")[0];
+    const dayStr = toLocalDateString(day);
     const isWeekend = day.getDay() === 5 || day.getDay() === 6;
     const isExisting = existingDates.has(dayStr);
     const isStart =
@@ -197,7 +244,8 @@ export default function AddDayOffModal({
     let cellStyle = {};
     let textClass = `${cellSizeClass} flex items-center justify-center transition-all duration-150 rounded-lg ${textSizeClass}`;
 
-    // Apply complex styling logic
+    // Priority order: existing > selected > range > today > weekend > default
+    // This ensures today shows with blue border even if it's a weekend
     if (isExisting) {
       cellStyle.background =
         "linear-gradient(145deg, rgba(255,59,48,0.12), rgba(192,57,43,0.08))";
@@ -221,14 +269,6 @@ export default function AddDayOffModal({
       textClass += isDark
         ? " text-[#639DFF] font-medium"
         : " text-[#0055D4] font-medium";
-    } else if (isWeekend) {
-      cellStyle.background = isDark ? "rgba(99,157,255,0.03)" : "#F2F2F7";
-      cellStyle.boxShadow = isDark
-        ? "inset 0 1px 2px rgba(0,0,0,0.2)"
-        : "inset 0 1px 2px rgba(0,0,0,0.04)";
-      textClass += isDark
-        ? " text-[#4A6A8A] cursor-not-allowed"
-        : " text-[#C7C7CC] cursor-not-allowed";
     } else if (isToday && !isStart && !isEnd) {
       cellStyle.background = isDark
         ? "linear-gradient(145deg, rgba(99,157,255,0.12), rgba(99,157,255,0.06))"
@@ -239,6 +279,14 @@ export default function AddDayOffModal({
       textClass += isDark
         ? " text-[#639DFF] font-semibold"
         : " text-[#007AFF] font-semibold";
+    } else if (isWeekend) {
+      cellStyle.background = isDark ? "rgba(99,157,255,0.03)" : "#F2F2F7";
+      cellStyle.boxShadow = isDark
+        ? "inset 0 1px 2px rgba(0,0,0,0.2)"
+        : "inset 0 1px 2px rgba(0,0,0,0.04)";
+      textClass += isDark
+        ? " text-[#4A6A8A] cursor-not-allowed"
+        : " text-[#C7C7CC] cursor-not-allowed";
     } else {
       cellStyle.background = isDark
         ? "rgba(99,157,255,0.05)"
@@ -282,8 +330,8 @@ export default function AddDayOffModal({
     try {
       await onSubmit?.({
         employeeId: employee.id,
-        startDate: startDate.toISOString().split("T")[0],
-        endDate: endDate.toISOString().split("T")[0],
+        startDate: toLocalDateString(startDate),
+        endDate: toLocalDateString(endDate),
         type: reason, // Backend expects 'type' not 'reason'
         reason: null,
         justification: uploadedFile ? uploadedFile.name : null,
@@ -421,7 +469,7 @@ export default function AddDayOffModal({
             {/* Summary chip */}
             {startDate && endDate && (
               <div
-                className="bg-navy/5 dark:bg-[#2C4A6F]/10 border border-navy/10 dark:border-[#2C4A6F]/20 rounded-xl p-3 mt-4"
+                className="bg-navy/5 dark:bg-[#2C4A6F]/10 border border-navy/10 dark:border-[#2C4A6F]/20 rounded-xl p-3 mt-4 space-y-2"
                 style={
                   isDark
                     ? {
@@ -431,6 +479,9 @@ export default function AddDayOffModal({
                     : {}
                 }
               >
+                <div className="text-sm font-semibold text-navy dark:text-[#639DFF]">
+                  {format(startDate, "d MMM", { locale: fr })} → {format(endDate, "d MMM", { locale: fr })}
+                </div>
                 <div className="text-sm font-semibold text-navy dark:text-[#639DFF]">
                   {workingDays} {t("joursOuvrablesLong")} · {totalCalendarDays}{" "}
                   {t("joursCalendairesLong")}
@@ -482,21 +533,21 @@ export default function AddDayOffModal({
                 fontSize: 15,
                 fontWeight: 700,
                 color:
-                  currentDayOffTotal >= 15
+                  currentDayOffTotal >= MAX_DAY_OFF_DAYS
                     ? "#C0392B"
                     : currentDayOffTotal >= 10
                       ? "#FF9F0A"
                       : "#34C759",
               }}
             >
-              {currentDayOffTotal} / 15 {t("jours")}
+              {currentDayOffTotal} / {MAX_DAY_OFF_DAYS} {t("jours")}
             </span>
           </div>
 
           {/* CARD 2 — Conditional status alert (ONLY when dates selected) */}
           {startDate && endDate && (
             <>
-              {currentDayOffTotal < 5 && (
+              {newTotal < 5 && (
                 <div
                   style={{
                     background: isDark
@@ -514,12 +565,12 @@ export default function AddDayOffModal({
                   <span
                     style={{ color: "#34C759", fontSize: 14, fontWeight: 500 }}
                   >
-                    {t("statutCongeRegle", { count: currentDayOffTotal })}
+                    {t("statutCongeRegle", { count: newTotal })}
                   </span>
                 </div>
               )}
 
-              {currentDayOffTotal >= 5 && currentDayOffTotal < 10 && (
+              {newTotal >= 5 && newTotal < 10 && (
                 <div
                   style={{
                     background: isDark
@@ -537,12 +588,13 @@ export default function AddDayOffModal({
                   <span
                     style={{ color: "#FFC200", fontSize: 14, fontWeight: 500 }}
                   >
-                    {t("statutCongeRappel", { count: currentDayOffTotal })}
+                    {t("statutCongeRappel", { count: newTotal })}
                   </span>
                 </div>
               )}
 
-              {currentDayOffTotal >= 10 && currentDayOffTotal < 15 && (
+              {newTotal >= 10 &&
+                newTotal < MAX_DAY_OFF_DAYS && (
                 <div
                   style={{
                     background: isDark
@@ -560,12 +612,12 @@ export default function AddDayOffModal({
                   <span
                     style={{ color: "#FF9F0A", fontSize: 14, fontWeight: 500 }}
                   >
-                    {t("statutCongeAttention", { count: currentDayOffTotal })}
+                    {t("statutCongeAttention", { count: newTotal })}
                   </span>
                 </div>
               )}
 
-              {newTotal > 15 && (
+              {newTotal > MAX_DAY_OFF_DAYS && (
                 <div
                   style={{
                     background: isDark

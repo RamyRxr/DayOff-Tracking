@@ -7,6 +7,8 @@ import { useEmployees } from '../hooks/useEmployees'
 import { useDaysOff } from '../hooks/useDaysOff'
 import { useCurrentAdmin } from '../contexts/AdminContext'
 import { useTheme } from '../contexts/ThemeContext'
+import { MAX_DAY_OFF_DAYS } from '../utils/leavePolicy'
+import { parseLocalDateString, toLocalDateString } from '../utils/localDate'
 import CustomSelect from './CustomSelect'
 import SplitCalendar from './SplitCalendar'
 import SuccessModal from './SuccessModal'
@@ -85,16 +87,13 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
       // Parse dates as local dates (ignore time and timezone)
       const startStr = dayOff.startDate.split('T')[0]
       const endStr = dayOff.endDate.split('T')[0]
-      const [startY, startM, startD] = startStr.split('-').map(Number)
-      const [endY, endM, endD] = endStr.split('-').map(Number)
-
-      const start = new Date(startY, startM - 1, startD)
-      const end = new Date(endY, endM - 1, endD)
+      const start = parseLocalDateString(startStr)
+      const end = parseLocalDateString(endStr)
 
       const current = new Date(start)
       while (current <= end) {
         // Store as YYYY-MM-DD string using local date
-        const dateStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`
+        const dateStr = toLocalDateString(current)
         dates.add(dateStr)
         current.setDate(current.getDate() + 1)
       }
@@ -109,7 +108,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
         daysOffCountPast: 0,
         daysOffCountTotal: 0,
         workedDays: 0,
-        availableDays: 15,
+        availableDays: MAX_DAY_OFF_DAYS,
       }
     }
 
@@ -123,11 +122,8 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
       // Parse dates as local dates (ignore time and timezone)
       const startStr = dayOff.startDate.split('T')[0]
       const endStr = dayOff.endDate.split('T')[0]
-      const [startY, startM, startD] = startStr.split('-').map(Number)
-      const [endY, endM, endD] = endStr.split('-').map(Number)
-
-      const start = new Date(startY, startM - 1, startD)
-      const end = new Date(endY, endM - 1, endD)
+      const start = parseLocalDateString(startStr)
+      const end = parseLocalDateString(endStr)
       const current = new Date(start)
 
       while (current <= end) {
@@ -171,7 +167,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
     }
     // Future period: workedDays = 0 (already initialized)
 
-    const availableDays = Math.max(0, 15 - daysOffCountTotal)
+    const availableDays = Math.max(0, MAX_DAY_OFF_DAYS - daysOffCountTotal)
 
     return {
       daysOffCountPast,
@@ -197,7 +193,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   }
 
   const handleDayClick = (day) => {
-    const dayStr = day.toISOString().split('T')[0]
+    const dayStr = toLocalDateString(day)
 
     // Check if day is selectable (only weekends and existing dates are blocked)
     if (day.getDay() === 5 || day.getDay() === 6) return
@@ -242,7 +238,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
 
   // Custom cell renderer for range selection
   const renderCalendarCell = (day, index, { cellSizeClass = 'w-9 h-9', textSizeClass = 'text-[13px]' } = {}) => {
-    const dayStr = day.toISOString().split('T')[0]
+    const dayStr = toLocalDateString(day)
     const isWeekend = day.getDay() === 5 || day.getDay() === 6
     const isExisting = existingDates.has(dayStr)
     const isStart = startDate && day.toDateString() === startDate.toDateString()

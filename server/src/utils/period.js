@@ -56,6 +56,31 @@ function isSandwich(startDate, endDate) {
   return calendar > working
 }
 
+// Count day-off days with sandwich detection
+// If working days on both ends with weekends in between, count ALL days
+// Otherwise, count only working days
+function countDayOffDays(startDate, endDate) {
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  start.setHours(0, 0, 0, 0)
+  end.setHours(0, 0, 0, 0)
+
+  const totalDays = countCalendarDays(start, end)
+  const workingDays = countWorkingDays(start, end)
+
+  // Check if there are working days on both ends
+  const isStartWorkingDay = !isWeekend(start)
+  const isEndWorkingDay = !isWeekend(end)
+
+  // If sandwich detected (working days on both ends with weekends in between)
+  if (isStartWorkingDay && isEndWorkingDay && totalDays > workingDays) {
+    return totalDays
+  }
+
+  // Otherwise, count only working days
+  return workingDays
+}
+
 // Returns true if employee should be blocked
 // Block when remaining working days would fall below 16
 // (30 - daysUsed) < 16 means daysUsed > 14
@@ -75,6 +100,7 @@ module.exports = {
   isWeekend,
   countWorkingDays,
   countCalendarDays,
+  countDayOffDays,
   isSandwich,
   shouldBlock,
   workingDaysElapsed,

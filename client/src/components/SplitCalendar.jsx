@@ -123,7 +123,7 @@ export default function SplitCalendar({
         </div>
       )}
 
-      {/* First half (20-30) */}
+      {/* First half (20-30) - always shown first */}
       <div className="mb-4">
         <CalendarGrid
           days={currentMonthDays}
@@ -147,7 +147,7 @@ export default function SplitCalendar({
         } : {}}
       />
 
-      {/* Second half (1-19) */}
+      {/* Second half (1-19) - always shown second */}
       <div className="mt-2">
         <CalendarGrid
           days={nextMonthDays}

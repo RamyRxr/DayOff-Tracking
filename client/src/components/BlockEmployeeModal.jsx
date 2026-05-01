@@ -40,7 +40,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
     periodEndDate = new Date(currentYear, currentMonth, 19, 23, 59, 59, 999)
   }
 
-  // Calculate day-offs in current period (only working days)
+  // Calculate day-offs in current period (with sandwich detection)
   let daysUsed = 0
   let pastDaysUsed = 0
 
@@ -56,17 +56,33 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
       const overlapStart = start < periodStartDate ? periodStartDate : start
       const overlapEnd = end > periodEndDate ? periodEndDate : end
 
-      const current = new Date(overlapStart)
-      while (current <= overlapEnd) {
-        const dayOfWeek = current.getDay()
-        // Exclude Friday (5) and Saturday (6)
-        if (dayOfWeek !== 5 && dayOfWeek !== 6) {
-          daysUsed++
-          if (current <= today) {
-            pastDaysUsed++
-          }
-        }
-        current.setDate(current.getDate() + 1)
+      // Calculate total days and working days for sandwich detection
+      const totalDays = Math.floor((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) + 1
+      let workingDayCount = 0
+      const temp = new Date(overlapStart)
+      while (temp <= overlapEnd) {
+        const dayOfWeek = temp.getDay()
+        if (dayOfWeek !== 5 && dayOfWeek !== 6) workingDayCount++
+        temp.setDate(temp.getDate() + 1)
+      }
+
+      // Detect sandwich: working days on both ends with weekends in between
+      const startDayOfWeek = overlapStart.getDay()
+      const endDayOfWeek = overlapEnd.getDay()
+      const isStartWorkingDay = startDayOfWeek !== 5 && startDayOfWeek !== 6
+      const isEndWorkingDay = endDayOfWeek !== 5 && endDayOfWeek !== 6
+      const isSandwich = isStartWorkingDay && isEndWorkingDay && totalDays > workingDayCount
+
+      // Count day-off days
+      const dayOffCount = isSandwich ? totalDays : workingDayCount
+      daysUsed += dayOffCount
+
+      // Count past day-off days proportionally
+      if (overlapStart <= today) {
+        const pastEnd = overlapEnd <= today ? overlapEnd : today
+        const pastTotalDays = Math.floor((pastEnd - overlapStart) / (1000 * 60 * 60 * 24)) + 1
+        const pastPortion = pastTotalDays / totalDays
+        pastDaysUsed += Math.round(dayOffCount * pastPortion)
       }
     })
   }
