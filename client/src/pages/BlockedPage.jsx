@@ -130,108 +130,54 @@ export default function BlockedPage() {
     });
   };
 
-  const handleDownloadBlockDetails = (employee, block, e) => {
+  const handleDownloadBlockDetails = async (employee, block, e) => {
     e.stopPropagation();
 
-    // Calculate period dates
-    const currentDate = new Date();
-    const periodStart = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      20,
-    );
-    const periodEnd = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      19,
-    );
+    try {
+      const response = await fetch(`http://localhost:3001/api/pdf/block/${block.id}`);
 
-    const periodStartFormatted = periodStart.toLocaleDateString("fr-DZ", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-    const periodEndFormatted = periodEnd.toLocaleDateString("fr-DZ", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
 
-    // Get employee data from the block
-    const emp = block.employee;
-    const email =
-      emp.email || `${emp.name.toLowerCase().split(" ").join(".")}@naftal.dz`;
-
-    // File content
-    const content = `════════════════════════════════════════
-${t("decisionBlocageTitre")}
-════════════════════════════════════════
-${t("matricule")}:        ${emp.matricule}
-${t("nomComplet")}:      ${emp.name}
-${t("departement")}:      ${translateDepartment(emp.department, t)}
-${t("poste")}:            ${emp.position}
-${t("email")}:            ${email}
-${t("telephone")}:        ${emp.phone || "—"}
-────────────────────────────────────────
-${t("dateBlocage")}:  ${formatDate(block.createdAt)}
-${t("motif")}:            ${block.reason}
-${t("description")}:      ${block.description || "—"}
-${t("bloquePar")}:       ${block.admin?.name || "—"} — ${block.admin?.role || "—"}
-────────────────────────────────────────
-${t("periodeLabel")}:          ${periodStartFormatted} → ${periodEndFormatted}
-${t("joursConge")}:   ${block.daysUsed} / 15
-════════════════════════════════════════`;
-
-    // Create and download file
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const today = new Date().toISOString().split("T")[0];
-    a.href = url;
-    a.download = `decision-blocage-${emp.matricule}-${today}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `note-blocage-${employee.matricule}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading block note:', error);
+      alert('Erreur lors du téléchargement de la note de blocage');
+    }
   };
 
-  const handleDownloadUnblockDetails = (employee, block, e) => {
+  const handleDownloadUnblockDetails = async (employee, block, e) => {
     e.stopPropagation();
 
-    // Get employee data from the block
-    const emp = block.employee;
-    const email =
-      emp.email || `${emp.name.toLowerCase().split(" ").join(".")}@naftal.dz`;
+    try {
+      const response = await fetch(`http://localhost:3001/api/pdf/unblock/${block.id}`);
 
-    // File content
-    const content = `════════════════════════════════════════
-${t("decisionDeblocageTitre")}
-════════════════════════════════════════
-${t("matricule")}:        ${emp.matricule}
-${t("nomComplet")}:      ${emp.name}
-${t("departement")}:      ${translateDepartment(emp.department, t)}
-${t("poste")}:            ${emp.position}
-${t("email")}:            ${email}
-${t("telephone")}:        ${emp.phone || "—"}
-────────────────────────────────────────
-${t("dateDeblocage")}:  ${formatDate(block.unblockedAt)}
-${t("motif")}:            ${block.unblockReason || "—"}
-${t("description")}:      ${block.unblockDescription || "—"}
-${t("debloquePar")}:     ${block.unblockedBy?.name || "—"} — ${block.unblockedBy?.role || "—"}
-────────────────────────────────────────
-Blocage initial:
-${t("dateBlocage")}:  ${formatDate(block.createdAt)}
-${t("motif")}:            ${block.reason}
-${t("bloquePar")}:       ${block.admin?.name || "—"} — ${block.admin?.role || "—"}
-════════════════════════════════════════`;
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
 
-    // Create and download file
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const today = new Date().toISOString().split("T")[0];
-    a.href = url;
-    a.download = `decision-deblocage-${emp.matricule}-${today}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `note-deblocage-${employee.matricule}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading unblock note:', error);
+      alert('Erreur lors du téléchargement de la note de déblocage');
+    }
   };
 
   const handleExport = () => {
