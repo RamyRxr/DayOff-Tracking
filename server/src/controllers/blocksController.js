@@ -15,8 +15,11 @@ async function getBlocks(req, res) {
                         lastName: true,
                         matricule: true,
                         department: true,
+                        position: true,
                         email: true,
                         phone: true,
+                        ssn: true,
+                        hireDate: true,
                     },
                 },
                 admin: {

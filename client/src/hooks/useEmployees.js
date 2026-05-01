@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback } from 'react'
 import { getEmployees, getEmployee, createEmployee } from '../api/employees'
 
 function toUiStatus(status) {
-    if (status === 'bloqué' || status === 'bloque') return 'bloqué'
-    if (status === 'risque' || status === 'a_risque') return 'risque'
-    return 'actif'
+    // Backend now returns correct status values, just normalize legacy values
+    if (status === 'bloqué') return 'bloque'
+    if (status === 'risque') return 'a_risque'
+    // Return as-is for: 'actif', 'a_risque', 'doit_bloquer', 'bloque'
+    return status || 'actif'
 }
 
 function buildName(employee) {

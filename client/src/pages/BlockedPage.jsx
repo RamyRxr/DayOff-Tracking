@@ -54,25 +54,39 @@ export default function BlockedPage() {
   }
 
   // Transform blocks to match component format
-  const mockBlockedEmployees = blocks.map((block) => ({
-    id: block.employee.id,
-    name: block.employee.name,
-    matricule: block.employee.matricule,
-    department: block.employee.department,
-    position: block.employee.position,
-    email: block.employee.email,
-    phone: block.employee.phone,
-    daysUsed: block.daysUsed,
-    daysTotal: block.employee.daysTotal,
-    status: "bloqué",
-    avatar: block.employee.avatar,
-    blockedAt: block.createdAt,
-    blockedReason: block.reason,
-    blockedBy: block.admin?.name || "—",
-    blockedByRole: block.admin?.role || "—",
-    blockId: block.id,
-    blockData: block,
-  }));
+  const mockBlockedEmployees = blocks.map((block) => {
+    const emp = block.employee;
+    const name = emp.name || `${emp.firstName || ''} ${emp.lastName || ''}`.trim();
+    const avatar = emp.avatar || name.split(' ').filter(Boolean).map(p => p[0]).join('').slice(0, 2).toUpperCase();
+
+    return {
+      id: emp.id,
+      name,
+      firstName: emp.firstName,
+      lastName: emp.lastName,
+      matricule: emp.matricule,
+      department: emp.department,
+      position: emp.position,
+      email: emp.email,
+      phone: emp.phone,
+      ssn: emp.ssn,
+      hireDate: emp.hireDate,
+      startDate: emp.hireDate,
+      daysUsed: block.daysUsed,
+      daysTotal: 30,
+      status: "bloque",
+      avatar,
+      blockedAt: block.createdAt,
+      blockedReason: block.reason,
+      blockedBy: block.admin?.name || "—",
+      blockedByRole: block.admin?.role || "—",
+      blockId: block.id,
+      blockData: block,
+      daysOff: [],
+      blocks: [block],
+      activeBlock: block,
+    };
+  });
 
   const handleUnblockClick = (employee, block, e) => {
     e.stopPropagation();
