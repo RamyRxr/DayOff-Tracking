@@ -617,6 +617,29 @@ export default function AddDayOffModal({
                 </div>
               )}
 
+              {newTotal === MAX_DAY_OFF_DAYS && (
+                <div
+                  style={{
+                    background: isDark
+                      ? "rgba(192,57,43,0.12)"
+                      : "rgba(192,57,43,0.1)",
+                    border: isDark
+                      ? "1px solid rgba(192,57,43,0.25)"
+                      : "1px solid rgba(192,57,43,0.2)",
+                    borderRadius: 12,
+                    padding: "12px 14px",
+                    display: "flex",
+                    gap: "8px",
+                  }}
+                >
+                  <span
+                    style={{ color: "#C0392B", fontSize: 14, fontWeight: 500 }}
+                  >
+                    Limite atteinte — {MAX_DAY_OFF_DAYS} jours utilisés. Aucun jour de congé supplémentaire ne peut être pris ce mois.
+                  </span>
+                </div>
+              )}
+
               {newTotal > MAX_DAY_OFF_DAYS && (
                 <div
                   style={{

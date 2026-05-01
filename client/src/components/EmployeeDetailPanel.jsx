@@ -709,6 +709,45 @@ export default function EmployeeDetailPanel({
                   </span>
                 </div>
               </div>
+
+              {/* Block Information (if employee is blocked) */}
+              {employee.status === "bloque" && activeBlock && (
+                <div
+                  className="mt-4 p-4 rounded-xl"
+                  style={{
+                    backgroundColor: isDark
+                      ? "rgba(192,57,43,0.1)"
+                      : "rgba(192,57,43,0.05)",
+                    border: isDark
+                      ? "1px solid rgba(255,59,48,0.2)"
+                      : "1px solid rgba(192,57,43,0.15)",
+                  }}
+                >
+                  <div className="text-sm font-semibold text-[#C0392B] dark:text-[#FF6B6B] mb-2">
+                    Informations de blocage
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-xs text-gray-600 dark:text-[#7A9CC4]">
+                        Motif:
+                      </span>
+                      <div className="text-sm text-gray-900 dark:text-[#E8EFF8] mt-1">
+                        {activeBlock.reason || "—"}
+                      </div>
+                    </div>
+                    {activeBlock.description && (
+                      <div>
+                        <span className="text-xs text-gray-600 dark:text-[#7A9CC4]">
+                          Description:
+                        </span>
+                        <div className="text-sm text-gray-900 dark:text-[#E8EFF8] mt-1">
+                          {activeBlock.description}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Extra padding at bottom */}

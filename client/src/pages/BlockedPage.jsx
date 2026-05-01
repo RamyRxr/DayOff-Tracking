@@ -11,12 +11,14 @@ import EmployeeDetailPanel from "../components/EmployeeDetailPanel";
 import UnblockModal from "../components/UnblockModal";
 import { useBlocks } from "../hooks/useBlocks";
 import { useTheme } from "../contexts/ThemeContext";
+import { useCurrentAdmin } from "../contexts/AdminContext";
 import { translateDepartment } from "../utils/translateDepartment";
 import { translateBlockingReason } from "../utils/translateBlockingReason";
 
 export default function BlockedPage() {
   const { t } = useTranslation();
   const { isDark } = useTheme();
+  const currentAdmin = useCurrentAdmin();
   const { blocks, loading, error, unblock, refetch } = useBlocks(true);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [unblockEmployee, setUnblockEmployee] = useState(null);
@@ -97,8 +99,7 @@ export default function BlockedPage() {
   const handleUnblockSubmit = async (unblockData) => {
     try {
       await unblock(unblockData.blockId, {
-        adminId: 1,
-        pin: "1234",
+        adminId: unblockData.adminId || currentAdmin?.id,
         reason: unblockData.reason,
         description: unblockData.description,
       });
