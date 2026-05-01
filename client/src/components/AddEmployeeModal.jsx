@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { X, UserPlus, RefreshCw, ChevronLeft } from "lucide-react";
+import { X, UserPlus, RefreshCw } from "lucide-react";
 import { useEmployees } from "../hooks/useEmployees";
-import { useAdmins, useAdminPin } from "../hooks/useAdmins";
 import { useTheme } from "../contexts/ThemeContext";
 import CustomSelect from "./CustomSelect";
-import AutorisationStep from "./AutorisationStep";
 
 export default function AddEmployeeModal({
   isOpen,
@@ -26,23 +24,20 @@ export default function AddEmployeeModal({
   const { isDark } = useTheme();
   const isVisible = typeof isOpen === "boolean" ? isOpen : true;
   const { employees, addEmployee } = useEmployees();
-  const { admins } = useAdmins();
-  const { verify, verifying } = useAdminPin();
 
   function buildMatricule() {
     let unique = false;
     let newMatricule = "";
 
     while (!unique) {
-      const randomNum = Math.floor(1000 + Math.random() * 9000);
-      newMatricule = `NAF-${randomNum}`;
+      const randomNum = Math.floor(10000 + Math.random() * 90000);
+      newMatricule = `${randomNum}U`;
       unique = !employees.some((emp) => emp.matricule === newMatricule);
     }
 
     return newMatricule;
   }
 
-  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     prenom: "",
     nom: "",
@@ -55,9 +50,6 @@ export default function AddEmployeeModal({
     startDate: "",
   });
   const [errors, setErrors] = useState({});
-  const [selectedAdmin, setSelectedAdmin] = useState(null);
-  const [pin, setPin] = useState(["", "", "", ""]);
-  const [pinStatus, setPinStatus] = useState("idle");
   const [submissionError, setSubmissionError] = useState("");
   const [isEmailDirty, setIsEmailDirty] = useState(false);
 
@@ -126,47 +118,7 @@ export default function AddEmployeeModal({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handlePinChange = (index, value) => {
-    if (!selectedAdmin || pinStatus === "verified" || verifying) return;
-
-    if (value.length > 1) value = value[value.length - 1];
-    if (value && !/^[0-9]$/.test(value)) return;
-
-    const newPin = [...pin];
-    newPin[index] = value;
-    setPin(newPin);
-
-    if (value && index < 3) {
-      document.getElementById(`emp-pin-${index + 1}`)?.focus();
-    }
-
-    if (newPin.every((d) => d !== "")) {
-      handlePinValidate(newPin.join(""));
-    }
-  };
-
-  const handlePinValidate = async (pinValue) => {
-    if (!selectedAdmin) {
-      setPinStatus("error");
-      return;
-    }
-
-    setPinStatus("verifying");
-
-    try {
-      await verify(selectedAdmin.id, pinValue);
-      setPinStatus("verified");
-    } catch {
-      setPinStatus("error");
-      setTimeout(() => {
-        setPin(["", "", "", ""]);
-        setPinStatus("idle");
-        document.getElementById("emp-pin-0")?.focus();
-      }, 1500);
-    }
-  };
-
-  const handleStep1Submit = () => {
+  const handleSubmit = async () => {
     const nextData = formData.matricule
       ? formData
       : { ...formData, matricule: buildMatricule() };
@@ -175,9 +127,11 @@ export default function AddEmployeeModal({
       setFormData(nextData);
     }
 
-    if (validateForm(nextData)) {
-      setStep(2);
+    if (!validateForm(nextData)) {
+      return;
     }
+
+    await handleFinalSubmit();
   };
 
   const handleFinalSubmit = async () => {
@@ -199,7 +153,6 @@ export default function AddEmployeeModal({
       daysTotal: 30,
       daysUsed: 0,
       status: "actif",
-      authorizedBy: selectedAdmin?.id || null,
     };
 
     try {
@@ -216,7 +169,6 @@ export default function AddEmployeeModal({
   };
 
   const handleClose = () => {
-    setStep(1);
     setFormData({
       prenom: "",
       nom: "",
@@ -229,16 +181,14 @@ export default function AddEmployeeModal({
       startDate: "",
     });
     setErrors({});
-    setSelectedAdmin(null);
-    setPin(["", "", "", ""]);
-    setPinStatus("idle");
     setIsEmailDirty(false);
+    setSubmissionError("");
     onClose?.();
   };
 
   if (!isVisible) return null;
 
-  const isStep1Valid =
+  const isFormValid =
     formData.prenom &&
     formData.nom &&
     formData.department &&
@@ -246,7 +196,6 @@ export default function AddEmployeeModal({
     formData.email &&
     formData.email.includes("@") &&
     formData.startDate;
-  const isStep2Valid = !!selectedAdmin && pinStatus === "verified";
 
   return (
     <div
@@ -272,20 +221,6 @@ export default function AddEmployeeModal({
           } : {}}
         >
           <div className="flex items-center gap-3">
-            {step === 2 && (
-              <button
-                onClick={() => setStep(1)}
-                className="p-1 hover:bg-black/5 rounded-lg transition-colors"
-                onMouseEnter={(e) => {
-                  if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
-                }}
-                onMouseLeave={(e) => {
-                  if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
-                }}
-              >
-                <ChevronLeft className="w-5 h-5 text-[#6B7280] dark:text-[#7A9CC4]" />
-              </button>
-            )}
             <div
               className="w-10 h-10 rounded-full bg-navy/20 flex items-center justify-center"
               style={isDark ? { backgroundColor: 'rgba(99,157,255,0.15)' } : {}}
@@ -294,10 +229,10 @@ export default function AddEmployeeModal({
             </div>
             <div>
               <h2 className="font-display text-xl font-bold text-[#111827] dark:text-[#E8EFF8]">
-                {step === 1 ? t('nouvelEmploye') : t('autorisationRequise')}
+                {t('nouvelEmploye')}
               </h2>
               <p className="text-xs text-[#6B7280] dark:text-[#7A9CC4] mt-0.5">
-                {t('etape')} {step} {t('sur')} 2
+                {t('gerezEmployes')}
               </p>
             </div>
           </div>
@@ -317,8 +252,6 @@ export default function AddEmployeeModal({
 
         {/* SCROLLABLE BODY */}
         <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-5 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
-          {step === 1 ? (
-            <>
               {/* Prénom */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
@@ -374,12 +307,13 @@ export default function AddEmployeeModal({
                 <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
                   {t('matricule')}
                 </label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <input
                     type="text"
                     value={formData.matricule}
                     readOnly
-                    className="flex-1 px-4 py-3 bg-warm-gray-200 border border-warm-gray-400 rounded-xl font-mono text-navy cursor-not-allowed"
+                    placeholder="00000U"
+                    className="w-32 px-4 py-3 bg-warm-gray-200 border border-warm-gray-400 rounded-xl font-mono text-navy cursor-not-allowed text-center"
                     style={isDark ? {
                       backgroundColor: 'rgba(13,21,38,0.75)',
                       borderColor: 'rgba(99,157,255,0.12)',
@@ -388,7 +322,7 @@ export default function AddEmployeeModal({
                   />
                   <button
                     onClick={generateMatricule}
-                    className="px-4 py-3 bg-navy/10 hover:bg-navy/20 rounded-xl transition-colors"
+                    className="px-3 py-3 bg-navy/10 hover:bg-navy/20 rounded-xl transition-colors flex-shrink-0"
                     style={isDark ? {
                       backgroundColor: 'rgba(99,157,255,0.12)'
                     } : {}}
@@ -402,10 +336,10 @@ export default function AddEmployeeModal({
                   >
                     <RefreshCw className="w-5 h-5 text-navy dark:text-[#639DFF]" />
                   </button>
+                  <p className="text-xs text-[#6B7280] dark:text-[#7A9CC4] flex-1">
+                    {t('genereAutomatiquement')}
+                  </p>
                 </div>
-                <p className="text-xs text-[#6B7280] dark:text-[#7A9CC4] mt-1">
-                  {t('genereAutomatiquement')}
-                </p>
               </div>
 
               {/* Département */}
@@ -549,38 +483,11 @@ export default function AddEmployeeModal({
                   </p>
                 )}
               </div>
-            </>
-          ) : (
-            <>
-              <AutorisationStep
-                admins={admins.map(admin => ({
-                  ...admin,
-                  initials: admin.name
-                    .split(" ")
-                    .filter(Boolean)
-                    .map((part) => part[0])
-                    .join("")
-                    .slice(0, 2)
-                    .toUpperCase()
-                }))}
-                selectedAdmin={selectedAdmin}
-                onAdminSelect={(admin) => {
-                  setSelectedAdmin(admin);
-                  setPin(["", "", "", ""]);
-                  setPinStatus("idle");
-                }}
-                pin={pin}
-                onPinChange={handlePinChange}
-                pinStatus={pinStatus}
-                pinIdPrefix="emp-pin"
-              />
 
-              {submissionError && (
-                <p className="text-xs text-status-red text-center">
-                  {submissionError}
-                </p>
-              )}
-            </>
+          {submissionError && (
+            <p className="text-xs text-status-red text-center">
+              {submissionError}
+            </p>
           )}
 
           {/* Extra padding at bottom so last field not hidden */}
@@ -596,7 +503,7 @@ export default function AddEmployeeModal({
           } : {}}
         >
           <button
-            onClick={step === 1 ? handleClose : () => setStep(1)}
+            onClick={handleClose}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm text-[#6B7280] dark:text-[#7A9CC4] hover:bg-black/5 transition-all duration-200"
             onMouseEnter={(e) => {
               if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
@@ -605,33 +512,33 @@ export default function AddEmployeeModal({
               if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
             }}
           >
-            {step === 1 ? t('annuler') : t('retourFleche')}
+            {t('annuler')}
           </button>
           <button
-            onClick={step === 1 ? handleStep1Submit : handleFinalSubmit}
-            disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
+            onClick={handleSubmit}
+            disabled={!isFormValid}
             className="flex-1 px-4 py-3 rounded-xl font-medium text-sm shadow-ambient transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
             style={{
-              backgroundColor: (step === 1 ? isStep1Valid : isStep2Valid) ? '#1A2F4F' : '#9CA3AF',
+              backgroundColor: isFormValid ? '#1A2F4F' : '#9CA3AF',
               color: 'white',
-              ...(isDark && (step === 1 ? isStep1Valid : isStep2Valid) ? {
+              ...(isDark && isFormValid ? {
                 background: 'linear-gradient(145deg, #2A5494, #1E3D6B)',
                 border: '1px solid rgba(99,157,255,0.2)',
                 boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
               } : {})
             }}
             onMouseEnter={(e) => {
-              if (step === 1 ? isStep1Valid : isStep2Valid) {
+              if (isFormValid) {
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,47,79,0.3)'
               }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = isDark && (step === 1 ? isStep1Valid : isStep2Valid)
+              e.currentTarget.style.boxShadow = isDark && isFormValid
                 ? '0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 24px rgba(0,0,0,0.5)'
                 : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)'
             }}
           >
-            {step === 1 ? t('suivantFleche') : t('creerEmploye')}
+            {t('creerEmploye')}
           </button>
         </div>
       </div>
