@@ -190,8 +190,9 @@ export default function BlockedPage() {
           t("statut"),
           t("email"),
           t("telephone"),
-          t("dateEmbauche"),
           "NSS",
+          t("dateEmbauche"),
+          t("dateBlocage"),
         ]
       : [
           t("nom"),
@@ -200,8 +201,8 @@ export default function BlockedPage() {
           t("statut"),
           t("email"),
           t("telephone"),
-          t("dateEmbauche"),
           "NSS",
+          t("dateEmbauche"),
           t("dateDeblocage"),
           t("motifDeblocage"),
         ];
@@ -209,7 +210,25 @@ export default function BlockedPage() {
     const rows = mockBlockedEmployees.map((emp) => {
       const email =
         emp.email || `${emp.name.toLowerCase().split(" ").join(".")}@naftal.dz`;
-      const phone = emp.phone || "—";
+
+      // Format phone with leading apostrophe to preserve leading zero in Excel
+      let phone = emp.phone || "—";
+      if (phone !== "—" && phone) {
+        // Ensure it starts with 0
+        if (!phone.startsWith("0")) {
+          phone = "0" + phone;
+        }
+        // Prepend apostrophe to force text format in Excel
+        phone = `'${phone}`;
+      }
+
+      // Format SSN with leading apostrophe to force text in Excel
+      let ssn = emp.ssn ? String(emp.ssn) : "—";
+      if (ssn !== "—") {
+        // Prepend apostrophe to force text format in Excel
+        ssn = `'${ssn}`;
+      }
+
       const status = emp.isBlocked ? "Bloqué" : "Débloqué";
 
       const baseRow = [
@@ -219,24 +238,36 @@ export default function BlockedPage() {
         status,
         email,
         phone,
+        ssn,
         emp.hireDate ? formatDate(emp.hireDate) : "—",
-        emp.ssn || "—",
       ];
 
-      if (activeTab === "unblocked") {
+      if (activeTab === "blocked") {
+        return [
+          ...baseRow,
+          emp.blockedAt ? formatDate(emp.blockedAt) : "—",
+        ];
+      } else {
         return [
           ...baseRow,
           emp.unblockedAt ? formatDate(emp.unblockedAt) : "—",
           emp.unblockedReason || "—",
         ];
       }
-
-      return baseRow;
     });
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+      ...rows.map((row) =>
+        row.map((cell) => {
+          // SSN has leading apostrophe, don't wrap in quotes
+          if (String(cell).startsWith("'")) {
+            return cell;
+          }
+          // Add quotes for all other fields
+          return `"${cell}"`;
+        }).join(",")
+      ),
     ].join("\n");
 
     // Download CSV
