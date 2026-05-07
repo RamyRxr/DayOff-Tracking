@@ -18,11 +18,17 @@ server/.env
 
 # Claude Code - exclude entire directory
 .claude/
+CLAUDE.md
 CLAUDE.local.md
 *ChangePrompt*
 *changePrompt*
 *changesPrompt*
 *.prompt
+darkmodepattern.md
+skills.json
+
+# Document templates
+*.docx
 
 # PDF files (reports, documentation)
 *.pdf
