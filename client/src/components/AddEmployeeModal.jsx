@@ -114,6 +114,16 @@ export default function AddEmployeeModal({
       newErrors.startDate = t('dateEmbaucheRequise');
     }
 
+    if (!data.phone.trim()) {
+      newErrors.phone = t('telephoneRequis');
+    }
+
+    if (!data.ssn.trim()) {
+      newErrors.ssn = t('nssRequis');
+    } else if (data.ssn.trim().length !== 15) {
+      newErrors.ssn = t('nssInvalide');
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -146,8 +156,8 @@ export default function AddEmployeeModal({
       department: formData.department,
       position: formData.position,
       email: formData.email,
-      phone: formData.phone || null,
-      ssn: formData.ssn || null,
+      phone: formData.phone,
+      ssn: formData.ssn,
       startDate: formData.startDate,
       avatar,
       daysTotal: 30,
@@ -195,6 +205,9 @@ export default function AddEmployeeModal({
     formData.position &&
     formData.email &&
     formData.email.includes("@") &&
+    formData.phone &&
+    formData.ssn &&
+    formData.ssn.length === 15 &&
     formData.startDate;
 
   return (
@@ -417,31 +430,34 @@ export default function AddEmployeeModal({
               <div>
                 <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
                   {t('telephone')}
-                  <span className="text-[#6B7280] font-normal ml-1">
-                    ({t('optionnel')})
-                  </span>
+                  <span className="text-status-red ml-1">*</span>
                 </label>
                 <input
                   type="tel"
                   placeholder="+213 XX XX XX XX"
                   value={formData.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-warm-gray-400 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20"
+                  className={`w-full px-4 py-3 bg-white border rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
+                    errors.phone ? "border-status-red" : "border-warm-gray-400"
+                  }`}
                   style={isDark ? {
                     backgroundColor: 'rgba(13,21,38,0.75)',
-                    borderColor: 'rgba(99,157,255,0.12)',
+                    borderColor: errors.phone ? '#C0392B' : 'rgba(99,157,255,0.12)',
                     color: '#E8EFF8'
                   } : {}}
                 />
+                {errors.phone && (
+                  <p className="text-xs text-status-red dark:text-[#FF6B6B] mt-1">
+                    {errors.phone}
+                  </p>
+                )}
               </div>
 
               {/* Numéro de sécurité sociale (NSS) */}
               <div>
                 <label className="block text-sm font-medium text-[#111827] dark:text-[#E8EFF8] mb-2">
                   NSS
-                  <span className="text-[#6B7280] font-normal ml-1">
-                    ({t('optionnel')})
-                  </span>
+                  <span className="text-status-red ml-1">*</span>
                 </label>
                 <input
                   type="text"
@@ -449,13 +465,20 @@ export default function AddEmployeeModal({
                   value={formData.ssn}
                   onChange={(e) => handleChange("ssn", e.target.value)}
                   maxLength={15}
-                  className="w-full px-4 py-3 bg-white border border-warm-gray-400 rounded-xl font-mono transition-all focus:outline-none focus:ring-2 focus:ring-navy/20"
+                  className={`w-full px-4 py-3 bg-white border rounded-xl font-mono transition-all focus:outline-none focus:ring-2 focus:ring-navy/20 ${
+                    errors.ssn ? "border-status-red" : "border-warm-gray-400"
+                  }`}
                   style={isDark ? {
                     backgroundColor: 'rgba(13,21,38,0.75)',
-                    borderColor: 'rgba(99,157,255,0.12)',
+                    borderColor: errors.ssn ? '#C0392B' : 'rgba(99,157,255,0.12)',
                     color: '#E8EFF8'
                   } : {}}
                 />
+                {errors.ssn && (
+                  <p className="text-xs text-status-red dark:text-[#FF6B6B] mt-1">
+                    {errors.ssn}
+                  </p>
+                )}
               </div>
 
               {/* Date d'embauche */}

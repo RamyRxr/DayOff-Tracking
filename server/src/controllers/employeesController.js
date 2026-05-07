@@ -186,10 +186,17 @@ async function createEmployee(req, res) {
             matricule,
         } = req.body
 
-        if (!firstName || !lastName || !email || !department || !position || !hireDate || !matricule) {
+        if (!firstName || !lastName || !email || !phone || !ssn || !department || !position || !hireDate || !matricule) {
             return res.status(400).json({
                 error:
-                    'Missing required fields: firstName, lastName, email, department, position, hireDate, matricule',
+                    'Missing required fields: firstName, lastName, email, phone, ssn, department, position, hireDate, matricule',
+            })
+        }
+
+        // Validate SSN length
+        if (ssn.trim().length !== 15) {
+            return res.status(400).json({
+                error: 'SSN must be exactly 15 characters',
             })
         }
 
@@ -208,8 +215,8 @@ async function createEmployee(req, res) {
                 firstName: String(firstName).trim(),
                 lastName: String(lastName).trim(),
                 email: String(email).trim().toLowerCase(),
-                phone: phone ? String(phone).trim() : null,
-                ssn: ssn ? String(ssn).trim() : null,
+                phone: String(phone).trim(),
+                ssn: String(ssn).trim(),
                 department: String(department).trim(),
                 position: String(position).trim(),
                 hireDate: new Date(hireDate),
