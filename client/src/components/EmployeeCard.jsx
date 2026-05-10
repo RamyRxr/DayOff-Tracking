@@ -1,37 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { translateDepartment } from '../utils/translateDepartment'
+import { getStatusConfig } from '../utils/statusConfig'
 
 export default function EmployeeCard({ employee, onDetailsClick }) {
   const { t } = useTranslation()
 
-  const statusConfig = {
-    actif: {
-      label: t('actif'),
-      dotColor: 'bg-status-green',
-      bgColor: 'bg-status-green/10',
-      textColor: 'text-status-green',
-    },
-    a_risque: {
-      label: t('aRisqueStatus'),
-      dotColor: 'bg-status-amber',
-      bgColor: 'bg-status-amber/10',
-      textColor: 'text-status-amber',
-    },
-    doit_bloquer: {
-      label: t('doitBloquer'),
-      dotColor: 'bg-[#FF6B6B]',
-      bgColor: 'bg-[rgba(255,107,107,0.15)]',
-      textColor: 'text-[#FF6B6B]',
-    },
-    bloque: {
-      label: t('bloque'),
-      dotColor: 'bg-status-red',
-      bgColor: 'bg-status-red/10',
-      textColor: 'text-status-red',
-    },
-  }
-
-  const status = statusConfig[employee.status] || statusConfig.actif
+  const status = getStatusConfig(employee.status, t)
   const progressPercent = (employee.daysUsed / employee.daysTotal) * 100
 
   return (
@@ -75,10 +49,10 @@ export default function EmployeeCard({ employee, onDetailsClick }) {
 
         {/* Status badge */}
         <div
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${status.bgColor} flex-shrink-0`}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${status.bg} flex-shrink-0`}
         >
           <div className={`w-1.5 h-1.5 rounded-full ${status.dotColor}`} />
-          <span className={`text-[11px] font-medium ${status.textColor}`}>
+          <span className={`text-[11px] font-medium ${status.color}`}>
             {status.label}
           </span>
         </div>

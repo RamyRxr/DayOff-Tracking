@@ -93,15 +93,6 @@ export const createBlockNotification = (employee, reason, t) => ({
   severity: 'error'
 })
 
-// Helper function for at-risk notification
-export const createAtRiskNotification = (employee, daysRemaining, t) => ({
-  type: 'at-risk',
-  employeeName: employee.name,
-  matricule: employee.matricule,
-  message: `⚠️ ${employee.name} ${t('estARisque')} — ${daysRemaining} ${t('joursRestants')}`,
-  severity: 'warning'
-})
-
 // Helper function for unblock notification
 export const createUnblockNotification = (employee, t) => ({
   type: 'unblocked',

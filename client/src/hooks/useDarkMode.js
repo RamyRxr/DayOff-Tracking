@@ -20,3 +20,26 @@ export function useDarkMode() {
   const toggle = () => setIsDark(prev => !prev)
   return { isDark, toggle }
 }
+
+/**
+ * Hook to handle dark mode hover effects consistently
+ * Provides onMouseEnter and onMouseLeave handlers for buttons
+ */
+export function useDarkHoverStyle(
+  isDark,
+  baseColor = 'transparent',
+  hoverColor = 'rgba(99,157,255,0.08)'
+) {
+  if (!isDark) {
+    return {}
+  }
+
+  return {
+    onMouseEnter: (e) => {
+      e.currentTarget.style.backgroundColor = hoverColor
+    },
+    onMouseLeave: (e) => {
+      e.currentTarget.style.backgroundColor = baseColor
+    }
+  }
+}

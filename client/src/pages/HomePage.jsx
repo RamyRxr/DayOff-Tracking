@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Plus, Loader2, AlertCircle } from "lucide-react";
-import EmployeeCard from "../components/EmployeeCard";
 import EmployeeDetailPanel from "../components/EmployeeDetailPanel";
 import AddEmployeeModal from "../components/AddEmployeeModal";
 import AddDayOffModal from "../components/AddDayOffModal";
@@ -11,7 +10,6 @@ import EmployeeTable from "../components/EmployeeTable";
 import { useEmployees } from "../hooks/useEmployees";
 import { useDaysOff } from "../hooks/useDaysOff";
 import { useTheme } from "../contexts/ThemeContext";
-import { translateDepartment } from "../utils/translateDepartment";
 
 export default function HomePage() {
   const { t } = useTranslation();

@@ -127,6 +127,7 @@ export default function BlockEmployeeModal({ employee, isOpen, onClose, onSubmit
     alertMessage = "L'employé a utilisé " + daysUsed + " jours de congé. Approche de la limite."
     canBlock = true
   } else {
+    // eslint-disable-next-line no-unused-vars
     alertLevel = 'red'
     alertBg = 'rgba(192,57,43,0.15)'
     alertBorder = 'rgba(192,57,43,0.2)'

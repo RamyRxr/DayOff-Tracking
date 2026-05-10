@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, Filter, Plus, ChevronDown, Loader2 } from 'lucide-react'
+import { Search, Plus, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 import AddDayOffModal from '../components/AddDayOffModal'
