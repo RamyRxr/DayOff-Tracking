@@ -22,15 +22,3 @@ export async function verifyAdminPin(credentials) {
     body: JSON.stringify(credentials),
   })
 }
-
-/**
- * Create new admin
- * @param {Object} adminData - { name, email, role, pin }
- * @returns {Promise<{ data: Admin }>}
- */
-export async function createAdmin(adminData) {
-  return fetchAPI('/admins', {
-    method: 'POST',
-    body: JSON.stringify(adminData),
-  })
-}

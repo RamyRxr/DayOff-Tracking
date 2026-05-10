@@ -12,6 +12,7 @@ import { parseLocalDateString, toLocalDateString } from '../utils/localDate'
 import CustomSelect from './CustomSelect'
 import SplitCalendar from './SplitCalendar'
 import SuccessModal from './SuccessModal'
+import { getStatusConfig } from '../utils/statusConfig'
 
 export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const { t } = useTranslation()
@@ -324,16 +325,6 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
   const isStep1Valid = !!selectedEmployee && !!startDate && !!endDate && !!reason
   const isStep2Valid = true
 
-  const getStatusConfig = (status) => {
-    const configs = {
-      actif: { label: t('actif'), dotColor: 'bg-status-green', bgColor: 'bg-status-green/10', textColor: 'text-status-green' },
-      a_risque: { label: t('aRisqueStatus'), dotColor: 'bg-status-amber', bgColor: 'bg-status-amber/10', textColor: 'text-status-amber' },
-      doit_bloquer: { label: t('doitBloquer'), dotColor: 'bg-[#FF6B6B]', bgColor: 'bg-[rgba(255,107,107,0.15)]', textColor: 'text-[#FF6B6B]' },
-      bloque: { label: t('bloque'), dotColor: 'bg-status-red', bgColor: 'bg-status-red/10', textColor: 'text-status-red' },
-    }
-    return configs[status] || configs.actif
-  }
-
   return (
     <>
       <div
@@ -480,7 +471,7 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                 ) : (
                   filteredEmployees.map(emp => {
                     const isSelected = selectedEmployee?.id === emp.id
-                    const status = getStatusConfig(emp.status)
+                    const status = getStatusConfig(emp.status, t)
                     return (
                       <button
                         key={emp.id}
@@ -537,9 +528,9 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                             </span>
                           </div>
                         </div>
-                        <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full ${status.bgColor}`}>
+                        <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full ${status.bg}`}>
                           <div className={`w-1.5 h-1.5 rounded-full ${status.dotColor}`} />
-                          <span className={`text-[10px] font-medium ${status.textColor}`}>
+                          <span className={`text-[10px] font-medium ${status.color}`}>
                             {status.label}
                           </span>
                         </div>
@@ -786,57 +777,6 @@ export default function HomeAddDayOffModal({ isOpen, onClose, onSuccess }) {
                 className="bg-blue-50 dark:bg-[rgba(99,157,255,0.08)] border border-blue-200 dark:border-[rgba(99,157,255,0.15)] rounded-xl p-3 text-xs text-blue-800 dark:text-[#639DFF]"
               >
                 {t('ajoutePar')}: {currentAdmin?.name} — {currentAdmin?.role}
-              </div>
-            </>
-          )}
-
-          {step === 2 && (
-            <>
-              {/* Summary */}
-              <div
-                className="bg-warm-gray-200 dark:bg-white/[0.06] rounded-xl p-4 mb-4"
-                style={isDark ? {
-                  backgroundColor: 'rgba(99,157,255,0.08)',
-                  border: '1px solid rgba(99,157,255,0.12)'
-                } : {}}
-              >
-                <div className="text-sm font-semibold text-[#111827] dark:text-[#E8EFF8] mb-2">
-                  Résumé du congé
-                </div>
-                <div className="space-y-2 text-sm text-[#6B7280] dark:text-[#7A9CC4]">
-                  <div className="flex justify-between">
-                    <span>Employé:</span>
-                    <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">{selectedEmployee?.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Période:</span>
-                    <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">
-                      {startDate && endDate && `${format(startDate, 'dd MMM', { locale: fr })} – ${format(endDate, 'dd MMM yyyy', { locale: fr })}`}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Jours ouvrables:</span>
-                    <span className="font-bold text-navy dark:text-[#639DFF]">{workingDays} jours</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Type:</span>
-                    <span className="font-medium text-[#111827] dark:text-[#E8EFF8]">
-                      {reason === 'annual' ? t('congeAnnuel') : reason === 'sick' ? t('congeMaladie') : reason === 'unpaid' ? t('congeSansSolde') : t('autre')}
-                    </span>
-                  </div>
-                  {hasSandwich && (
-                    <div className="flex items-center gap-2 text-status-amber dark:text-[#FF9F0A] pt-2 border-t border-black/6 dark:border-white/[0.06]">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span className="text-xs font-medium">Détection sandwich — Week-end inclus</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div
-                className="bg-blue-50 dark:bg-[rgba(99,157,255,0.08)] border border-blue-200 dark:border-[rgba(99,157,255,0.15)] rounded-xl p-3 text-xs text-blue-800 dark:text-[#639DFF]"
-              >
-                Ajouté par: {currentAdmin?.name} — {currentAdmin?.role}
               </div>
             </>
           )}

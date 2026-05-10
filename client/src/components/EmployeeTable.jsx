@@ -2,38 +2,22 @@ import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { translateDepartment } from '../utils/translateDepartment'
+import { getStatusConfig } from '../utils/statusConfig'
+import { useDarkHoverStyle } from '../hooks/useDarkMode'
+
+function SortIcon({ column, sortBy, sortOrder }) {
+  if (sortBy !== column) return <ArrowUpDown className="w-3 h-3 opacity-30" />
+  return sortOrder === 'asc'
+    ? <ArrowUp className="w-3 h-3" />
+    : <ArrowDown className="w-3 h-3" />
+}
 
 export default function EmployeeTable({ employees, onDetails, isDark }) {
   const { t } = useTranslation()
   const [sortBy, setSortBy] = useState(null)
   const [sortOrder, setSortOrder] = useState('asc')
-
-  const statusConfig = {
-    actif: {
-      label: 'Actif',
-      dotColor: 'bg-status-green dark:bg-[#34C759]',
-      bgColor: 'bg-status-green/10 dark:bg-[rgba(52,199,89,0.15)] border border-transparent dark:border-[rgba(52,199,89,0.2)]',
-      textColor: 'text-status-green dark:text-[#34C759]',
-    },
-    a_risque: {
-      label: 'À risque',
-      dotColor: 'bg-status-amber dark:bg-[#FF9F0A]',
-      bgColor: 'bg-status-amber/10 dark:bg-[rgba(255,159,10,0.15)] border border-transparent dark:border-[rgba(255,159,10,0.2)]',
-      textColor: 'text-status-amber dark:text-[#FF9F0A]',
-    },
-    doit_bloquer: {
-      label: t('doitBloquer'),
-      dotColor: 'bg-[#FF6B6B]',
-      bgColor: 'bg-[rgba(255,107,107,0.15)] border border-[rgba(255,107,107,0.3)]',
-      textColor: 'text-[#FF6B6B]',
-    },
-    bloque: {
-      label: 'Bloqué',
-      dotColor: 'bg-status-red dark:bg-[#FF6B6B]',
-      bgColor: 'bg-status-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-transparent dark:border-[rgba(255,59,48,0.2)]',
-      textColor: 'text-status-red dark:text-[#FF6B6B]',
-    },
-  }
+  const rowHoverStyle = useDarkHoverStyle(isDark, 'transparent', 'rgba(99,157,255,0.04)')
+  const buttonHoverStyle = useDarkHoverStyle(isDark)
 
   const handleSort = (column) => {
     if (sortBy === column) {
@@ -49,6 +33,7 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
 
     return [...employees].sort((a, b) => {
       let aVal, bVal
+      const statusOrder = { actif: 0, a_risque: 1, doit_bloquer: 2, bloque: 3 }
 
       switch (sortBy) {
         case 'employee':
@@ -60,7 +45,6 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
           bVal = b.daysUsed || 0
           break
         case 'statut':
-          const statusOrder = { actif: 0, a_risque: 1, doit_bloquer: 2, bloque: 3 }
           aVal = statusOrder[a.status] || 0
           bVal = statusOrder[b.status] || 0
           break
@@ -73,13 +57,6 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
       return 0
     })
   }, [employees, sortBy, sortOrder])
-
-  const SortIcon = ({ column }) => {
-    if (sortBy !== column) return <ArrowUpDown className="w-3 h-3 opacity-30" />
-    return sortOrder === 'asc'
-      ? <ArrowUp className="w-3 h-3" />
-      : <ArrowDown className="w-3 h-3" />
-  }
 
   if (!employees || employees.length === 0) {
     return (
@@ -124,7 +101,7 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
             >
               <div className="flex items-center gap-2">
                 {t('employeLabel')}
-                <SortIcon column="employee" />
+                <SortIcon column="employee" sortBy={sortBy} sortOrder={sortOrder} />
               </div>
             </th>
             <th className="text-left px-6 py-3 text-xs font-semibold text-[#374151] dark:text-[#7A9CC4] uppercase tracking-wider">
@@ -158,19 +135,14 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
           style={isDark ? { borderColor: 'rgba(99,157,255,0.08)' } : {}}
         >
           {sortedEmployees.map((employee) => {
-            const status = statusConfig[employee.status] || statusConfig.actif
+            const status = getStatusConfig(employee.status, t)
 
             return (
               <tr
                 key={employee.id}
                 className="hover:bg-warm-gray-200/50 transition-colors cursor-pointer"
                 onClick={() => onDetails?.(employee)}
-                onMouseEnter={(e) => {
-                  if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.04)'
-                }}
-                onMouseLeave={(e) => {
-                  if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
-                }}
+                {...rowHoverStyle}
               >
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
@@ -232,10 +204,10 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
                 </td>
                 <td className="px-6 py-4">
                   <div
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${status.bgColor}`}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${status.bg}`}
                   >
                     <div className={`w-1.5 h-1.5 rounded-full ${status.dotColor}`} />
-                    <span className={`text-xs font-medium ${status.textColor}`}>
+                    <span className={`text-xs font-medium ${status.color}`}>
                       {status.label}
                     </span>
                   </div>
@@ -247,12 +219,7 @@ export default function EmployeeTable({ employees, onDetails, isDark }) {
                       onDetails?.(employee)
                     }}
                     className="text-xs font-medium text-gray-600 dark:text-[#7A9CC4] hover:bg-gray-100 transition-all px-3 py-1.5 rounded-lg"
-                    onMouseEnter={(e) => {
-                      if (isDark) e.currentTarget.style.backgroundColor = 'rgba(99,157,255,0.08)'
-                    }}
-                    onMouseLeave={(e) => {
-                      if (isDark) e.currentTarget.style.backgroundColor = 'transparent'
-                    }}
+                    {...buttonHoverStyle}
                   >
                     {t('details')}
                   </button>
