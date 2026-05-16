@@ -12,109 +12,40 @@
 **Prerequisites:** Node.js v18+, npm, PostgreSQL 12+
 
 ```bash
-# ============================================
-# STEP 1: Clone the repository
-# ============================================
+# 1. Clone the repository
 git clone https://github.com/RamyRxr/DayOff-Tracking.git
 cd DayOff-Tracking
 
-# ============================================
-# STEP 2: Create PostgreSQL user and database
-# ============================================
-# IMPORTANT: This creates a user with CREATEDB permission (required for Prisma migrations)
-# Replace 'your_secure_password' with your actual password
+# 2. Setup PostgreSQL (replace password with your own)
+sudo -u postgres psql -c "CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;"
+sudo -u postgres psql -c "CREATE DATABASE daysoff_db OWNER dayoff_user;"
+sudo -u postgres psql -d daysoff_db -c "GRANT ALL ON SCHEMA public TO dayoff_user;"
+sudo -u postgres psql -d daysoff_db -c "GRANT CREATE ON SCHEMA public TO dayoff_user;"
+sudo -u postgres psql -d daysoff_db -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO dayoff_user;"
+sudo -u postgres psql -d daysoff_db -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO dayoff_user;"
 
-sudo -u postgres psql << 'EOF'
--- Create user with CREATEDB permission (REQUIRED for Prisma shadow database)
-CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;
+# 3. Configure environment variables
+echo 'DATABASE_URL="postgresql://dayoff_user:your_secure_password@localhost:5432/daysoff_db"' > server/.env
+echo 'PORT=3001' >> server/.env
 
--- Create database owned by the user
-CREATE DATABASE daysoff_db OWNER dayoff_user;
-
--- Connect to the database
-\c daysoff_db
-
--- Grant schema permissions (REQUIRED for migrations and seeding)
-GRANT ALL ON SCHEMA public TO dayoff_user;
-GRANT CREATE ON SCHEMA public TO dayoff_user;
-
--- Grant default privileges (REQUIRED for creating tables)
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO dayoff_user;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO dayoff_user;
-
--- Verify setup (should show "Create DB" in Attributes)
-\du dayoff_user
-EOF
-
-# ============================================
-# STEP 3: Configure environment variables
-# ============================================
-# Create server/.env file with database connection
-# IMPORTANT: Replace 'your_secure_password' with the same password from Step 2
-
-cat > server/.env << 'EOF'
-DATABASE_URL="postgresql://dayoff_user:your_secure_password@localhost:5432/daysoff_db"
-PORT=3001
-EOF
-
-# Verify the file was created
-cat server/.env
-
-# ============================================
-# STEP 4: Install dependencies
-# ============================================
-# Install backend dependencies
-cd server
-npm install
-
-# Install frontend dependencies
-cd ../client
-npm install
-
-# Return to root directory
+# 4. Install dependencies
+cd server && npm install
+cd ../client && npm install
 cd ..
 
-# ============================================
-# STEP 5: Setup database tables and seed data
-# ============================================
+# 5. Run migrations and seed database
 cd server
-
-# Run Prisma migrations (creates all tables)
 npx prisma migrate dev --name init
-
-# Seed database with sample data:
-# - 3 admin users (PIN: 1234)
-# - 10 sample employees
-# - Sample day-off records
 npx prisma db seed
-
 cd ..
 
-# ============================================
-# STEP 6: Start the application
-# ============================================
-# Make start script executable
+# 6. Start the application
 chmod +x start.sh
-
-# Start both backend and frontend servers
 ./start.sh
 
-# ============================================
-# STEP 7: Access the application
-# ============================================
-# Open your browser and go to: http://localhost:5173
-#
-# LOGIN CREDENTIALS:
-# - Default Admin PIN: 1234
-#   Admins: Mohamed Saidi, Fatima Benali, Ahmed Khelifi
-#
-# - Superadmin PIN: 0147
-#   For: Settings, Database Management, Bulk Operations
-#
-# PORTS:
-# - Frontend: http://localhost:5173
-# - Backend API: http://localhost:3001/api
-# ============================================
+# 7. Open http://localhost:5173
+# Default Admin PIN: 1234
+# Superadmin PIN: 0147
 ```
 
 **Troubleshooting Quick Start:**
