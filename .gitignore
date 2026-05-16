@@ -61,3 +61,7 @@ yarn-error.log*
 .venv/
 generate_report.py
 generate_professional_report.py
+
+# Reports and documentation
+dead-code-report.md
+skills-lock.json
