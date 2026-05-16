@@ -190,6 +190,15 @@ sudo -u postgres psql
 CREATE DATABASE dayoff_db;
 CREATE USER your_username WITH PASSWORD 'your_password';
 GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO your_username;
+
+# Grant schema permissions (IMPORTANT for Prisma)
+\c dayoff_db
+GRANT ALL ON SCHEMA public TO your_username;
+GRANT CREATE ON SCHEMA public TO your_username;
+
+# Grant database creation permission (for shadow database)
+ALTER USER your_username CREATEDB;
+
 \q
 ```
 
@@ -198,6 +207,28 @@ GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO your_username;
 CREATE DATABASE dayoff_db;
 CREATE USER ramy WITH PASSWORD '2004';
 GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO ramy;
+
+-- Connect to the database
+\c dayoff_db
+
+-- Grant schema permissions
+GRANT ALL ON SCHEMA public TO ramy;
+GRANT CREATE ON SCHEMA public TO ramy;
+
+-- Allow user to create databases (for Prisma shadow database)
+ALTER USER ramy CREATEDB;
+```
+
+**Quick Copy-Paste (replace with your values):**
+```bash
+sudo -u postgres psql << EOF
+CREATE DATABASE dayoff_db;
+CREATE USER ramy WITH PASSWORD '2004' CREATEDB;
+GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO ramy;
+\c dayoff_db
+GRANT ALL ON SCHEMA public TO ramy;
+GRANT CREATE ON SCHEMA public TO ramy;
+EOF
 ```
 
 ### 3. Install Dependencies
@@ -662,6 +693,57 @@ sudo systemctl start postgresql
 - Check if user has proper permissions:
 ```sql
 GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO your_username;
+```
+
+### Prisma Migration Issues
+
+**Error: `P3014 - Prisma Migrate could not create the shadow database`**
+
+This means your PostgreSQL user doesn't have permission to create databases. Fix:
+
+```bash
+# Connect to PostgreSQL
+sudo -u postgres psql
+
+# Grant CREATEDB permission
+ALTER USER your_username CREATEDB;
+\q
+```
+
+**Error: `permission denied for schema public`**
+
+Your user needs schema permissions:
+
+```bash
+sudo -u postgres psql -d dayoff_db << EOF
+GRANT ALL ON SCHEMA public TO your_username;
+GRANT CREATE ON SCHEMA public TO your_username;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO your_username;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO your_username;
+EOF
+```
+
+**Complete Permission Fix (if you're getting any permission errors):**
+```bash
+# Replace 'ramy' with your username and 'dayoff_db' with your database name
+sudo -u postgres psql << EOF
+ALTER USER ramy CREATEDB;
+GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO ramy;
+\c dayoff_db
+GRANT ALL ON SCHEMA public TO ramy;
+GRANT CREATE ON SCHEMA public TO ramy;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO ramy;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO ramy;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ramy;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ramy;
+EOF
+```
+
+Then retry migration:
+```bash
+cd server
+npx prisma migrate dev --name init
+npx prisma db seed
 ```
 
 ### Port Already in Use
