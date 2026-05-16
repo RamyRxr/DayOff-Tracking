@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage'
 import EmployeesPage from './pages/EmployeesPage'
 import BlockedPage from './pages/BlockedPage'
 import CalendarPage from './pages/CalendarPage'
+import SettingsPage from './pages/SettingsPage'
 import LoginPage from './pages/LoginPage'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { AdminProvider } from './contexts/AdminContext'
@@ -72,6 +73,7 @@ function App() {
               <Route path="/employees" element={<EmployeesPage />} />
               <Route path="/blocked" element={<BlockedPage />} />
               <Route path="/calendar" element={<CalendarPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

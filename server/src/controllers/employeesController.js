@@ -231,8 +231,117 @@ async function createEmployee(req, res) {
     }
 }
 
+async function deleteAllEmployees(req, res) {
+    try {
+        const { superadminPin } = req.body
+
+        // Verify superadmin PIN
+        if (superadminPin !== '0147') {
+            return res.status(403).json({ error: 'Code superadmin incorrect' })
+        }
+
+        // Delete all employees (cascades to daysOff and blocks due to Prisma schema)
+        const result = await prisma.employee.deleteMany({})
+
+        return res.json({
+            success: true,
+            deleted: result.count,
+            message: `${result.count} employés supprimés`
+        })
+    } catch (error) {
+        console.error('Error deleting all employees:', error)
+        return res.status(500).json({ error: 'Failed to delete employees' })
+    }
+}
+
+async function importEmployees(req, res) {
+    try {
+        const multer = require('multer')
+        const upload = multer({ storage: multer.memoryStorage() })
+
+        // Handle file upload
+        upload.single('file')(req, res, async (err) => {
+            if (err) {
+                return res.status(400).json({ error: 'File upload error' })
+            }
+
+            if (!req.file) {
+                return res.status(400).json({ error: 'No file uploaded' })
+            }
+
+            const fileContent = req.file.buffer.toString('utf-8')
+            const fileType = req.file.originalname.endsWith('.json') ? 'json' : 'csv'
+
+            let employees = []
+
+            if (fileType === 'json') {
+                employees = JSON.parse(fileContent)
+            } else {
+                // Parse CSV
+                const lines = fileContent.split('\n').filter(line => line.trim())
+                const headers = lines[0].split(',').map(h => h.trim())
+
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',').map(v => v.trim())
+                    const employee = {}
+                    headers.forEach((header, index) => {
+                        employee[header] = values[index]
+                    })
+                    employees.push(employee)
+                }
+            }
+
+            // Validate required fields
+            const required = ['matricule', 'firstName', 'lastName', 'email', 'phone', 'ssn', 'department', 'position', 'hireDate']
+            for (const emp of employees) {
+                for (const field of required) {
+                    if (!emp[field]) {
+                        return res.status(400).json({ error: `Missing required field: ${field}` })
+                    }
+                }
+            }
+
+            // Import employees
+            let imported = 0
+            for (const emp of employees) {
+                try {
+                    await prisma.employee.create({
+                        data: {
+                            matricule: String(emp.matricule).trim(),
+                            firstName: String(emp.firstName).trim(),
+                            lastName: String(emp.lastName).trim(),
+                            email: String(emp.email).trim(),
+                            phone: String(emp.phone).trim(),
+                            ssn: String(emp.ssn).trim(),
+                            department: String(emp.department).trim(),
+                            position: String(emp.position).trim(),
+                            hireDate: new Date(emp.hireDate),
+                            status: 'actif'
+                        }
+                    })
+                    imported++
+                } catch (error) {
+                    console.error(`Error importing employee ${emp.matricule}:`, error)
+                }
+            }
+
+            return res.json({
+                success: true,
+                imported,
+                total: employees.length,
+                message: `${imported}/${employees.length} employés importés`
+            })
+        })
+    } catch (error) {
+        console.error('Error importing employees:', error)
+        return res.status(500).json({ error: 'Failed to import employees' })
+    }
+}
+
 module.exports = {
     getEmployees,
     getEmployeeById,
     createEmployee,
+    deleteAllEmployees,
+    importEmployees,
 }
