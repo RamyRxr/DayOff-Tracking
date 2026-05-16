@@ -35,16 +35,22 @@ async function getSchema(req, res) {
             const typeMap = {
                 'text': 'String',
                 'character varying': 'String',
+                'varchar': 'String',
                 'integer': 'Int',
-                'bigint': 'Int',
+                'bigint': 'BigInt',
                 'smallint': 'Int',
                 'boolean': 'Boolean',
                 'timestamp without time zone': 'DateTime',
                 'timestamp with time zone': 'DateTime',
                 'date': 'Date',
+                'time': 'Time',
+                'time without time zone': 'Time',
                 'double precision': 'Float',
                 'real': 'Float',
-                'numeric': 'Decimal'
+                'numeric': 'Decimal',
+                'jsonb': 'Json',
+                'json': 'Json',
+                'bytea': 'Bytes'
             }
 
             schema.push({
@@ -85,9 +91,16 @@ async function addColumn(req, res) {
         const sqlTypeMap = {
             'String': 'TEXT',
             'Int': 'INTEGER',
-            'DateTime': 'TIMESTAMP',
+            'Integer': 'INTEGER',
+            'BigInt': 'BIGINT',
+            'Float': 'DOUBLE PRECISION',
+            'Decimal': 'NUMERIC',
             'Boolean': 'BOOLEAN',
-            'Float': 'DOUBLE PRECISION'
+            'DateTime': 'TIMESTAMP',
+            'Date': 'DATE',
+            'Time': 'TIME',
+            'Json': 'JSONB',
+            'Bytes': 'BYTEA'
         }
 
         const sqlType = sqlTypeMap[columnType] || 'TEXT'
@@ -127,9 +140,16 @@ async function editColumn(req, res) {
         const sqlTypeMap = {
             'String': 'TEXT',
             'Int': 'INTEGER',
-            'DateTime': 'TIMESTAMP',
+            'Integer': 'INTEGER',
+            'BigInt': 'BIGINT',
+            'Float': 'DOUBLE PRECISION',
+            'Decimal': 'NUMERIC',
             'Boolean': 'BOOLEAN',
-            'Float': 'DOUBLE PRECISION'
+            'DateTime': 'TIMESTAMP',
+            'Date': 'DATE',
+            'Time': 'TIME',
+            'Json': 'JSONB',
+            'Bytes': 'BYTEA'
         }
 
         const sqlType = sqlTypeMap[newColumnType] || 'TEXT'
