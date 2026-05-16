@@ -14,12 +14,15 @@
 git clone https://github.com/RamyRxr/DayOff-Tracking.git
 cd DayOff-Tracking
 
-# 2. Create PostgreSQL database
-sudo -u postgres psql
+# 2. Create PostgreSQL database with proper permissions
+sudo -u postgres psql << EOF
 CREATE DATABASE dayoff_db;
-CREATE USER your_username WITH PASSWORD 'your_password';
+CREATE USER your_username WITH PASSWORD 'your_password' CREATEDB;
 GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO your_username;
-\q
+\c dayoff_db
+GRANT ALL ON SCHEMA public TO your_username;
+GRANT CREATE ON SCHEMA public TO your_username;
+EOF
 
 # 3. Setup environment variables
 echo 'DATABASE_URL="postgresql://your_username:your_password@localhost:5432/dayoff_db"' > server/.env
@@ -36,6 +39,7 @@ npx prisma db seed
 
 # 6. Start the application
 cd ..
+chmod +x start.sh  # Make script executable
 ./start.sh
 
 # 7. Open http://localhost:5173
