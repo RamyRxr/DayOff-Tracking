@@ -1,0 +1,61 @@
+matricule,firstName,lastName,email,phone,ssn,department,position,hireDate
+EMP001,Ahmed,Bensaid,ahmed.bensaid@naftal.dz,0551234501,19850315,Production,Technician,2015-03-15
+EMP002,Fatima,Boumediene,fatima.boumediene@naftal.dz,0551234502,19900520,Administration,Secretary,2018-06-01
+EMP003,Mohamed,Kadri,mohamed.kadri@naftal.dz,0551234503,19880710,Logistics,Warehouse Manager,2016-09-12
+EMP004,Amina,Zeghib,amina.zeghib@naftal.dz,0551234504,19920825,Quality,Quality Inspector,2019-02-20
+EMP005,Karim,Hammadi,karim.hammadi@naftal.dz,0551234505,19870605,Maintenance,Maintenance Engineer,2017-04-10
+EMP006,Samira,Benali,samira.benali@naftal.dz,0551234506,19910918,Security,Security Officer,2018-11-05
+EMP007,Youcef,Messaoud,youcef.messaoud@naftal.dz,0551234507,19860420,Production,Production Supervisor,2015-07-22
+EMP008,Nadia,Cherif,nadia.cherif@naftal.dz,0551234508,19930312,Administration,HR Assistant,2020-01-08
+EMP009,Rachid,Boukhari,rachid.boukhari@naftal.dz,0551234509,19890628,Logistics,Logistics Coordinator,2017-08-14
+EMP010,Houda,Mansouri,houda.mansouri@naftal.dz,0551234510,19940715,Quality,Lab Technician,2020-05-18
+EMP011,Malik,Touati,malik.touati@naftal.dz,0551234511,19870825,Maintenance,Electrician,2016-12-03
+EMP012,Leila,Djelloul,leila.djelloul@naftal.dz,0551234512,19920410,Security,Security Manager,2019-03-25
+EMP013,Tarek,Hamdani,tarek.hamdani@naftal.dz,0551234513,19880520,Production,Operator,2017-01-17
+EMP014,Zineb,Brahim,zineb.brahim@naftal.dz,0551234514,19910805,Administration,Accountant,2018-09-10
+EMP015,Sofiane,Mahdi,sofiane.mahdi@naftal.dz,0551234515,19860915,Logistics,Truck Driver,2015-11-20
+EMP016,Meriem,Khelifi,meriem.khelifi@naftal.dz,0551234516,19930622,Quality,Quality Manager,2019-07-15
+EMP017,Hichem,Salah,hichem.salah@naftal.dz,0551234517,19890330,Maintenance,Mechanic,2017-05-08
+EMP018,Sihem,Mouloud,sihem.mouloud@naftal.dz,0551234518,19940512,Security,Security Guard,2020-02-12
+EMP019,Farid,Ouali,farid.ouali@naftal.dz,0551234519,19870708,Production,Team Leader,2016-06-18
+EMP020,Assia,Bekka,assia.bekka@naftal.dz,0551234520,19920825,Administration,Office Manager,2018-12-05
+EMP021,Nadir,Meziane,nadir.meziane@naftal.dz,0551234521,19880415,Logistics,Inventory Clerk,2016-10-22
+EMP022,Warda,Rabhi,warda.rabhi@naftal.dz,0551234522,19910620,Quality,QA Specialist,2019-04-30
+EMP023,Salim,Bachir,salim.bachir@naftal.dz,0551234523,19860528,Maintenance,Maintenance Supervisor,2015-08-14
+EMP024,Hanane,Lounis,hanane.lounis@naftal.dz,0551234524,19930710,Security,Security Coordinator,2019-11-18
+EMP025,Mourad,Taleb,mourad.taleb@naftal.dz,0551234525,19890320,Production,Production Manager,2017-02-25
+EMP026,Sarra,Amrani,sarra.amrani@naftal.dz,0551234526,19940505,Administration,Receptionist,2020-06-10
+EMP027,Djamel,Khaldi,djamel.khaldi@naftal.dz,0551234527,19870815,Logistics,Fleet Manager,2016-04-12
+EMP028,Lamia,Ferhat,lamia.ferhat@naftal.dz,0551234528,19920922,Quality,Inspector,2018-10-08
+EMP029,Bilal,Rezki,bilal.rezki@naftal.dz,0551234529,19880612,Maintenance,HVAC Technician,2017-03-15
+EMP030,Imane,Sadek,imane.sadek@naftal.dz,0551234530,19910418,Security,Access Control Officer,2018-07-20
+EMP031,Amine,Benabbas,amine.benabbas@naftal.dz,0551234531,19860925,Production,Foreman,2015-12-08
+EMP032,Khadija,Belkacem,khadija.belkacem@naftal.dz,0551234532,19930530,Administration,Payroll Specialist,2019-05-14
+EMP033,Hamza,Medjahdi,hamza.medjahdi@naftal.dz,0551234533,19890705,Logistics,Dispatcher,2017-09-22
+EMP034,Souad,Benmohamed,souad.benmohamed@naftal.dz,0551234534,19940820,Quality,Quality Analyst,2020-03-18
+EMP035,Walid,Ziani,walid.ziani@naftal.dz,0551234535,19870410,Maintenance,Welder,2016-08-05
+EMP036,Rima,Bouzid,rima.bouzid@naftal.dz,0551234536,19920515,Security,CCTV Operator,2019-01-12
+EMP037,Redouane,Laib,redouane.laib@naftal.dz,0551234537,19880720,Production,Process Technician,2017-06-28
+EMP038,Nawel,Aissa,nawel.aissa@naftal.dz,0551234538,19910310,Administration,Admin Assistant,2018-04-16
+EMP039,Boualem,Kaci,boualem.kaci@naftal.dz,0551234539,19860625,Logistics,Supply Chain Manager,2015-10-20
+EMP040,Sabrina,Mohand,sabrina.mohand@naftal.dz,0551234540,19930808,Quality,Compliance Officer,2019-08-25
+EMP041,Brahim,Haddad,brahim.haddad@naftal.dz,0551234541,19890512,Maintenance,Instrument Technician,2017-11-10
+EMP042,Amel,Saidi,amel.saidi@naftal.dz,0551234542,19940625,Security,Emergency Response,2020-04-15
+EMP043,Sofian,Berkane,sofian.berkane@naftal.dz,0551234543,19870330,Production,Quality Control,2016-02-18
+EMP044,Lydia,Mansour,lydia.mansour@naftal.dz,0551234544,19920708,Administration,Document Controller,2018-08-22
+EMP045,Nabil,Rabhi,nabil.rabhi@naftal.dz,0551234545,19880515,Logistics,Logistics Manager,2016-11-28
+EMP046,Yasmine,Talhi,yasmine.talhi@naftal.dz,0551234546,19910620,Quality,Auditor,2019-02-14
+EMP047,Kamel,Ouahab,kamel.ouahab@naftal.dz,0551234547,19860810,Maintenance,Plumber,2015-09-08
+EMP048,Djamila,Bencheikh,djamila.bencheikh@naftal.dz,0551234548,19930425,Security,Safety Officer,2019-10-20
+EMP049,Mehdi,Brahimi,mehdi.brahimi@naftal.dz,0551234549,19890620,Production,Shift Supervisor,2017-07-12
+EMP050,Farida,Boudjema,farida.boudjema@naftal.dz,0551234550,19940812,Administration,Training Coordinator,2020-01-25
+EMP051,Laid,Boudraa,laid.boudraa@naftal.dz,0551234551,19870518,Logistics,Procurement Officer,2016-05-10
+EMP052,Samia,Ghazi,samia.ghazi@naftal.dz,0551234552,19920925,Quality,Test Engineer,2018-11-15
+EMP053,Hakim,Benamara,hakim.benamara@naftal.dz,0551234553,19880410,Maintenance,Automation Engineer,2017-04-20
+EMP054,Malika,Brahmi,malika.brahmi@naftal.dz,0551234554,19910715,Security,Patrol Officer,2018-09-28
+EMP055,Samir,Bouazza,samir.bouazza@naftal.dz,0551234555,19860622,Production,Production Planner,2015-11-12
+EMP056,Ilhem,Hamdi,ilhem.hamdi@naftal.dz,0551234556,19930530,Administration,Benefits Administrator,2019-06-18
+EMP057,Kadir,Zerrouki,kadir.zerrouki@naftal.dz,0551234557,19890805,Logistics,Shipping Supervisor,2017-10-05
+EMP058,Naima,Djemai,naima.djemai@naftal.dz,0551234558,19940918,Quality,Calibration Technician,2020-02-28
+EMP059,Toufik,Ait,toufik.ait@naftal.dz,0551234559,19870312,Maintenance,Painter,2016-07-14
+EMP060,Zahra,Ouahmed,zahra.ouahmed@naftal.dz,0551234560,19920425,Security,Fire Safety Officer,2018-12-20

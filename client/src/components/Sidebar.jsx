@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, Users, ShieldAlert, Calendar, LogOut, Moon, Sun } from 'lucide-react'
+import { Home, Users, ShieldAlert, Calendar, Settings, LogOut, Moon, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../contexts/ThemeContext'
 
@@ -8,6 +8,7 @@ const navItems = [
   { to: '/employees', labelKey: 'employes', icon: Users },
   { to: '/blocked', labelKey: 'bloques', icon: ShieldAlert },
   { to: '/calendar', labelKey: 'calendrier', icon: Calendar },
+  { to: '/settings', labelKey: 'parametres', icon: Settings },
 ]
 
 export default function Sidebar({ currentAdmin, onLogout }) {

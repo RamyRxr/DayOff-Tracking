@@ -9,6 +9,7 @@ const daysOffRouter = require('./routes/daysoff')
 const blocksRouter = require('./routes/blocks')
 const uploadRouter = require('./routes/upload')
 const pdfRouter = require('./routes/pdf')
+const databaseRouter = require('./routes/database')
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -26,6 +27,7 @@ app.use('/api/daysoff', daysOffRouter)
 app.use('/api/blocks', blocksRouter)
 app.use('/api/upload', uploadRouter)
 app.use('/api/pdf', pdfRouter)
+app.use('/api/database', databaseRouter)
 
 app.get('/', (req, res) => {
   res.json({
