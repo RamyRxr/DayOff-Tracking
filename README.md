@@ -7,8 +7,45 @@
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
+## 🚀 Quick Start
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/RamyRxr/DayOff-Tracking.git
+cd DayOff-Tracking
+
+# 2. Create PostgreSQL database
+sudo -u postgres psql
+CREATE DATABASE dayoff_db;
+CREATE USER your_username WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO your_username;
+\q
+
+# 3. Setup environment variables
+echo 'DATABASE_URL="postgresql://your_username:your_password@localhost:5432/dayoff_db"' > server/.env
+echo 'PORT=3001' >> server/.env
+
+# 4. Install dependencies
+cd server && npm install
+cd ../client && npm install
+
+# 5. Run migrations and seed database
+cd ../server
+npx prisma migrate dev --name init
+npx prisma db seed
+
+# 6. Start the application
+cd ..
+./start.sh
+
+# 7. Open http://localhost:5173
+# Login with PIN: 1234 (default admin)
+# Superadmin PIN: 0147 (for settings)
+```
+
 ## 📋 Table of Contents
 
+- [Quick Start](#-quick-start)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Installation](#-installation)
@@ -16,6 +53,7 @@
 - [Business Rules](#-business-rules)
 - [API Documentation](#-api-documentation)
 - [Development](#-development)
+- [Troubleshooting](#-troubleshooting)
 - [Deployment](#-deployment)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -66,6 +104,26 @@
 - PIN verification for all write operations
 - Session management with localStorage
 - Protected routes and API endpoints
+- Superadmin access control (PIN: 0147) for critical operations
+
+### ⚙️ Settings & Administration
+- **Employee Data Management**
+  - Import employees from CSV/JSON files (60-employee samples included)
+  - Bulk delete all employees with superadmin PIN
+  - Required fields: matricule, firstName, lastName, email, phone, ssn, department, position, hireDate
+  
+- **Admin Management**
+  - Create new admin accounts with custom 4-digit PINs
+  - View all administrators
+  - Delete admin accounts
+  - PIN confirmation for security
+  
+- **Database Structure Viewer**
+  - View all tables and columns in real-time
+  - Add new columns with type selection (String, Int, BigInt, Float, Decimal, Boolean, DateTime, Date, Time, Json, Bytes)
+  - Edit column names and types with instant UI updates
+  - Delete columns with confirmation
+  - Requires superadmin PIN (0147) to access
 
 ## 🛠 Tech Stack
 
@@ -87,22 +145,62 @@
 - **CORS** — Cross-origin resource sharing
 
 ### Database
-- **SQLite** — Development database
-- **PostgreSQL** — Production database (recommended)
+- **PostgreSQL** — Primary database (development & production)
 
 ## 📦 Installation
 
 ### Prerequisites
-- Node.js v18 or higher
-- npm or yarn package manager
+- **Node.js** v18 or higher
+- **npm** or yarn package manager
+- **PostgreSQL** 12 or higher
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/DayOff-Tracking.git
+git clone https://github.com/RamyRxr/DayOff-Tracking.git
 cd DayOff-Tracking
 ```
 
-### 2. Install dependencies
+### 2. PostgreSQL Database Setup
+
+#### Install PostgreSQL (if not already installed)
+
+**Ubuntu/Debian:**
+```bash
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+```
+
+**macOS (Homebrew):**
+```bash
+brew install postgresql@15
+brew services start postgresql@15
+```
+
+**Windows:**
+Download and install from [postgresql.org/download/windows](https://www.postgresql.org/download/windows/)
+
+#### Create Database and User
+```bash
+# Connect to PostgreSQL
+sudo -u postgres psql
+
+# Inside PostgreSQL shell:
+CREATE DATABASE dayoff_db;
+CREATE USER your_username WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO your_username;
+\q
+```
+
+**Example:**
+```sql
+CREATE DATABASE dayoff_db;
+CREATE USER ramy WITH PASSWORD '2004';
+GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO ramy;
+```
+
+### 3. Install Dependencies
 
 #### Backend
 ```bash
@@ -116,60 +214,105 @@ cd ../client
 npm install
 ```
 
-### 3. Database Setup
+### 4. Environment Variables Setup
 
-#### Create Prisma database
+#### `server/.env`
+Create this file in the `server/` directory:
+
+```env
+# Database connection string
+DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
+
+# Server port
+PORT=3001
+
+# Example:
+# DATABASE_URL="postgresql://ramy:2004@localhost:5432/dayoff_db"
+```
+
+**Important:** Replace with your actual PostgreSQL credentials:
+- `username` — Your PostgreSQL user
+- `password` — Your PostgreSQL password
+- `database_name` — Your database name (e.g., dayoff_db)
+
+#### `client/.env` (Optional)
+Create this file in the `client/` directory if API URL is different:
+
+```env
+VITE_API_URL=http://localhost:3001/api
+```
+
+### 5. Database Migration
+
+Run Prisma migrations to create tables:
+
 ```bash
-cd ../server
+cd server
 npx prisma migrate dev --name init
 ```
 
-#### Seed with sample data
+This will create all necessary tables: Employee, Admin, DayOff, Block
+
+### 6. Seed Database (Optional)
+
+Populate database with sample data:
+
 ```bash
 npx prisma db seed
 ```
 
 This creates:
-- 3 admin users with PIN `1234`
-- 10 sample employees with realistic Algerian names
+- **3 admin users** with PIN `1234`
+  - Mohamed Saidi (Admin RH)
+  - Fatima Benali (Admin RH)
+  - Ahmed Khelifi (Admin RH)
+- **10 sample employees** with realistic Algerian names
 - Sample day-off records and blocks
 
-### 4. Environment Variables
+### 7. Start the Application
 
-Create `.env` files:
-
-#### `server/.env`
-```env
-DATABASE_URL="file:./prisma/dev.db"
-PORT=3001
+#### Option A: Use the startup script (Recommended)
+```bash
+# From the root directory
+./start.sh
 ```
 
-#### `client/.env`
-```env
-VITE_API_URL=http://localhost:3001/api
-```
+This will:
+- Start backend server on port 3001
+- Start frontend dev server on port 5173
+- Display both URLs
 
-### 5. Start Development Servers
+#### Option B: Manual start (2 terminals)
 
-#### Terminal 1 — Backend
+**Terminal 1 — Backend:**
 ```bash
 cd server
 npm run dev
 ```
 
-#### Terminal 2 — Frontend
+**Terminal 2 — Frontend:**
 ```bash
 cd client
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+### 8. Access the Application
 
-### 6. Login
+Open your browser and navigate to:
+- **Frontend:** [http://localhost:5173](http://localhost:5173)
+- **Backend API:** [http://localhost:3001/api](http://localhost:3001/api)
+
+### 9. Login
 
 Use any of the seeded admin accounts:
-- **PIN**: `1234` (all admins)
-- **Admins**: Mohamed Saidi, Fatima Benali, Ahmed Khelifi
+- **Default PIN:** `1234`
+- **Admins:** Mohamed Saidi, Fatima Benali, Ahmed Khelifi
+
+### 10. Superadmin Access
+
+For advanced settings (database management):
+- **Superadmin PIN:** `0147`
+- Used for: Viewing database structure, deleting all employees, modifying schema
 
 ## 📁 Project Structure
 
@@ -207,6 +350,9 @@ DayOff-Tracking/
 │   ├── rules/                   # Project-specific rules
 │   └── skills/                  # Custom AI skills
 │
+├── employees-sample.csv         # 60-employee sample CSV for import testing
+├── employees-sample.json        # 60-employee sample JSON for import testing
+├── start.sh                     # Startup script (runs both servers)
 ├── .gitignore
 ├── CLAUDE.md                    # Project instructions
 ├── CLAUDE.local.md              # Personal overrides (not committed)
@@ -497,6 +643,76 @@ npm run build
    ```bash
    npm start
    ```
+
+## 🐛 Troubleshooting
+
+### Database Connection Issues
+
+**Error: `connection refused` or `ECONNREFUSED`**
+```bash
+# Check if PostgreSQL is running
+sudo systemctl status postgresql
+
+# Start PostgreSQL if stopped
+sudo systemctl start postgresql
+```
+
+**Error: `password authentication failed`**
+- Verify credentials in `server/.env`
+- Check if user has proper permissions:
+```sql
+GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO your_username;
+```
+
+### Port Already in Use
+
+**Error: `Port 3001 already in use`**
+```bash
+# Kill existing node processes
+pkill -9 node
+
+# Or find and kill specific process
+lsof -i :3001
+kill -9 <PID>
+```
+
+### Migration Issues
+
+**Error: `Migration failed` or schema sync issues**
+```bash
+# Reset database and re-run migrations
+cd server
+npx prisma migrate reset
+npx prisma migrate dev
+npx prisma db seed
+```
+
+### Module Not Found
+
+**Error: `Cannot find module`**
+```bash
+# Reinstall dependencies
+cd server && rm -rf node_modules package-lock.json && npm install
+cd ../client && rm -rf node_modules package-lock.json && npm install
+```
+
+### Import File Issues
+
+**CSV/JSON import not working:**
+- Ensure all required fields are present: `matricule`, `firstName`, `lastName`, `email`, `phone`, `ssn`, `department`, `position`, `hireDate`
+- Check file encoding (should be UTF-8)
+- Date format should be: `YYYY-MM-DD` (e.g., `2015-03-15`)
+- Use provided sample files as reference
+
+### Start Script Permission Denied
+
+```bash
+# Make start.sh executable
+chmod +x start.sh
+
+# Then run it
+./start.sh
+```
 
 ## 🤝 Contributing
 
