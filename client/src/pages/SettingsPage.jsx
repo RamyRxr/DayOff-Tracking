@@ -226,11 +226,33 @@ export default function SettingsPage() {
       })
 
       if (response.ok) {
-        await loadDatabaseSchema()
+        // Immediately update UI by modifying the column
+        const updatedColumns = selectedTable.columns.map(col => {
+          if (col.name === oldName) {
+            return { name: newName, type: newType }
+          }
+          return col
+        })
+        setSelectedTable({
+          ...selectedTable,
+          columns: updatedColumns
+        })
+
+        // Also update dbSchema
+        const updatedSchema = dbSchema.map(table => {
+          if (table.name === selectedTable.name) {
+            return { ...table, columns: updatedColumns }
+          }
+          return table
+        })
+        setDbSchema(updatedSchema)
+
         setEditingColumn(null)
+        setError(null)
       }
     } catch (error) {
       console.error('Error editing column:', error)
+      setError('Failed to edit column')
     }
   }
 
@@ -254,10 +276,21 @@ export default function SettingsPage() {
       const data = await response.json()
 
       if (response.ok) {
-        await loadDatabaseSchema()
-        // Update selected table to reflect changes
-        const updatedTable = dbSchema.find(t => t.name === selectedTable.name)
-        if (updatedTable) setSelectedTable(updatedTable)
+        // Immediately update UI by removing column from selectedTable
+        const updatedColumns = selectedTable.columns.filter(col => col.name !== columnName)
+        setSelectedTable({
+          ...selectedTable,
+          columns: updatedColumns
+        })
+
+        // Also update dbSchema
+        const updatedSchema = dbSchema.map(table => {
+          if (table.name === selectedTable.name) {
+            return { ...table, columns: updatedColumns }
+          }
+          return table
+        })
+        setDbSchema(updatedSchema)
       } else {
         setError(data.error || 'Failed to delete column')
       }
