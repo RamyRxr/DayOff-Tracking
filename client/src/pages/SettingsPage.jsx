@@ -661,12 +661,24 @@ export default function SettingsPage() {
                                   className="flex-1 px-2 py-1 text-sm font-mono border rounded dark:bg-[#0B1120] dark:border-[rgba(99,157,255,0.2)] dark:text-[#E8EFF8]"
                                   id={`edit-name-${col.name}`}
                                 />
-                                <input
-                                  type="text"
-                                  defaultValue={col.type}
-                                  className="w-24 px-2 py-1 text-sm border rounded dark:bg-[#0B1120] dark:border-[rgba(99,157,255,0.2)] dark:text-[#E8EFF8]"
+                                <select
+                                  defaultValue={col.type.replace('?', '')}
+                                  className="w-32 px-2 py-1 text-sm border rounded dark:bg-[#0B1120] dark:border-[rgba(99,157,255,0.2)] dark:text-[#E8EFF8]"
                                   id={`edit-type-${col.name}`}
-                                />
+                                >
+                                  <option value="String">String</option>
+                                  <option value="Int">Int</option>
+                                  <option value="Integer">Integer</option>
+                                  <option value="BigInt">BigInt</option>
+                                  <option value="Float">Float</option>
+                                  <option value="Decimal">Decimal</option>
+                                  <option value="Boolean">Boolean</option>
+                                  <option value="DateTime">DateTime</option>
+                                  <option value="Date">Date</option>
+                                  <option value="Time">Time</option>
+                                  <option value="Json">Json</option>
+                                  <option value="Bytes">Bytes</option>
+                                </select>
                                 <button
                                   onClick={() => {
                                     const newName = document.getElementById(`edit-name-${col.name}`).value
@@ -769,11 +781,17 @@ export default function SettingsPage() {
                     onChange={(e) => setNewColumn({ ...newColumn, type: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg dark:bg-[#0B1120] dark:border-[rgba(99,157,255,0.2)] dark:text-[#E8EFF8] focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="String">String</option>
-                    <option value="Int">Int</option>
-                    <option value="DateTime">DateTime</option>
-                    <option value="Boolean">Boolean</option>
-                    <option value="Float">Float</option>
+                    <option value="String">String (Text)</option>
+                    <option value="Int">Int (Integer)</option>
+                    <option value="BigInt">BigInt (Large Integer)</option>
+                    <option value="Float">Float (Decimal Number)</option>
+                    <option value="Decimal">Decimal (Precise Number)</option>
+                    <option value="Boolean">Boolean (True/False)</option>
+                    <option value="DateTime">DateTime (Date & Time)</option>
+                    <option value="Date">Date (Date Only)</option>
+                    <option value="Time">Time (Time Only)</option>
+                    <option value="Json">Json (JSON Data)</option>
+                    <option value="Bytes">Bytes (Binary Data)</option>
                   </select>
                 </div>
 
