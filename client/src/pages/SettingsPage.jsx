@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Settings, Upload, Trash2, UserPlus, Database, Shield, AlertCircle, Check, X, Plus, Edit2 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
@@ -7,7 +7,9 @@ import SuperAdminPinModal from '../components/SuperAdminPinModal'
 export default function SettingsPage() {
   const { t } = useTranslation()
   const { isDark } = useTheme()
-  const [activeSection, setActiveSection] = useState('data')
+  const [activeSection, setActiveSection] = useState(() => {
+    return localStorage.getItem('settings-active-section') || 'data'
+  })
   const [showPinModal, setShowPinModal] = useState(false)
   const [pinAction, setPinAction] = useState(null)
 
@@ -26,6 +28,12 @@ export default function SettingsPage() {
   const [editingColumn, setEditingColumn] = useState(null)
   const [showAddColumn, setShowAddColumn] = useState(false)
   const [newColumn, setNewColumn] = useState({ name: '', type: 'String', nullable: false })
+  const [error, setError] = useState(null)
+
+  // Persist active section to localStorage
+  useEffect(() => {
+    localStorage.setItem('settings-active-section', activeSection)
+  }, [activeSection])
 
   const sections = [
     { id: 'data', labelKey: 'gestionDonnees', icon: Upload },
@@ -182,11 +190,20 @@ export default function SettingsPage() {
 
       if (response.ok) {
         await loadDatabaseSchema()
+        // Update selected table to show new column
+        const updatedSchema = await fetch('http://localhost:3001/api/database/schema', {
+          headers: { 'x-superadmin-pin': '0147' }
+        }).then(r => r.json())
+        const updatedTable = updatedSchema.schema.find(t => t.name === selectedTable.name)
+        if (updatedTable) setSelectedTable(updatedTable)
+
         setShowAddColumn(false)
         setNewColumn({ name: '', type: 'String', nullable: false })
+        setError(null)
       }
     } catch (error) {
       console.error('Error adding column:', error)
+      setError('Failed to add column')
     }
   }
 
@@ -220,6 +237,7 @@ export default function SettingsPage() {
   const handleDeleteColumn = async (columnName) => {
     if (!selectedTable || !window.confirm(`Delete column "${columnName}"?`)) return
 
+    setError(null)
     try {
       const response = await fetch('http://localhost:3001/api/database/delete-column', {
         method: 'POST',
@@ -233,11 +251,19 @@ export default function SettingsPage() {
         })
       })
 
+      const data = await response.json()
+
       if (response.ok) {
         await loadDatabaseSchema()
+        // Update selected table to reflect changes
+        const updatedTable = dbSchema.find(t => t.name === selectedTable.name)
+        if (updatedTable) setSelectedTable(updatedTable)
+      } else {
+        setError(data.error || 'Failed to delete column')
       }
     } catch (error) {
       console.error('Error deleting column:', error)
+      setError('Failed to delete column')
     }
   }
 
@@ -514,6 +540,20 @@ export default function SettingsPage() {
                 {t('structureDatabase')}
               </h2>
 
+              {/* Error Display */}
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  <span className="text-sm text-red-800 dark:text-red-300">{error}</span>
+                  <button
+                    onClick={() => setError(null)}
+                    className="ml-auto p-1 hover:bg-red-100 dark:hover:bg-red-800/30 rounded"
+                  >
+                    <X className="w-4 h-4 text-red-600 dark:text-red-400" />
+                  </button>
+                </div>
+              )}
+
               {!dbSchema ? (
                 <button
                   onClick={() => {
@@ -638,61 +678,6 @@ export default function SettingsPage() {
                           </div>
                         ))}
                       </div>
-
-                      {/* Add Column Form */}
-                      {showAddColumn && (
-                        <div className="mt-4 p-3 bg-white dark:bg-[rgba(99,157,255,0.08)] rounded-lg border-2 border-green-200 dark:border-green-600/30">
-                          <h4 className="text-sm font-medium text-gray-900 dark:text-[#E8EFF8] mb-3">
-                            Add New Column
-                          </h4>
-                          <div className="space-y-2">
-                            <input
-                              type="text"
-                              placeholder="Column name"
-                              value={newColumn.name}
-                              onChange={(e) => setNewColumn({ ...newColumn, name: e.target.value })}
-                              className="w-full px-3 py-2 text-sm border rounded dark:bg-[#0B1120] dark:border-[rgba(99,157,255,0.2)] dark:text-[#E8EFF8]"
-                            />
-                            <select
-                              value={newColumn.type}
-                              onChange={(e) => setNewColumn({ ...newColumn, type: e.target.value })}
-                              className="w-full px-3 py-2 text-sm border rounded dark:bg-[#0B1120] dark:border-[rgba(99,157,255,0.2)] dark:text-[#E8EFF8]"
-                            >
-                              <option value="String">String</option>
-                              <option value="Int">Int</option>
-                              <option value="DateTime">DateTime</option>
-                              <option value="Boolean">Boolean</option>
-                              <option value="Float">Float</option>
-                            </select>
-                            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-[#7A9CC4]">
-                              <input
-                                type="checkbox"
-                                checked={newColumn.nullable}
-                                onChange={(e) => setNewColumn({ ...newColumn, nullable: e.target.checked })}
-                                className="rounded"
-                              />
-                              Nullable
-                            </label>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={handleAddColumn}
-                                className="flex-1 px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
-                              >
-                                Add
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setShowAddColumn(false)
-                                  setNewColumn({ name: '', type: 'String', nullable: false })
-                                }}
-                                className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-[#7A9CC4] bg-gray-100 dark:bg-[rgba(99,157,255,0.1)] hover:bg-gray-200 dark:hover:bg-[rgba(99,157,255,0.15)] rounded-lg transition-colors"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -712,6 +697,86 @@ export default function SettingsPage() {
         onSuccess={handlePinVerified}
         title={t('verificationSuperadmin')}
       />
+
+      {/* Add Column Modal */}
+      {showAddColumn && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div
+            className="w-full max-w-md bg-white dark:bg-[#0B1120] rounded-2xl shadow-2xl"
+            style={isDark ? {
+              border: '1px solid rgba(99,157,255,0.2)',
+              boxShadow: '0 0 0 1px rgba(99,157,255,0.1), 0 20px 40px rgba(0,0,0,0.6)'
+            } : {}}
+          >
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-[#E8EFF8] mb-4">
+                Add New Column
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-[#7A9CC4] mb-1">
+                    Column Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., middleName"
+                    value={newColumn.name}
+                    onChange={(e) => setNewColumn({ ...newColumn, name: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg dark:bg-[#0B1120] dark:border-[rgba(99,157,255,0.2)] dark:text-[#E8EFF8] focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-[#7A9CC4] mb-1">
+                    Column Type
+                  </label>
+                  <select
+                    value={newColumn.type}
+                    onChange={(e) => setNewColumn({ ...newColumn, type: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg dark:bg-[#0B1120] dark:border-[rgba(99,157,255,0.2)] dark:text-[#E8EFF8] focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="String">String</option>
+                    <option value="Int">Int</option>
+                    <option value="DateTime">DateTime</option>
+                    <option value="Boolean">Boolean</option>
+                    <option value="Float">Float</option>
+                  </select>
+                </div>
+
+                <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-[#7A9CC4]">
+                  <input
+                    type="checkbox"
+                    checked={newColumn.nullable}
+                    onChange={(e) => setNewColumn({ ...newColumn, nullable: e.target.checked })}
+                    className="rounded"
+                  />
+                  Nullable (can be empty)
+                </label>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={handleAddColumn}
+                    disabled={!newColumn.name}
+                    className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-lg transition-colors"
+                  >
+                    Add
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowAddColumn(false)
+                      setNewColumn({ name: '', type: 'String', nullable: false })
+                    }}
+                    className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-[#7A9CC4] bg-gray-100 dark:bg-[rgba(99,157,255,0.1)] hover:bg-gray-200 dark:hover:bg-[rgba(99,157,255,0.15)] rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
