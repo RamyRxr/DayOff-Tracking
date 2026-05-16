@@ -31,12 +31,31 @@ async function getSchema(req, res) {
                 ORDER BY ordinal_position
             `
 
+            // Map PostgreSQL types to readable names
+            const typeMap = {
+                'text': 'String',
+                'character varying': 'String',
+                'integer': 'Int',
+                'bigint': 'Int',
+                'smallint': 'Int',
+                'boolean': 'Boolean',
+                'timestamp without time zone': 'DateTime',
+                'timestamp with time zone': 'DateTime',
+                'date': 'Date',
+                'double precision': 'Float',
+                'real': 'Float',
+                'numeric': 'Decimal'
+            }
+
             schema.push({
                 name: table.name,
-                columns: columns.map(col => ({
-                    name: col.name,
-                    type: col.type + (col.is_nullable === 'YES' ? '?' : '')
-                }))
+                columns: columns.map(col => {
+                    const baseType = typeMap[col.type.toLowerCase()] || col.type
+                    return {
+                        name: col.name,
+                        type: baseType + (col.is_nullable === 'YES' ? '?' : '')
+                    }
+                })
             })
         }
 
@@ -163,6 +182,12 @@ async function deleteColumn(req, res) {
         })
     } catch (error) {
         console.error('Error deleting column:', error)
+
+        // Handle specific errors
+        if (error.message.includes('does not exist')) {
+            return res.status(404).json({ error: `Column '${columnName}' does not exist in table ${tableName}` })
+        }
+
         return res.status(500).json({ error: error.message || 'Failed to delete column' })
     }
 }
