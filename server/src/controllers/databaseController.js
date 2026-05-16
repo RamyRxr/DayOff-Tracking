@@ -9,67 +9,36 @@ async function getSchema(req, res) {
             return res.status(403).json({ error: 'Code superadmin incorrect' })
         }
 
-        // Get schema using Prisma's introspection
-        const schema = [
-            {
-                name: 'Employee',
-                columns: [
-                    { name: 'id', type: 'String (UUID)' },
-                    { name: 'matricule', type: 'String (unique)' },
-                    { name: 'firstName', type: 'String' },
-                    { name: 'lastName', type: 'String' },
-                    { name: 'email', type: 'String (unique)' },
-                    { name: 'phone', type: 'String?' },
-                    { name: 'ssn', type: 'String?' },
-                    { name: 'department', type: 'String' },
-                    { name: 'position', type: 'String' },
-                    { name: 'status', type: 'String' },
-                    { name: 'hireDate', type: 'DateTime' },
-                    { name: 'createdAt', type: 'DateTime' },
-                    { name: 'updatedAt', type: 'DateTime' },
-                ]
-            },
-            {
-                name: 'Admin',
-                columns: [
-                    { name: 'id', type: 'String (UUID)' },
-                    { name: 'name', type: 'String' },
-                    { name: 'role', type: 'String' },
-                    { name: 'pinHash', type: 'String' },
-                    { name: 'createdAt', type: 'DateTime' },
-                ]
-            },
-            {
-                name: 'DayOff',
-                columns: [
-                    { name: 'id', type: 'String (UUID)' },
-                    { name: 'employeeId', type: 'String (FK)' },
-                    { name: 'adminId', type: 'String? (FK)' },
-                    { name: 'startDate', type: 'DateTime' },
-                    { name: 'endDate', type: 'DateTime' },
-                    { name: 'type', type: 'String' },
-                    { name: 'reason', type: 'String?' },
-                    { name: 'justification', type: 'String?' },
-                    { name: 'createdAt', type: 'DateTime' },
-                ]
-            },
-            {
-                name: 'Block',
-                columns: [
-                    { name: 'id', type: 'String (UUID)' },
-                    { name: 'employeeId', type: 'String (FK)' },
-                    { name: 'adminId', type: 'String (FK)' },
-                    { name: 'reason', type: 'String' },
-                    { name: 'description', type: 'String?' },
-                    { name: 'isActive', type: 'Boolean' },
-                    { name: 'unblockReason', type: 'String?' },
-                    { name: 'unblockDescription', type: 'String?' },
-                    { name: 'unblockedById', type: 'String? (FK)' },
-                    { name: 'unblockedAt', type: 'DateTime?' },
-                    { name: 'createdAt', type: 'DateTime' },
-                ]
-            }
-        ]
+        // Get list of tables from PostgreSQL information_schema
+        const tables = await prisma.$queryRaw`
+            SELECT table_name as name
+            FROM information_schema.tables
+            WHERE table_schema = 'public'
+            AND table_type = 'BASE TABLE'
+            ORDER BY table_name
+        `
+
+        // Get columns for each table
+        const schema = []
+        for (const table of tables) {
+            const columns = await prisma.$queryRaw`
+                SELECT column_name as name,
+                       data_type as type,
+                       is_nullable
+                FROM information_schema.columns
+                WHERE table_schema = 'public'
+                AND table_name = ${table.name}
+                ORDER BY ordinal_position
+            `
+
+            schema.push({
+                name: table.name,
+                columns: columns.map(col => ({
+                    name: col.name,
+                    type: col.type + (col.is_nullable === 'YES' ? '?' : '')
+                }))
+            })
+        }
 
         return res.json({ schema })
     } catch (error) {
@@ -93,18 +62,30 @@ async function addColumn(req, res) {
             return res.status(400).json({ error: 'Missing required fields: tableName, columnName, columnType' })
         }
 
+        // Map Prisma types to PostgreSQL types
+        const sqlTypeMap = {
+            'String': 'TEXT',
+            'Int': 'INTEGER',
+            'DateTime': 'TIMESTAMP',
+            'Boolean': 'BOOLEAN',
+            'Float': 'DOUBLE PRECISION'
+        }
+
+        const sqlType = sqlTypeMap[columnType] || 'TEXT'
+        const nullConstraint = nullable ? '' : ' NOT NULL DEFAULT \'\''
+
+        // Execute raw SQL to add column (PostgreSQL)
+        await prisma.$executeRawUnsafe(
+            `ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${sqlType}${nullConstraint}`
+        )
+
         return res.json({
             success: true,
-            message: `To add column '${columnName}' of type '${columnType}' to ${tableName}: Update schema.prisma and run: npx prisma migrate dev`,
-            instructions: [
-                `1. Open prisma/schema.prisma`,
-                `2. Add: ${columnName} ${columnType}${nullable ? '?' : ''}`,
-                `3. Run: npx prisma migrate dev --name add_${columnName}_to_${tableName.toLowerCase()}`
-            ]
+            message: `Column '${columnName}' added successfully to ${tableName}`
         })
     } catch (error) {
         console.error('Error adding column:', error)
-        return res.status(500).json({ error: 'Failed to add column' })
+        return res.status(500).json({ error: error.message || 'Failed to add column' })
     }
 }
 
@@ -123,19 +104,36 @@ async function editColumn(req, res) {
             return res.status(400).json({ error: 'Missing required fields: tableName, oldColumnName, newColumnName, newColumnType' })
         }
 
+        // Map Prisma types to PostgreSQL types
+        const sqlTypeMap = {
+            'String': 'TEXT',
+            'Int': 'INTEGER',
+            'DateTime': 'TIMESTAMP',
+            'Boolean': 'BOOLEAN',
+            'Float': 'DOUBLE PRECISION'
+        }
+
+        const sqlType = sqlTypeMap[newColumnType] || 'TEXT'
+
+        // Rename column if name changed
+        if (oldColumnName !== newColumnName) {
+            await prisma.$executeRawUnsafe(
+                `ALTER TABLE "${tableName}" RENAME COLUMN "${oldColumnName}" TO "${newColumnName}"`
+            )
+        }
+
+        // Change column type (PostgreSQL supports ALTER COLUMN TYPE)
+        await prisma.$executeRawUnsafe(
+            `ALTER TABLE "${tableName}" ALTER COLUMN "${newColumnName}" TYPE ${sqlType} USING "${newColumnName}"::${sqlType}`
+        )
+
         return res.json({
             success: true,
-            message: `To rename/modify column '${oldColumnName}' to '${newColumnName}' (${newColumnType}): Update schema.prisma and run: npx prisma migrate dev`,
-            instructions: [
-                `1. Open prisma/schema.prisma`,
-                `2. Find: ${oldColumnName}`,
-                `3. Change to: ${newColumnName} ${newColumnType}`,
-                `4. Run: npx prisma migrate dev --name rename_${oldColumnName}_to_${newColumnName}`
-            ]
+            message: `Column '${oldColumnName}' updated successfully${oldColumnName !== newColumnName ? ` (renamed to '${newColumnName}')` : ''}`
         })
     } catch (error) {
         console.error('Error editing column:', error)
-        return res.status(500).json({ error: 'Failed to edit column' })
+        return res.status(500).json({ error: error.message || 'Failed to edit column' })
     }
 }
 
@@ -154,19 +152,18 @@ async function deleteColumn(req, res) {
             return res.status(400).json({ error: 'Missing required fields: tableName, columnName' })
         }
 
+        // PostgreSQL supports DROP COLUMN
+        await prisma.$executeRawUnsafe(
+            `ALTER TABLE "${tableName}" DROP COLUMN "${columnName}"`
+        )
+
         return res.json({
             success: true,
-            message: `To delete column '${columnName}' from ${tableName}: Update schema.prisma and run: npx prisma migrate dev`,
-            instructions: [
-                `1. Open prisma/schema.prisma`,
-                `2. Remove line: ${columnName}`,
-                `3. Run: npx prisma migrate dev --name remove_${columnName}_from_${tableName.toLowerCase()}`,
-                `⚠️  WARNING: This will permanently delete all data in this column`
-            ]
+            message: `Column '${columnName}' deleted successfully from ${tableName}`
         })
     } catch (error) {
         console.error('Error deleting column:', error)
-        return res.status(500).json({ error: 'Failed to delete column' })
+        return res.status(500).json({ error: error.message || 'Failed to delete column' })
     }
 }
 
