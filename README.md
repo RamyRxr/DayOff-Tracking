@@ -14,18 +14,20 @@
 git clone https://github.com/RamyRxr/DayOff-Tracking.git
 cd DayOff-Tracking
 
-# 2. Create PostgreSQL database with proper permissions
-sudo -u postgres psql << EOF
-CREATE DATABASE dayoff_db;
-CREATE USER your_username WITH PASSWORD 'your_password' CREATEDB;
-GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO your_username;
+# 2. Create PostgreSQL user and database
+# IMPORTANT: Create user FIRST with CREATEDB permission
+sudo -u postgres psql << 'EOF'
+CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;
+CREATE DATABASE dayoff_db OWNER dayoff_user;
 \c dayoff_db
-GRANT ALL ON SCHEMA public TO your_username;
-GRANT CREATE ON SCHEMA public TO your_username;
+GRANT ALL ON SCHEMA public TO dayoff_user;
+GRANT CREATE ON SCHEMA public TO dayoff_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO dayoff_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO dayoff_user;
 EOF
 
 # 3. Setup environment variables
-echo 'DATABASE_URL="postgresql://your_username:your_password@localhost:5432/dayoff_db"' > server/.env
+echo 'DATABASE_URL="postgresql://dayoff_user:your_secure_password@localhost:5432/dayoff_db"' > server/.env
 echo 'PORT=3001' >> server/.env
 
 # 4. Install dependencies
@@ -39,12 +41,12 @@ npx prisma db seed
 
 # 6. Start the application
 cd ..
-chmod +x start.sh  # Make script executable
+chmod +x start.sh
 ./start.sh
 
 # 7. Open http://localhost:5173
-# Login with PIN: 1234 (default admin)
-# Superadmin PIN: 0147 (for settings)
+# Default Admin PIN: 1234
+# Superadmin PIN: 0147 (for settings access)
 ```
 
 ## 📋 Table of Contents
@@ -185,54 +187,92 @@ brew services start postgresql@15
 **Windows:**
 Download and install from [postgresql.org/download/windows](https://www.postgresql.org/download/windows/)
 
-#### Create Database and User
+#### Create User and Database (Step-by-Step)
+
+**IMPORTANT: Follow these steps in ORDER!**
+
 ```bash
-# Connect to PostgreSQL
+# Step 1: Connect to PostgreSQL as superuser
 sudo -u postgres psql
 
-# Inside PostgreSQL shell:
-CREATE DATABASE dayoff_db;
-CREATE USER your_username WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO your_username;
+# You should now see: postgres=#
+```
 
-# Grant schema permissions (IMPORTANT for Prisma)
+```sql
+-- Step 2: Create a new user with CREATEDB permission (REQUIRED for Prisma)
+-- Replace 'dayoff_user' with your desired username
+-- Replace 'your_secure_password' with your desired password
+CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;
+
+-- Step 3: Create the database
+CREATE DATABASE dayoff_db OWNER dayoff_user;
+
+-- Step 4: Connect to the new database
 \c dayoff_db
-GRANT ALL ON SCHEMA public TO your_username;
-GRANT CREATE ON SCHEMA public TO your_username;
 
-# Grant database creation permission (for shadow database)
-ALTER USER your_username CREATEDB;
+-- You should now see: dayoff_db=#
 
+-- Step 5: Grant schema permissions (REQUIRED for Prisma migrations)
+GRANT ALL ON SCHEMA public TO dayoff_user;
+GRANT CREATE ON SCHEMA public TO dayoff_user;
+
+-- Step 6: Grant default privileges (REQUIRED for seeding)
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO dayoff_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO dayoff_user;
+
+-- Step 7: Verify permissions
+\du dayoff_user
+
+-- You should see "Create DB" in the Attributes column
+
+-- Step 8: Exit PostgreSQL
 \q
 ```
 
-**Example:**
-```sql
-CREATE DATABASE dayoff_db;
-CREATE USER ramy WITH PASSWORD '2004';
-GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO ramy;
+**Quick Copy-Paste Version (All-in-one command):**
+```bash
+sudo -u postgres psql << 'EOF'
+-- Create user with CREATEDB permission
+CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;
 
--- Connect to the database
+-- Create database owned by the user
+CREATE DATABASE dayoff_db OWNER dayoff_user;
+
+-- Connect to database
 \c dayoff_db
 
--- Grant schema permissions
-GRANT ALL ON SCHEMA public TO ramy;
-GRANT CREATE ON SCHEMA public TO ramy;
+-- Grant all necessary permissions
+GRANT ALL ON SCHEMA public TO dayoff_user;
+GRANT CREATE ON SCHEMA public TO dayoff_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO dayoff_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO dayoff_user;
 
--- Allow user to create databases (for Prisma shadow database)
-ALTER USER ramy CREATEDB;
+-- Verify
+\du dayoff_user
+EOF
 ```
 
-**Quick Copy-Paste (replace with your values):**
+**Example with actual values:**
 ```bash
-sudo -u postgres psql << EOF
-CREATE DATABASE dayoff_db;
-CREATE USER ramy WITH PASSWORD '2004' CREATEDB;
-GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO ramy;
+sudo -u postgres psql << 'EOF'
+CREATE USER naftal_admin WITH PASSWORD 'NaftalSecure2026!' CREATEDB;
+CREATE DATABASE dayoff_db OWNER naftal_admin;
 \c dayoff_db
-GRANT ALL ON SCHEMA public TO ramy;
-GRANT CREATE ON SCHEMA public TO ramy;
+GRANT ALL ON SCHEMA public TO naftal_admin;
+GRANT CREATE ON SCHEMA public TO naftal_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO naftal_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO naftal_admin;
+\du naftal_admin
 EOF
+```
+
+**Verification - Check Your Setup:**
+```bash
+# List all users and check for "Create DB" attribute
+sudo -u postgres psql -c "\du"
+
+# You should see your user with "Create DB" attribute:
+# username | Create DB | {}
 ```
 
 ### 3. Install Dependencies
@@ -260,15 +300,24 @@ DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
 
 # Server port
 PORT=3001
-
-# Example:
-# DATABASE_URL="postgresql://ramy:2004@localhost:5432/dayoff_db"
 ```
 
-**Important:** Replace with your actual PostgreSQL credentials:
-- `username` — Your PostgreSQL user
-- `password` — Your PostgreSQL password
-- `database_name` — Your database name (e.g., dayoff_db)
+**Replace with your actual PostgreSQL credentials from Step 2:**
+- `username` — Your PostgreSQL user (e.g., `dayoff_user`)
+- `password` — Your PostgreSQL password (e.g., `your_secure_password`)
+- `database_name` — Your database name (e.g., `dayoff_db`)
+
+**Example:**
+```env
+DATABASE_URL="postgresql://dayoff_user:your_secure_password@localhost:5432/dayoff_db"
+PORT=3001
+```
+
+**Another example:**
+```env
+DATABASE_URL="postgresql://naftal_admin:NaftalSecure2026!@localhost:5432/dayoff_db"
+PORT=3001
+```
 
 #### `client/.env` (Optional)
 Create this file in the `client/` directory if API URL is different:
