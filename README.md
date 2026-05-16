@@ -29,10 +29,10 @@ sudo -u postgres psql << 'EOF'
 CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;
 
 -- Create database owned by the user
-CREATE DATABASE dayoff_db OWNER dayoff_user;
+CREATE DATABASE daysoff_db OWNER dayoff_user;
 
 -- Connect to the database
-\c dayoff_db
+\c daysoff_db
 
 -- Grant schema permissions (REQUIRED for migrations and seeding)
 GRANT ALL ON SCHEMA public TO dayoff_user;
@@ -53,7 +53,7 @@ EOF
 # IMPORTANT: Replace 'your_secure_password' with the same password from Step 2
 
 cat > server/.env << 'EOF'
-DATABASE_URL="postgresql://dayoff_user:your_secure_password@localhost:5432/dayoff_db"
+DATABASE_URL="postgresql://dayoff_user:your_secure_password@localhost:5432/daysoff_db"
 PORT=3001
 EOF
 
@@ -129,7 +129,7 @@ sudo -u postgres psql -c "\du dayoff_user"
 # Should show "Create DB" in Attributes column
 
 # 3. Database exists
-sudo -u postgres psql -c "\l" | grep dayoff_db
+sudo -u postgres psql -c "\l" | grep daysoff_db
 
 # 4. Connection string is correct in server/.env
 cat server/.env
@@ -298,12 +298,12 @@ sudo -u postgres psql
 CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;
 
 -- Step 3: Create the database
-CREATE DATABASE dayoff_db OWNER dayoff_user;
+CREATE DATABASE daysoff_db OWNER dayoff_user;
 
 -- Step 4: Connect to the new database
-\c dayoff_db
+\c daysoff_db
 
--- You should now see: dayoff_db=#
+-- You should now see: daysoff_db=#
 
 -- Step 5: Grant schema permissions (REQUIRED for Prisma migrations)
 GRANT ALL ON SCHEMA public TO dayoff_user;
@@ -329,10 +329,10 @@ sudo -u postgres psql << 'EOF'
 CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;
 
 -- Create database owned by the user
-CREATE DATABASE dayoff_db OWNER dayoff_user;
+CREATE DATABASE daysoff_db OWNER dayoff_user;
 
 -- Connect to database
-\c dayoff_db
+\c daysoff_db
 
 -- Grant all necessary permissions
 GRANT ALL ON SCHEMA public TO dayoff_user;
@@ -349,8 +349,8 @@ EOF
 ```bash
 sudo -u postgres psql << 'EOF'
 CREATE USER naftal_admin WITH PASSWORD 'NaftalSecure2026!' CREATEDB;
-CREATE DATABASE dayoff_db OWNER naftal_admin;
-\c dayoff_db
+CREATE DATABASE daysoff_db OWNER naftal_admin;
+\c daysoff_db
 GRANT ALL ON SCHEMA public TO naftal_admin;
 GRANT CREATE ON SCHEMA public TO naftal_admin;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO naftal_admin;
@@ -398,17 +398,17 @@ PORT=3001
 **Replace with your actual PostgreSQL credentials from Step 2:**
 - `username` — Your PostgreSQL user (e.g., `dayoff_user`)
 - `password` — Your PostgreSQL password (e.g., `your_secure_password`)
-- `database_name` — Your database name (e.g., `dayoff_db`)
+- `database_name` — Your database name (e.g., `daysoff_db`)
 
 **Example:**
 ```env
-DATABASE_URL="postgresql://dayoff_user:your_secure_password@localhost:5432/dayoff_db"
+DATABASE_URL="postgresql://dayoff_user:your_secure_password@localhost:5432/daysoff_db"
 PORT=3001
 ```
 
 **Another example:**
 ```env
-DATABASE_URL="postgresql://naftal_admin:NaftalSecure2026!@localhost:5432/dayoff_db"
+DATABASE_URL="postgresql://naftal_admin:NaftalSecure2026!@localhost:5432/daysoff_db"
 PORT=3001
 ```
 
@@ -838,7 +838,7 @@ sudo systemctl start postgresql
 - Verify credentials in `server/.env`
 - Check if user has proper permissions:
 ```sql
-GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO your_username;
+GRANT ALL PRIVILEGES ON DATABASE daysoff_db TO your_username;
 ```
 
 ### Prisma Migration Issues
@@ -861,7 +861,7 @@ ALTER USER your_username CREATEDB;
 Your user needs schema permissions:
 
 ```bash
-sudo -u postgres psql -d dayoff_db << EOF
+sudo -u postgres psql -d daysoff_db << EOF
 GRANT ALL ON SCHEMA public TO your_username;
 GRANT CREATE ON SCHEMA public TO your_username;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO your_username;
@@ -871,11 +871,11 @@ EOF
 
 **Complete Permission Fix (if you're getting any permission errors):**
 ```bash
-# Replace 'ramy' with your username and 'dayoff_db' with your database name
+# Replace 'ramy' with your username and 'daysoff_db' with your database name
 sudo -u postgres psql << EOF
 ALTER USER ramy CREATEDB;
-GRANT ALL PRIVILEGES ON DATABASE dayoff_db TO ramy;
-\c dayoff_db
+GRANT ALL PRIVILEGES ON DATABASE daysoff_db TO ramy;
+\c daysoff_db
 GRANT ALL ON SCHEMA public TO ramy;
 GRANT CREATE ON SCHEMA public TO ramy;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO ramy;
