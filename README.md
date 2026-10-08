@@ -1,83 +1,37 @@
-# 📅 DayOff Tracking — NAFTAL HR System
+# 📅 DaysTrack — Day-Off Dashboard
 
-> Internal HR dashboard for NAFTAL Algeria to manage employee day-off requests and attendance compliance.
+> Modern HR dashboard for tracking employee days off, attendance periods and automatic quota blocking.
 
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-25-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-12%2B-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-## 🚀 Quick Start
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" alt="DaysTrack dashboard" width="85%">
+</p>
 
-**Prerequisites:** Node.js v18+, npm, PostgreSQL 12+
+## 📸 Screenshots
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/RamyRxr/DayOff-Tracking.git
-cd DayOff-Tracking
+| Dashboard | Dark Mode |
+| :---: | :---: |
+| <img src="docs/screenshots/dashboard.png" alt="Dashboard" width="100%"> | <img src="docs/screenshots/dashboard-dark.png" alt="Dark mode dashboard" width="100%"> |
 
-# 2. Setup PostgreSQL (replace password with your own)
-sudo -u postgres psql -c "CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;"
-sudo -u postgres psql -c "CREATE DATABASE daysoff_db OWNER dayoff_user;"
-sudo -u postgres psql -d daysoff_db -c "GRANT ALL ON SCHEMA public TO dayoff_user;"
-sudo -u postgres psql -d daysoff_db -c "GRANT CREATE ON SCHEMA public TO dayoff_user;"
-sudo -u postgres psql -d daysoff_db -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO dayoff_user;"
-sudo -u postgres psql -d daysoff_db -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO dayoff_user;"
+| Employees | Calendar |
+| :---: | :---: |
+| <img src="docs/screenshots/employees.png" alt="Employees" width="100%"> | <img src="docs/screenshots/calendar.png" alt="Calendar" width="100%"> |
 
-# 3. Configure environment variables
-echo 'DATABASE_URL="postgresql://dayoff_user:your_secure_password@localhost:5432/daysoff_db"' > server/.env
-echo 'PORT=3001' >> server/.env
-
-# 4. Install dependencies
-cd server && npm install
-cd ../client && npm install
-cd ..
-
-# 5. Run migrations and seed database
-cd server
-npx prisma migrate dev --name init
-npx prisma db seed
-cd ..
-
-# 6. Start the application
-chmod +x start.sh
-./start.sh
-
-# 7. Open http://localhost:5173
-# Default Admin PIN: 1234
-# Superadmin PIN: 0147
-```
-
-**Troubleshooting Quick Start:**
-
-If you get errors, check:
-```bash
-# 1. PostgreSQL is running
-sudo systemctl status postgresql
-
-# 2. User has CREATEDB permission
-sudo -u postgres psql -c "\du dayoff_user"
-# Should show "Create DB" in Attributes column
-
-# 3. Database exists
-sudo -u postgres psql -c "\l" | grep daysoff_db
-
-# 4. Connection string is correct in server/.env
-cat server/.env
-```
-
-**Common Issues:**
-
-- **"permission denied to create database"** → User missing CREATEDB permission (go back to Step 2)
-- **"permission denied for schema public"** → Missing schema permissions (go back to Step 2)
-- **"Port already in use"** → Kill existing node processes: `pkill -9 node`
-- **"Cannot find module"** → Reinstall dependencies: `cd server && npm install && cd ../client && npm install`
+| Blocked | Settings | Login |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/blocked.png" alt="Blocked employees" width="100%"> | <img src="docs/screenshots/settings.png" alt="Settings" width="100%"> | <img src="docs/screenshots/login.png" alt="Login" width="100%"> |
 
 ## 📋 Table of Contents
 
-- [Quick Start](#-quick-start)
+- [Screenshots](#-screenshots)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
+- [Quick Start](#-quick-start)
 - [Installation](#-installation)
 - [Project Structure](#-project-structure)
 - [Business Rules](#-business-rules)
@@ -97,91 +51,146 @@ cat server/.env
 
 ### 👥 Employee Management
 - Complete employee profiles with matricule, department, and hire date
-- Employee search and filtering
+- Employee search, sorting and status filtering
 - Visual status indicators (Active, At Risk, Blocked)
-- Detailed employee view with full history
+- Detailed employee view with full day-off history
 
 ### 📆 Day-Off Management
-- Record day-off requests with date range and reason
-- Automatic work period calculation (20th to 19th of next month)
-- Visual calendar grid showing current month day-offs
-- Sandwich detection for non-declared working days
-- Algerian work week support (Friday + Saturday = weekend)
+- Record day-off requests with a date range and leave type
+- Automatic work period calculation (20th → 19th of the following month)
+- Visual calendar grid of the current month's day-offs
+- Sandwich detection for undeclared working days
+- Weekend handling: **Friday + Saturday = weekend**
 
 ### 🚫 Automatic Blocking System
-- Smart blocking logic: (30 − total day-off days) < 16
+- Smart blocking logic: `(30 − total day-off days) < 16`
 - Multiple blocking reasons with translations
-- Visual risk indicators when approaching limit
-- Admin-only unblock functionality with PIN verification
+- Visual risk indicators when the quota is approached
+- Admin-only unblock with PIN verification
 
 ### 🔔 Real-Time Notifications
-- Event-based notification system (block, unblock, at-risk)
+- Event-based notifications (block, unblock, at-risk)
 - Persistent storage with 7-day auto-expiry
-- Read/unread tracking
-- Relative time display (e.g., "Il y a 2 heures")
-- Real-time updates across all pages
+- Read/unread tracking with relative timestamps
+- Live updates across all pages
 
 ### 🎨 Modern UI/UX
-- **Dark Mode**: Beautiful deep blue theme with smooth transitions
+- **Dark Mode**: Deep navy theme with smooth transitions
 - **Responsive Design**: Mobile-friendly layout
-- **Smooth Animations**: Fade-in, slide-in, and scale animations
+- **Smooth Animations**: Fade-in, slide-in and scale animations
 - **Accessibility**: Keyboard navigation, ARIA labels, focus states
-- **Visual Calendar**: FullCalendar integration with custom event rendering
 
 ### 🔐 Security
-- Admin authentication with 4-digit PIN
-- bcryptjs password hashing
-- PIN verification for all write operations
-- Session management with localStorage
+- Admin authentication with a 4-digit PIN
+- bcryptjs password hashing and server-side PIN verification
+- Session management with `sessionStorage`
 - Protected routes and API endpoints
-- Superadmin access control (PIN: 0147) for critical operations
+- Superadmin PIN (`0147`) for critical operations
 
 ### ⚙️ Settings & Administration
 - **Employee Data Management**
-  - Import employees from CSV/JSON files (60-employee samples included)
-  - Bulk delete all employees with superadmin PIN
-  - Required fields: matricule, firstName, lastName, email, phone, ssn, department, position, hireDate
-  
+  - Import employees from CSV/JSON (60-employee samples included)
+  - Bulk delete all employees with the superadmin PIN
+  - Required fields: `matricule`, `firstName`, `lastName`, `email`, `phone`, `ssn`, `department`, `position`, `hireDate`
 - **Admin Management**
-  - Create new admin accounts with custom 4-digit PINs
-  - View all administrators
-  - Delete admin accounts
-  - PIN confirmation for security
-  
+  - Create admin accounts with custom 4-digit PINs, list and delete them
+  - PIN confirmation on every sensitive action
 - **Database Structure Viewer**
-  - View all tables and columns in real-time
-  - Add new columns with type selection (String, Int, BigInt, Float, Decimal, Boolean, DateTime, Date, Time, Json, Bytes)
-  - Edit column names and types with instant UI updates
-  - Delete columns with confirmation
-  - Requires superadmin PIN (0147) to access
+  - Inspect all tables and columns in real time
+  - Add, rename and delete columns with instant UI updates
+  - Guarded by the superadmin PIN
 
 ## 🛠 Tech Stack
 
 ### Frontend
-- **React 18** — Modern UI library with hooks
-- **Vite** — Lightning-fast build tool
-- **Tailwind CSS v3** — Utility-first styling
-- **React Router** — Client-side routing
-- **i18next** — Internationalization framework
-- **FullCalendar** — Calendar component
-- **Lucide React** — Icon library
-- **date-fns** — Date manipulation and formatting
+- **React 18** — UI library
+- **Vite** — build tool and dev server
+- **Tailwind CSS v3** — utility-first styling
+- **React Router** — client-side routing
+- **i18next** — internationalization (fr / en / ar)
+- **FullCalendar** — calendar components
+- **Lucide React** — icons
+- **date-fns** — date manipulation
 
 ### Backend
-- **Node.js v25** — JavaScript runtime
-- **Express** — Web framework
-- **Prisma** — Type-safe ORM
-- **bcryptjs** — Password hashing
-- **CORS** — Cross-origin resource sharing
+- **Node.js** — runtime
+- **Express** — web framework
+- **Prisma** — type-safe ORM
+- **bcryptjs** — password hashing
+- **PDFKit / docxtemplater** — document generation
 
 ### Database
-- **PostgreSQL** — Primary database (development & production)
+- **PostgreSQL** — primary database (development and production)
+
+## 🚀 Quick Start
+
+**Prerequisites:** Node.js v18+, npm, PostgreSQL 12+
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/RamyRxr/DayOff-Tracking.git
+cd DayOff-Tracking
+
+# 2. Setup PostgreSQL (replace the password with your own)
+sudo -u postgres psql -c "CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;"
+sudo -u postgres psql -c "CREATE DATABASE daysoff_db OWNER dayoff_user;"
+sudo -u postgres psql -d daysoff_db -c "GRANT ALL ON SCHEMA public TO dayoff_user;"
+sudo -u postgres psql -d daysoff_db -c "GRANT CREATE ON SCHEMA public TO dayoff_user;"
+sudo -u postgres psql -d daysoff_db -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO dayoff_user;"
+sudo -u postgres psql -d daysoff_db -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO dayoff_user;"
+
+# 3. Configure environment variables
+echo 'DATABASE_URL="postgresql://dayoff_user:your_secure_password@localhost:5432/daysoff_db"' > server/.env
+echo 'PORT=3001' >> server/.env
+
+# 4. Install dependencies
+cd server && npm install
+cd ../client && npm install
+cd ..
+
+# 5. Run migrations and seed the database
+cd server
+npx prisma migrate dev --name init
+npx prisma db seed
+cd ..
+
+# 6. Start the application
+chmod +x start.sh
+./start.sh
+
+# 7. Open http://localhost:5173
+# Admin PIN: 1234   ·   Superadmin PIN: 0147
+```
+
+**Troubleshooting Quick Start:**
+
+```bash
+# 1. PostgreSQL is running
+sudo systemctl status postgresql
+
+# 2. User has CREATEDB permission (required by Prisma migrations)
+sudo -u postgres psql -c "\du dayoff_user"
+# → "Create DB" must appear in the Attributes column
+
+# 3. Database exists
+sudo -u postgres psql -c "\l" | grep daysoff_db
+
+# 4. Connection string is correct
+cat server/.env
+```
+
+**Common issues:**
+
+- **"permission denied to create database"** → user is missing `CREATEDB` (step 2)
+- **"permission denied for schema public"** → missing schema grants (step 2)
+- **"Port already in use"** → `pkill -9 node`
+- **"Cannot find module"** → reinstall: `cd server && npm install && cd ../client && npm install`
 
 ## 📦 Installation
 
 ### Prerequisites
 - **Node.js** v18 or higher
-- **npm** or yarn package manager
+- **npm**
 - **PostgreSQL** 12 or higher
 
 ### 1. Clone the repository
@@ -190,11 +199,11 @@ git clone https://github.com/RamyRxr/DayOff-Tracking.git
 cd DayOff-Tracking
 ```
 
-### 2. PostgreSQL Database Setup
+### 2. PostgreSQL setup
 
-#### Install PostgreSQL (if not already installed)
+**Install PostgreSQL (if needed):**
 
-**Ubuntu/Debian:**
+**Ubuntu/Debian**
 ```bash
 sudo apt update
 sudo apt install postgresql postgresql-contrib
@@ -202,70 +211,28 @@ sudo systemctl start postgresql
 sudo systemctl enable postgresql
 ```
 
-**macOS (Homebrew):**
+**macOS (Homebrew)**
 ```bash
-brew install postgresql@15
-brew services start postgresql@15
+brew install postgresql@16
+brew services start postgresql@16
 ```
 
-**Windows:**
-Download and install from [postgresql.org/download/windows](https://www.postgresql.org/download/windows/)
+**Windows** — download from [postgresql.org](https://www.postgresql.org/download/windows/)
 
-#### Create User and Database (Step-by-Step)
+**Create the user and database:**
 
-**IMPORTANT: Follow these steps in ORDER!**
-
-```bash
-# Step 1: Connect to PostgreSQL as superuser
-sudo -u postgres psql
-
-# You should now see: postgres=#
-```
-
-```sql
--- Step 2: Create a new user with CREATEDB permission (REQUIRED for Prisma)
--- Replace 'dayoff_user' with your desired username
--- Replace 'your_secure_password' with your desired password
-CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;
-
--- Step 3: Create the database
-CREATE DATABASE daysoff_db OWNER dayoff_user;
-
--- Step 4: Connect to the new database
-\c daysoff_db
-
--- You should now see: daysoff_db=#
-
--- Step 5: Grant schema permissions (REQUIRED for Prisma migrations)
-GRANT ALL ON SCHEMA public TO dayoff_user;
-GRANT CREATE ON SCHEMA public TO dayoff_user;
-
--- Step 6: Grant default privileges (REQUIRED for seeding)
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO dayoff_user;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO dayoff_user;
-
--- Step 7: Verify permissions
-\du dayoff_user
-
--- You should see "Create DB" in the Attributes column
-
--- Step 8: Exit PostgreSQL
-\q
-```
-
-**Quick Copy-Paste Version (All-in-one command):**
 ```bash
 sudo -u postgres psql << 'EOF'
--- Create user with CREATEDB permission
+-- User with CREATEDB permission (required by Prisma)
 CREATE USER dayoff_user WITH PASSWORD 'your_secure_password' CREATEDB;
 
--- Create database owned by the user
+-- Database owned by that user
 CREATE DATABASE daysoff_db OWNER dayoff_user;
 
--- Connect to database
+-- Connect to it
 \c daysoff_db
 
--- Grant all necessary permissions
+-- Permissions required for migrations and seeding
 GRANT ALL ON SCHEMA public TO dayoff_user;
 GRANT CREATE ON SCHEMA public TO dayoff_user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO dayoff_user;
@@ -276,151 +243,83 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO dayoff_user;
 EOF
 ```
 
-**Example with actual values:**
+Verify the setup:
 ```bash
-sudo -u postgres psql << 'EOF'
-CREATE USER naftal_admin WITH PASSWORD 'NaftalSecure2026!' CREATEDB;
-CREATE DATABASE daysoff_db OWNER naftal_admin;
-\c daysoff_db
-GRANT ALL ON SCHEMA public TO naftal_admin;
-GRANT CREATE ON SCHEMA public TO naftal_admin;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO naftal_admin;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO naftal_admin;
-\du naftal_admin
-EOF
-```
-
-**Verification - Check Your Setup:**
-```bash
-# List all users and check for "Create DB" attribute
 sudo -u postgres psql -c "\du"
-
-# You should see your user with "Create DB" attribute:
-# username | Create DB | {}
+# dayoff_user should show "Create DB" in the Attributes column
 ```
 
-### 3. Install Dependencies
+### 3. Install dependencies
 
-#### Backend
 ```bash
-cd server
-npm install
+cd server && npm install
+cd ../client && npm install
 ```
 
-#### Frontend
-```bash
-cd ../client
-npm install
-```
+### 4. Environment variables
 
-### 4. Environment Variables Setup
-
-#### `server/.env`
-Create this file in the `server/` directory:
-
-```env
-# Database connection string
-DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
-
-# Server port
-PORT=3001
-```
-
-**Replace with your actual PostgreSQL credentials from Step 2:**
-- `username` — Your PostgreSQL user (e.g., `dayoff_user`)
-- `password` — Your PostgreSQL password (e.g., `your_secure_password`)
-- `database_name` — Your database name (e.g., `daysoff_db`)
-
-**Example:**
+**`server/.env`**
 ```env
 DATABASE_URL="postgresql://dayoff_user:your_secure_password@localhost:5432/daysoff_db"
 PORT=3001
 ```
 
-**Another example:**
-```env
-DATABASE_URL="postgresql://naftal_admin:NaftalSecure2026!@localhost:5432/daysoff_db"
-PORT=3001
-```
-
-#### `client/.env` (Optional)
-Create this file in the `client/` directory if API URL is different:
-
+**`client/.env`** *(only if the API is not on `localhost:3001`)*
 ```env
 VITE_API_URL=http://localhost:3001/api
 ```
 
-### 5. Database Migration
-
-Run Prisma migrations to create tables:
+### 5. Database migration
 
 ```bash
 cd server
 npx prisma migrate dev --name init
 ```
 
-This will create all necessary tables: Employee, Admin, DayOff, Block
+Creates the `Employee`, `Admin`, `DayOff` and `Block` tables.
 
-### 6. Seed Database (Optional)
-
-Populate database with sample data:
+### 6. Seed the database
 
 ```bash
 npx prisma db seed
 ```
 
 This creates:
-- **3 admin users** with PIN `1234`
-  - Mohamed Saidi (Admin RH)
-  - Fatima Benali (Admin RH)
-  - Ahmed Khelifi (Admin RH)
-- **10 sample employees** with realistic Algerian names
-- Sample day-off records and blocks
+- **3 admin accounts**
+  - Ramy Test — PIN `1234`
+  - Rey Test — PIN `5678`
+  - Rxr Test — PIN `1010`
+- **60 employees** across 6 departments with European sample data (`@daystrack.eu`)
+- No day-off records — a clean slate for testing
 
-### 7. Start the Application
+### 7. Start the application
 
-#### Option A: Use the startup script (Recommended)
+**Option A — startup script (recommended)**
 ```bash
-# From the root directory
 ./start.sh
 ```
 
-This will:
-- Start backend server on port 3001
-- Start frontend dev server on port 5173
-- Display both URLs
-
-#### Option B: Manual start (2 terminals)
-
-**Terminal 1 — Backend:**
+**Option B — two terminals**
 ```bash
-cd server
-npm run dev
+# Terminal 1 — backend (port 3001)
+cd server && npm run dev
+
+# Terminal 2 — frontend (port 5173)
+cd client && npm run dev
 ```
 
-**Terminal 2 — Frontend:**
-```bash
-cd client
-npm run dev
-```
+### 8. Access the application
 
-### 8. Access the Application
-
-Open your browser and navigate to:
 - **Frontend:** [http://localhost:5173](http://localhost:5173)
 - **Backend API:** [http://localhost:3001/api](http://localhost:3001/api)
 
 ### 9. Login
 
-Use any of the seeded admin accounts:
-- **Default PIN:** `1234`
-- **Admins:** Mohamed Saidi, Fatima Benali, Ahmed Khelifi
+Pick any seeded admin and enter its PIN (default: `1234`).
 
-### 10. Superadmin Access
+### 10. Superadmin access
 
-For advanced settings (database management):
-- **Superadmin PIN:** `0147`
-- Used for: Viewing database structure, deleting all employees, modifying schema
+Advanced settings (database structure, bulk delete) require the **superadmin PIN: `0147`**.
 
 ## 📁 Project Structure
 
@@ -431,11 +330,11 @@ DayOff-Tracking/
 │   ├── src/
 │   │   ├── api/                 # API client functions (Fetch only)
 │   │   ├── components/          # Reusable UI components
-│   │   ├── contexts/            # React contexts (Theme)
-│   │   ├── hooks/               # Custom React hooks (business logic)
-│   │   ├── locales/             # i18n translation files (fr/en/ar)
+│   │   ├── contexts/            # React contexts (Theme, Admin)
+│   │   ├── hooks/               # Custom hooks (all business logic)
+│   │   ├── i18n/                # Translation files (fr / en / ar)
 │   │   ├── pages/               # Page components
-│   │   ├── utils/               # Utility functions
+│   │   ├── utils/               # Date, status and period utilities
 │   │   ├── App.jsx              # Root component
 │   │   ├── main.jsx             # Entry point
 │   │   └── index.css            # Global styles
@@ -445,42 +344,41 @@ DayOff-Tracking/
 ├── server/                      # Express backend
 │   ├── prisma/
 │   │   ├── schema.prisma        # Database schema
-│   │   ├── seed.js              # Database seeder
-│   │   └── dev.db               # SQLite database (dev)
+│   │   ├── migrations/          # SQL migrations
+│   │   └── seed.js              # Database seeder
+│   ├── scripts/                 # Reset / maintenance scripts
 │   ├── src/
 │   │   ├── controllers/         # Route handlers (business logic)
 │   │   ├── routes/              # API route definitions
-│   │   └── index.js             # Express app entry
+│   │   ├── utils/               # PDF/DOCX generation, period logic
+│   │   └── index.js             # Express entry point
 │   ├── package.json
 │   └── .env
 │
-├── .claude/                     # Claude Code AI rules
-│   ├── rules/                   # Project-specific rules
-│   └── skills/                  # Custom AI skills
+├── docs/
+│   └── screenshots/             # README screenshots
 │
 ├── employees-sample.csv         # 60-employee sample CSV for import testing
 ├── employees-sample.json        # 60-employee sample JSON for import testing
 ├── start.sh                     # Startup script (runs both servers)
 ├── .gitignore
-├── CLAUDE.md                    # Project instructions
-├── CLAUDE.local.md              # Personal overrides (not committed)
 └── README.md                    # This file
 ```
 
 ## 📐 Business Rules
 
 ### Work Period Calculation
-- Work period runs from **20th of current month** to **19th of next month**
-- Example: Period = April 20, 2026 → May 19, 2026
+- The work period runs from the **20th of the current month** to the **19th of the next month**
+- Example: `20 Sep 2026 → 19 Oct 2026`
 
 ### Minimum Working Days
-- **Minimum required**: 16 working days per period
-- **Total period days**: 30 days
-- **Maximum day-off**: 14 days (30 − 16)
+- **Minimum required:** 16 working days per period
+- **Total period days:** 30
+- **Maximum day-off:** 14 days (30 − 16)
 
 ### Blocking Logic
 ```javascript
-totalDaysOff = sum of all day-off days in current period
+totalDaysOff = sum of day-off days in the current period
 remainingWorkDays = 30 − totalDaysOff
 
 if (remainingWorkDays < 16) {
@@ -492,14 +390,14 @@ if (remainingWorkDays < 16) {
 }
 ```
 
-### Weekend Detection (Algeria)
-- **Friday + Saturday** = Weekend
-- Sunday to Thursday = Working days
+### Weekend Detection
+- **Friday + Saturday** = weekend
+- Sunday to Thursday = working days
 
 ### Sandwich Detection
-- Detects non-declared working days between day-off dates
-- Calculates: `realCalendarDays − declaredWorkingDays`
-- Example: Day off April 1-5 declared as 3 days but spans 5 calendar days → 2 sandwich days
+- Detects undeclared working days between day-off dates
+- Formula: `realCalendarDays − declaredWorkingDays`
+- Example: a day off declared as 3 days but spanning 5 calendar days → 2 sandwich days
 
 ## 🔌 API Documentation
 
@@ -507,138 +405,121 @@ Base URL: `http://localhost:3001/api`
 
 ### Admins
 
-#### Verify Admin PIN
+#### List admins
 ```http
-POST /api/admins/verify
-Content-Type: application/json
-
-{
-  "adminId": "clx123abc",
-  "pin": "1234"
-}
+GET /api/admins
 
 Response 200:
 {
-  "id": "clx123abc",
-  "name": "Mohamed Saidi",
-  "role": "Admin RH"
+  "data": [
+    { "id": "clx001", "name": "Ramy Test", "role": "HR Admin" }
+  ]
 }
+```
+
+#### Verify admin PIN
+```http
+POST /api/admins/verify-pin
+Content-Type: application/json
+
+{ "adminId": "clx001", "pin": "1234" }
+
+Response 200:
+{ "data": { "valid": true, "adminName": "Ramy Test" } }
 ```
 
 ### Employees
 
-#### List All Employees
+#### List all employees
 ```http
 GET /api/employees
 
 Response 200:
-[
-  {
-    "id": "clx456def",
-    "matricule": "EMP001",
-    "firstName": "Ahmed",
-    "lastName": "Benali",
-    "department": "IT",
-    "hireDate": "2020-01-15T00:00:00.000Z",
-    "status": "ACTIVE",
-    "totalDaysOff": 5,
-    "remainingWorkDays": 25
-  }
-]
-```
-
-#### Get Single Employee
-```http
-GET /api/employees/:id
-
-Response 200:
 {
-  "id": "clx456def",
-  "matricule": "EMP001",
-  "firstName": "Ahmed",
-  "lastName": "Benali",
-  "department": "IT",
-  "hireDate": "2020-01-15T00:00:00.000Z",
-  "status": "ACTIVE",
-  "totalDaysOff": 5,
-  "remainingWorkDays": 25,
-  "daysOff": [...],
-  "blocks": [...]
+  "data": [
+    {
+      "id": "clx456def",
+      "matricule": "DTK-1001",
+      "firstName": "Lucas",
+      "lastName": "Martin",
+      "email": "lucas.martin@daystrack.eu",
+      "department": "Production",
+      "hireDate": "2015-03-15T00:00:00.000Z",
+      "status": "actif",
+      "daysUsed": 0,
+      "daysAvailable": 30
+    }
+  ]
 }
 ```
 
-#### Create Employee
+#### Get a single employee
+```http
+GET /api/employees/:id
+```
+
+#### Create an employee
 ```http
 POST /api/employees
 Content-Type: application/json
 
 {
-  "matricule": "EMP999",
-  "firstName": "Fatima",
-  "lastName": "Khelifi",
-  "department": "RH",
+  "matricule": "DTK-1061",
+  "firstName": "Chloé",
+  "lastName": "Laurent",
+  "email": "chloe.laurent@daystrack.eu",
+  "phone": "+33 6 12 34 56 78",
+  "department": "Qualité",
+  "position": "Contrôleur qualité",
   "hireDate": "2024-01-10"
 }
+```
 
-Response 201:
-{
-  "id": "clx789ghi",
-  ...
-}
+#### Import / bulk delete (superadmin)
+```http
+POST /api/employees/import      # multipart CSV or JSON upload
+POST /api/employees/delete-all  # requires { "superadminPin": "0147" }
 ```
 
 ### Days Off
 
-#### List Day-Off Records
+#### List day-off records
 ```http
-GET /api/daysoff?month=4&year=2026
+GET /api/daysoff
+GET /api/daysoff?employeeId=clx456def
 
 Response 200:
-[
-  {
-    "id": "clx111aaa",
-    "employeeId": "clx456def",
-    "startDate": "2026-04-10T00:00:00.000Z",
-    "endDate": "2026-04-12T00:00:00.000Z",
-    "totalDays": 3,
-    "reason": "Congé annuel",
-    "createdAt": "2026-04-01T10:00:00.000Z",
-    "employee": {
-      "id": "clx456def",
-      "firstName": "Ahmed",
-      "lastName": "Benali",
-      "name": "Ahmed Benali",
-      "avatar": "AB"
+{
+  "data": [
+    {
+      "id": "clx111aaa",
+      "employeeId": "clx456def",
+      "startDate": "2026-09-22T12:00:00.000Z",
+      "endDate": "2026-09-24T12:00:00.000Z",
+      "type": "Congé annuel",
+      "reason": "annual"
     }
-  }
-]
+  ]
+}
 ```
 
-#### Add Day-Off
+#### Add a day-off
 ```http
 POST /api/daysoff
 Content-Type: application/json
 
 {
   "employeeId": "clx456def",
-  "startDate": "2026-04-20",
-  "endDate": "2026-04-22",
-  "totalDays": 3,
-  "reason": "Congé annuel",
-  "adminId": "clx123abc",
-  "adminPin": "1234"
-}
-
-Response 201:
-{
-  "id": "clx222bbb",
-  ...
+  "startDate": "2026-09-22",
+  "endDate": "2026-09-24",
+  "type": "Congé annuel",
+  "adminId": "clx001"
 }
 ```
 
 ### Blocks
 
-#### Block Employee
+#### Block an employee
 ```http
 POST /api/blocks
 Content-Type: application/json
@@ -646,240 +527,173 @@ Content-Type: application/json
 {
   "employeeId": "clx456def",
   "reason": "Dépassement du quota de congés",
-  "adminId": "clx123abc",
-  "adminPin": "1234"
-}
-
-Response 201:
-{
-  "id": "clx333ccc",
-  "employeeId": "clx456def",
-  "reason": "Dépassement du quota de congés",
-  "blockedAt": "2026-04-28T10:00:00.000Z",
-  "unblockedAt": null
+  "adminId": "clx001"
 }
 ```
 
-#### Unblock Employee
+#### Unblock an employee
 ```http
 PATCH /api/blocks/:id/unblock
 Content-Type: application/json
 
-{
-  "adminId": "clx123abc",
-  "adminPin": "1234"
-}
+{ "adminId": "clx001" }
+```
 
-Response 200:
-{
-  "id": "clx333ccc",
-  "unblockedAt": "2026-04-28T11:00:00.000Z"
-}
+#### Documents
+```http
+GET /api/pdf/block/:blockId      # blocking note (PDF)
+GET /api/pdf/unblock/:blockId    # unblocking note (PDF)
+```
+
+### Database (superadmin)
+
+All routes require the `X-Superadmin-Pin: 0147` header.
+
+```http
+GET  /api/database/schema
+POST /api/database/add-column
+POST /api/database/edit-column
+POST /api/database/delete-column
 ```
 
 ## 🚀 Development
 
-### Coding Standards
+### Coding standards
 
-#### Frontend Rules
-- **API Calls**: Use Fetch API only (never Axios) — all calls in `/src/api/`
-- **Business Logic**: All logic in `/src/hooks/` (never in pages or components)
+#### Frontend
+- **API calls**: Fetch API only (never Axios) — all calls live in `/src/api/`
+- **Business logic**: all logic in `/src/hooks/` (never in pages or components)
 - **Styling**: Tailwind CSS only (no inline styles or CSS files)
 - **Icons**: Lucide React only
-- **Modals**: Headless UI for all overlays
-- **UI Labels**: French
-- **Code**: English (variable names, function names, file names)
+- **Modals**: Headless UI for overlays
+- **UI labels**: French · **Code identifiers**: English
 
-#### Backend Rules
+#### Backend
 - **ORM**: Prisma only (never raw SQL)
-- **Route Prefix**: All routes prefixed with `/api`
-- **Error Handling**: try/catch on every route
-- **Response Format**: `{ data: ... }` or `{ error: "message" }`
-- **PIN Verification**: bcryptjs.compare (never plain text)
+- **Route prefix**: everything under `/api`
+- **Error handling**: try/catch on every route
+- **Response format**: `{ data: ... }` or `{ error: "message" }`
+- **PIN verification**: `bcryptjs.compare` (never plain text)
 
-### Common Tasks
+### Common tasks
 
-#### Reset Database
 ```bash
+# Reset and reseed the database
 cd server
 npx prisma migrate reset
 npx prisma db seed
-```
 
-#### Add a Database Migration
-```bash
-cd server
+# Add a migration
 npx prisma migrate dev --name add_new_field
-```
 
-#### View Database
-```bash
-cd server
+# Browse the database
 npx prisma studio
+
+# Production build
+cd client && npm run build
+cd ../server && npm run build
 ```
-
-#### Build for Production
-```bash
-# Frontend
-cd client
-npm run build
-
-# Backend
-cd server
-npm run build
-```
-
-## 🌐 Deployment
-
-### Frontend (Vercel/Netlify)
-1. Build: `npm run build` (in `client/`)
-2. Deploy `client/dist/` folder
-3. Set environment variable: `VITE_API_URL=https://your-backend.com/api`
-
-### Backend (Railway/Render/Heroku)
-1. Add PostgreSQL database
-2. Update `server/.env`:
-   ```env
-   DATABASE_URL="postgresql://user:password@host:5432/database"
-   PORT=3001
-   ```
-3. Run migrations:
-   ```bash
-   npx prisma migrate deploy
-   ```
-4. Start server:
-   ```bash
-   npm start
-   ```
 
 ## 🐛 Troubleshooting
 
-### Database Connection Issues
-
-**Error: `connection refused` or `ECONNREFUSED`**
+### Database connection refused
 ```bash
-# Check if PostgreSQL is running
-sudo systemctl status postgresql
+# macOS
+brew services start postgresql@16
 
-# Start PostgreSQL if stopped
+# Linux
+sudo systemctl status postgresql
 sudo systemctl start postgresql
 ```
 
-**Error: `password authentication failed`**
-- Verify credentials in `server/.env`
-- Check if user has proper permissions:
+### Password authentication failed
+- Verify the credentials in `server/.env`
+- Check the grants:
 ```sql
-GRANT ALL PRIVILEGES ON DATABASE daysoff_db TO your_username;
+GRANT ALL PRIVILEGES ON DATABASE daysoff_db TO dayoff_user;
 ```
 
-### Prisma Migration Issues
-
-**Error: `P3014 - Prisma Migrate could not create the shadow database`**
-
-This means your PostgreSQL user doesn't have permission to create databases. Fix:
-
+### `P3014 — Prisma Migrate could not create the shadow database`
+Your user lacks `CREATEDB`:
 ```bash
-# Connect to PostgreSQL
-sudo -u postgres psql
-
-# Grant CREATEDB permission
-ALTER USER your_username CREATEDB;
-\q
+sudo -u postgres psql -c "ALTER USER dayoff_user CREATEDB;"
 ```
 
-**Error: `permission denied for schema public`**
-
-Your user needs schema permissions:
-
+### `permission denied for schema public`
 ```bash
 sudo -u postgres psql -d daysoff_db << EOF
-GRANT ALL ON SCHEMA public TO your_username;
-GRANT CREATE ON SCHEMA public TO your_username;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO your_username;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO your_username;
+GRANT ALL ON SCHEMA public TO dayoff_user;
+GRANT CREATE ON SCHEMA public TO dayoff_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO dayoff_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO dayoff_user;
 EOF
 ```
 
-**Complete Permission Fix (if you're getting any permission errors):**
-```bash
-# Replace 'ramy' with your username and 'daysoff_db' with your database name
-sudo -u postgres psql << EOF
-ALTER USER ramy CREATEDB;
-GRANT ALL PRIVILEGES ON DATABASE daysoff_db TO ramy;
-\c daysoff_db
-GRANT ALL ON SCHEMA public TO ramy;
-GRANT CREATE ON SCHEMA public TO ramy;
-GRANT ALL ON ALL TABLES IN SCHEMA public TO ramy;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO ramy;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ramy;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ramy;
-EOF
-```
-
-Then retry migration:
+Then retry:
 ```bash
 cd server
 npx prisma migrate dev --name init
 npx prisma db seed
 ```
 
-### Port Already in Use
-
-**Error: `Port 3001 already in use`**
+### Port already in use
 ```bash
-# Kill existing node processes
-pkill -9 node
-
-# Or find and kill specific process
-lsof -i :3001
+lsof -i :3001       # find the PID
 kill -9 <PID>
+# or simply
+pkill -9 node
 ```
 
-### Migration Issues
-
-**Error: `Migration failed` or schema sync issues**
+### Migration failed / schema out of sync
 ```bash
-# Reset database and re-run migrations
 cd server
 npx prisma migrate reset
 npx prisma migrate dev
 npx prisma db seed
 ```
 
-### Module Not Found
-
-**Error: `Cannot find module`**
+### Module not found
 ```bash
-# Reinstall dependencies
 cd server && rm -rf node_modules package-lock.json && npm install
 cd ../client && rm -rf node_modules package-lock.json && npm install
 ```
 
-### Import File Issues
+### Import file issues
+- All required fields must be present: `matricule`, `firstName`, `lastName`, `email`, `phone`, `ssn`, `department`, `position`, `hireDate`
+- File encoding must be UTF-8
+- Dates must use `YYYY-MM-DD` (e.g. `2015-03-15`)
+- Use the provided sample files as a reference
 
-**CSV/JSON import not working:**
-- Ensure all required fields are present: `matricule`, `firstName`, `lastName`, `email`, `phone`, `ssn`, `department`, `position`, `hireDate`
-- Check file encoding (should be UTF-8)
-- Date format should be: `YYYY-MM-DD` (e.g., `2015-03-15`)
-- Use provided sample files as reference
-
-### Start Script Permission Denied
-
+### Start script permission denied
 ```bash
-# Make start.sh executable
 chmod +x start.sh
-
-# Then run it
 ./start.sh
 ```
 
+## 🌐 Deployment
+
+### Frontend (Vercel / Netlify)
+1. Build: `npm run build` (in `client/`)
+2. Deploy the `client/dist/` folder
+3. Set `VITE_API_URL=https://your-backend.com/api`
+
+### Backend (Railway / Render / Heroku)
+1. Add a PostgreSQL database
+2. Set `server/.env`:
+   ```env
+   DATABASE_URL="postgresql://user:password@host:5432/database"
+   PORT=3001
+   ```
+3. Run migrations: `npx prisma migrate deploy`
+4. Start: `npm start`
+
 ## 🤝 Contributing
 
-This is an internal NAFTAL project. For feature requests or bug reports, contact the development team.
+Issues and pull requests are welcome. For feature requests or bug reports, open an issue on the repository.
 
 ## 📄 License
 
-Proprietary — NAFTAL Algeria © 2026
+Proprietary — DaysTrack © 2026
 
 ---
 
@@ -895,4 +709,4 @@ Built with modern web technologies:
 
 ---
 
-**Developed for NAFTAL Algeria** | Internal HR System | 2026
+**DaysTrack** | Day-Off Dashboard | 2026
