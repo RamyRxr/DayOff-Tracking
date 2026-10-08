@@ -199,9 +199,9 @@ export default function EmployeeDetailPanel({
     if (employee.email) return employee.email;
     const names = employee.name.toLowerCase().split(" ");
     if (names.length >= 2) {
-      return `${names[0]}.${names[names.length - 1]}@naftal.dz`;
+      return `${names[0]}.${names[names.length - 1]}@daystrack.eu`;
     }
-    return `${names[0]}@naftal.dz`;
+    return `${names[0]}@daystrack.eu`;
   };
 
   // Format start date

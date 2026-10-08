@@ -19,7 +19,7 @@ function getCurrentPeriod() {
 }
 
 // Returns true if a date is Friday (5) or Saturday (6)
-// Algeria weekend = Friday + Saturday
+// Weekend = Friday + Saturday
 function isWeekend(date) {
   const day = new Date(date).getDay()
   return day === 5 || day === 6

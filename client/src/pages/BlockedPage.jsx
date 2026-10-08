@@ -123,7 +123,7 @@ export default function BlockedPage() {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("fr-DZ", {
+    return new Date(dateString).toLocaleDateString("fr-FR", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -209,7 +209,7 @@ export default function BlockedPage() {
 
     const rows = mockBlockedEmployees.map((emp) => {
       const email =
-        emp.email || `${emp.name.toLowerCase().split(" ").join(".")}@naftal.dz`;
+        emp.email || `${emp.name.toLowerCase().split(" ").join(".")}@daystrack.eu`;
 
       // Format phone with leading apostrophe to preserve leading zero in Excel
       let phone = emp.phone || "—";

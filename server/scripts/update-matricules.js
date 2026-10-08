@@ -14,8 +14,8 @@ async function updateMatricules() {
 
     // Update each employee's matricule
     for (const emp of employees) {
-      // Extract the number from NAF-XXXX format
-      const oldNumber = emp.matricule.replace('NAF-', '');
+      // Extract the number from the PREFIX-XXXX format
+      const oldNumber = emp.matricule.replace(/^[A-Za-z]+-/, '');
 
       // Generate new format: pad to 5 digits and add U
       const newMatricule = oldNumber.padStart(5, '0') + 'U';

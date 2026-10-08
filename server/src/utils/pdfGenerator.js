@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Generate a block note PDF matching the official NAFTAL format
+ * Generate a block note PDF on DaysTrack letterhead
  */
 function generateBlockNote(employee, block, outputPath) {
     return new Promise((resolve, reject) => {
@@ -21,23 +21,23 @@ function generateBlockNote(employee, block, outputPath) {
             const stream = fs.createWriteStream(outputPath);
             doc.pipe(stream);
 
-            // Header - NAFTAL branding
+            // Header - DaysTrack branding
             doc.fontSize(10)
                 .font('Helvetica-Bold')
-                .text('BRANCHE GPL', 72, 100)
+                .text('DAYSTRACK', 72, 100)
                 .font('Helvetica')
-                .text('Direction Administration & Moyens', 72, 115)
+                .text('Direction des Ressources Humaines', 72, 115)
                 .text('Département Gestion du Personnel', 72, 130)
-                .text('Service prestations sociales', 72, 145);
+                .text('Service administration du personnel', 72, 145);
 
             // Date (top right)
             const blockDate = new Date(block.createdAt);
-            const formattedDate = blockDate.toLocaleDateString('fr-DZ', {
+            const formattedDate = blockDate.toLocaleDateString('fr-FR', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
             });
-            doc.text(`Mohammedia, le ${formattedDate}`, 400, 100, { align: 'right' });
+            doc.text(`Le ${formattedDate}`, 400, 100, { align: 'right' });
 
             // Title
             doc.fontSize(18)
@@ -86,7 +86,7 @@ function generateBlockNote(employee, block, outputPath) {
             // Reprise date (calculated as 30 days after block date)
             const repriseDate = new Date(blockDate);
             repriseDate.setDate(repriseDate.getDate() + 30);
-            const formattedReprise = repriseDate.toLocaleDateString('fr-DZ', {
+            const formattedReprise = repriseDate.toLocaleDateString('fr-FR', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
@@ -99,7 +99,7 @@ function generateBlockNote(employee, block, outputPath) {
             doc.fontSize(10)
                 .font('Helvetica-Bold')
                 .text('LE CHEF DE SERVICE', 72, 650)
-                .text('PRESTATIONS SOCIALES', 72, 665);
+                .text('ADMINISTRATION DU PERSONNEL', 72, 665);
 
             doc.end();
 
@@ -112,7 +112,7 @@ function generateBlockNote(employee, block, outputPath) {
 }
 
 /**
- * Generate an unblock note PDF matching the official NAFTAL format
+ * Generate an unblock note PDF on DaysTrack letterhead
  */
 function generateUnblockNote(employee, block, outputPath) {
     return new Promise((resolve, reject) => {
@@ -130,23 +130,23 @@ function generateUnblockNote(employee, block, outputPath) {
             const stream = fs.createWriteStream(outputPath);
             doc.pipe(stream);
 
-            // Header - NAFTAL branding
+            // Header - DaysTrack branding
             doc.fontSize(10)
                 .font('Helvetica-Bold')
-                .text('BRANCHE GPL', 72, 100)
+                .text('DAYSTRACK', 72, 100)
                 .font('Helvetica')
-                .text('Direction Administration & Moyens', 72, 115)
+                .text('Direction des Ressources Humaines', 72, 115)
                 .text('Département Gestion du Personnel', 72, 130)
-                .text('Service prestations sociales', 72, 145);
+                .text('Service administration du personnel', 72, 145);
 
             // Date (top right)
             const unblockDate = new Date(block.unblockedAt);
-            const formattedDate = unblockDate.toLocaleDateString('fr-DZ', {
+            const formattedDate = unblockDate.toLocaleDateString('fr-FR', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
             });
-            doc.text(`Mohammedia, le ${formattedDate}`, 400, 100, { align: 'right' });
+            doc.text(`Le ${formattedDate}`, 400, 100, { align: 'right' });
 
             // Title
             doc.fontSize(18)
@@ -195,7 +195,7 @@ function generateUnblockNote(employee, block, outputPath) {
                 .text(`: ${unblockReason}${block.unblockDescription ? ' - ' + block.unblockDescription : ''}`, { width: 400 });
 
             // Reprise date
-            const formattedReprise = unblockDate.toLocaleDateString('fr-DZ', {
+            const formattedReprise = unblockDate.toLocaleDateString('fr-FR', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
@@ -208,7 +208,7 @@ function generateUnblockNote(employee, block, outputPath) {
             doc.fontSize(10)
                 .font('Helvetica-Bold')
                 .text('LE SERVICE', 72, 650)
-                .text('PRESTATIONS SOCIALES', 72, 665);
+                .text('ADMINISTRATION DU PERSONNEL', 72, 665);
 
             doc.end();
 

@@ -4,7 +4,7 @@
  */
 
 /**
- * Check if a date is a weekend (Friday or Saturday in Algeria)
+ * Check if a date is a weekend (Friday or Saturday)
  */
 export function isWeekend(date) {
   const day = date.getDay()

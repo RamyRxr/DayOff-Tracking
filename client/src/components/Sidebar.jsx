@@ -31,10 +31,10 @@ export default function Sidebar({ currentAdmin, onLogout }) {
       {/* Logo */}
       <div className="px-6 py-6">
         <div className="font-display text-xl font-bold tracking-tight text-[#111827] dark:text-[#E8EFF8]">
-          DayOff
+          DaysTrack
         </div>
         <div className="text-[10px] text-[#6B7280] dark:text-[#4A6A8A] mt-0.5 tracking-widest uppercase font-medium">
-          NAFTAL
+          Day-Off Dashboard
         </div>
       </div>
 

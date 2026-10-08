@@ -24,15 +24,15 @@ const positionsByDepartment = {
 const dayOffTypes = ['Congé annuel', 'Congé maladie', 'Congé sans solde', 'Autre']
 
 const firstNames = [
-  'Yacine', 'Samira', 'Karim', 'Nassima', 'Sofiane', 'Leila', 'Mehdi', 'Amel', 'Rachid', 'Meriem',
-  'Nabil', 'Sabrina', 'Fares', 'Khadidja', 'Hocine', 'Fatima', 'Aymen', 'Imene', 'Hamza', 'Souad',
-  'Redouane', 'Wafa', 'Djamel', 'Zineb', 'Mustapha', 'Selma', 'Azzedine', 'Lamia', 'Rabah', 'Houria',
+  'Lucas', 'Emma', 'Noah', 'Olivia', 'Liam', 'Ava', 'Ethan', 'Mia', 'Elias', 'Sofia',
+  'Paul', 'Chloe', 'Louis', 'Lea', 'Hugo', 'Camille', 'Nathan', 'Manon', 'Theo', 'Ines',
+  'Maxime', 'Juliette', 'Antoine', 'Sarah', 'Julien', 'Claire', 'Baptiste', 'Laura', 'Victor', 'Anaïs',
 ]
 
 const lastNames = [
-  'Benali', 'Boudiaf', 'Touati', 'Hamdani', 'Meziane', 'Khelifi', 'Belaidi', 'Mokhtari', 'Saadi', 'Rahmani',
-  'Kaci', 'Mansouri', 'Benkhelil', 'Cherif', 'Oukaci', 'Bendjelloul', 'Boukhari', 'Ferhat', 'Slimani', 'Amara',
-  'Mebarki', 'Haddad', 'Benkaddour', 'Zenati', 'Brahimi', 'Larbi', 'Taleb', 'Ghouli', 'Sahli', 'Rezki',
+  'Martin', 'Bernard', 'Dubois', 'Thomas', 'Robert', 'Richard', 'Petit', 'Durand', 'Leroy', 'Moreau',
+  'Simon', 'Laurent', 'Lefebvre', 'Michel', 'Garcia', 'David', 'Bertrand', 'Roux', 'Vincent', 'Fournier',
+  'Girard', 'Andre', 'Mercier', 'Blanc', 'Guerin', 'Boyer', 'Renard', 'Colin', 'Marchand', 'Dupont',
 ]
 
 function randomFrom(array) {
@@ -58,18 +58,19 @@ function randomHireDate() {
 }
 
 function randomPhone() {
-  return `+213 ${randomInt(50, 79)} ${randomInt(10, 99)} ${randomInt(10, 99)} ${randomInt(10, 99)}`
+  return `+33 ${randomInt(6, 7)} ${randomInt(10, 99)} ${randomInt(10, 99)} ${randomInt(10, 99)} ${randomInt(10, 99)}`
 }
 
 function randomSSN() {
-  // Algerian NSS format: YY MM WW DDD NNN KK (15 digits)
-  const year = randomInt(60, 99)
+  // French NIR format: S YY MM DD CCC OOO KK (15 digits)
+  const sex = randomInt(1, 2)
+  const year = randomInt(50, 99)
   const month = String(randomInt(1, 12)).padStart(2, '0')
-  const wilaya = String(randomInt(1, 58)).padStart(2, '0')
-  const day = String(randomInt(1, 999)).padStart(3, '0')
-  const seq = String(randomInt(1, 999)).padStart(3, '0')
-  const key = String(randomInt(10, 99))
-  return `${year}${month}${wilaya}${day}${seq}${key}`
+  const department = String(randomInt(1, 95)).padStart(2, '0')
+  const commune = String(randomInt(1, 999)).padStart(3, '0')
+  const order = String(randomInt(1, 999)).padStart(3, '0')
+  const key = String(randomInt(1, 96)).padStart(2, '0')
+  return `${sex}${String(year).padStart(2, '0')}${month}${department}${commune}${order}${key}`
 }
 
 function getCurrentWorkPeriodForSeed() {
@@ -174,17 +175,17 @@ async function main() {
       const firstName = firstNames[globalIndex % firstNames.length]
       const baseLastIndex = (globalIndex * 3) % lastNames.length
       let lastName = lastNames[baseLastIndex]
-      let email = `${normalizeForEmail(firstName)}.${normalizeForEmail(lastName)}@naftal.dz`
+      let email = `${normalizeForEmail(firstName)}.${normalizeForEmail(lastName)}@daystrack.eu`
       let attempt = 1
 
       while (usedEmails.has(email) && attempt < lastNames.length) {
         lastName = lastNames[(baseLastIndex + attempt) % lastNames.length]
-        email = `${normalizeForEmail(firstName)}.${normalizeForEmail(lastName)}@naftal.dz`
+        email = `${normalizeForEmail(firstName)}.${normalizeForEmail(lastName)}@daystrack.eu`
         attempt += 1
       }
 
       usedEmails.add(email)
-      const matricule = `NAF-${String(1001 + globalIndex).padStart(4, '0')}`
+      const matricule = `DTK-${String(1001 + globalIndex).padStart(4, '0')}`
       const position = randomFrom(positionsByDepartment[department])
       const status = 'actif'
 

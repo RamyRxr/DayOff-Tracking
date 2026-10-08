@@ -1,7 +1,7 @@
 {
   "name": "dayoff-tracking",
   "version": "1.0.0",
-  "description": "NAFTAL HR Day-Off Tracking System",
+  "description": "DaysTrack — Day-Off Dashboard",
   "scripts": {
     "start": "npm run start:server & npm run start:client",
     "start:server": "cd server && npm run dev",

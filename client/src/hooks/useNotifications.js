@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const NOTIFICATIONS_KEY = 'naftal_notifications'
+const NOTIFICATIONS_KEY = 'daystrack_notifications'
 const NOTIFICATION_EXPIRY_DAYS = 7 // Keep notifications for 7 days
 
 export const useNotifications = () => {

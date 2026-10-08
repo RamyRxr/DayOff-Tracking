@@ -65,7 +65,7 @@ export default function AddEmployeeModal({
         const prenom = field === "prenom" ? value : next.prenom;
         const nom = field === "nom" ? value : next.nom;
         if (prenom && nom) {
-          next.email = `${prenom.toLowerCase()}.${nom.toLowerCase()}@naftal.dz`;
+          next.email = `${prenom.toLowerCase()}.${nom.toLowerCase()}@daystrack.eu`;
         }
       }
 

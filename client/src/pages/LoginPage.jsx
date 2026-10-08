@@ -106,9 +106,9 @@ export default function LoginPage({ onLoginSuccess }) {
             <Lock className="w-8 h-8 text-navy dark:text-[#639DFF]" strokeWidth={2} />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-[#E8EFF8]">
-            DayOff Tracking
+            DaysTrack
           </h1>
-          <p className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">NAFTAL - Connexion Admin</p>
+          <p className="text-sm text-gray-600 dark:text-[#7A9CC4] mt-1">Connexion Admin</p>
         </div>
 
         {/* Login Form */}

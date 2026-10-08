@@ -118,9 +118,9 @@ fi
 
 # 7. POST /api/employees
 UNIQ_SUFFIX=$(date +%s)
-NEW_MATRICULE="NAF-${UNIQ_SUFFIX: -4}"
-NEW_EMAIL="test.${UNIQ_SUFFIX}@naftal.dz"
-request "POST" "${API_URL}/employees" "{\"firstName\":\"Test\",\"lastName\":\"Agent\",\"email\":\"${NEW_EMAIL}\",\"phone\":\"+213551112233\",\"department\":\"Administration\",\"position\":\"Analyste\",\"hireDate\":\"2021-06-15\",\"matricule\":\"${NEW_MATRICULE}\"}"
+NEW_MATRICULE="DTK-${UNIQ_SUFFIX: -4}"
+NEW_EMAIL="test.${UNIQ_SUFFIX}@daystrack.eu"
+request "POST" "${API_URL}/employees" "{\"firstName\":\"Test\",\"lastName\":\"Agent\",\"email\":\"${NEW_EMAIL}\",\"phone\":\"+33611223344\",\"department\":\"Administration\",\"position\":\"Analyste\",\"hireDate\":\"2021-06-15\",\"matricule\":\"${NEW_MATRICULE}\"}"
 CREATED_EMPLOYEE_ID=$(echo "$BODY" | jq -r '.data.id // empty')
 if [ "$HTTP_CODE" = "201" ] && [ -n "$CREATED_EMPLOYEE_ID" ]; then
     print_pass 7 "POST /api/employees"
