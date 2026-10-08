@@ -83,13 +83,13 @@ export default function EmployeesPage() {
       bgColor: 'bg-status-green/10 dark:bg-[rgba(52,199,89,0.15)] border border-transparent dark:border-[rgba(52,199,89,0.2)]',
       textColor: 'text-status-green dark:text-[#34C759]',
     },
-    risque: {
+    a_risque: {
       label: 'À risque',
       dotColor: 'bg-status-amber dark:bg-[#FF9F0A]',
       bgColor: 'bg-status-amber/10 dark:bg-[rgba(255,159,10,0.15)] border border-transparent dark:border-[rgba(255,159,10,0.2)]',
       textColor: 'text-status-amber dark:text-[#FF9F0A]',
     },
-    bloqué: {
+    bloque: {
       label: 'Bloqué',
       dotColor: 'bg-status-red dark:bg-[#FF6B6B]',
       bgColor: 'bg-status-red/10 dark:bg-[rgba(192,57,43,0.2)] border border-transparent dark:border-[rgba(255,59,48,0.2)]',
@@ -198,8 +198,8 @@ export default function EmployeesPage() {
             options={[
               { value: 'tous', label: t('tousLesStatuts') },
               { value: 'actif', label: t('actifs') },
-              { value: 'risque', label: t('aRisque') },
-              { value: 'bloqué', label: t('bloques') },
+              { value: 'a_risque', label: t('aRisque') },
+              { value: 'bloque', label: t('bloques') },
             ]}
             value={statusFilter}
             onChange={setStatusFilter}

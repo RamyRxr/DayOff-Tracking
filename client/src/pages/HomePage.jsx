@@ -39,8 +39,8 @@ export default function HomePage() {
   const stats = {
     total: employees.length,
     actif: employees.filter((e) => e.status === "actif").length,
-    risque: employees.filter((e) => e.status === "risque").length,
-    bloqué: employees.filter((e) => e.status === "bloqué").length,
+    risque: employees.filter((e) => e.status === "a_risque" || e.status === "doit_bloquer").length,
+    bloque: employees.filter((e) => e.status === "bloque").length,
   };
 
   // Filter employees based on active filter
@@ -283,15 +283,15 @@ export default function HomePage() {
 
           {/* À risque pill */}
           <button
-            onClick={() => setActiveFilter("risque")}
+            onClick={() => setActiveFilter("a_risque")}
             className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
-              activeFilter === "risque"
+              activeFilter === "a_risque"
                 ? "bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]"
                 : "bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]"
             }`}
             style={
               isDark
-                ? activeFilter === "risque"
+                ? activeFilter === "a_risque"
                   ? {
                       backgroundColor: "rgba(99,157,255,0.12)",
                       color: "#E8EFF8",
@@ -304,13 +304,13 @@ export default function HomePage() {
                     }
                 : {
                     boxShadow:
-                      activeFilter === "risque"
+                      activeFilter === "a_risque"
                         ? "inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)"
                         : "inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)",
                   }
             }
             onMouseEnter={(e) => {
-              if (activeFilter !== "risque") {
+              if (activeFilter !== "a_risque") {
                 if (isDark) {
                   e.currentTarget.style.backgroundColor =
                     "rgba(99,157,255,0.08)";
@@ -322,7 +322,7 @@ export default function HomePage() {
               }
             }}
             onMouseLeave={(e) => {
-              if (activeFilter !== "risque") {
+              if (activeFilter !== "a_risque") {
                 if (isDark) {
                   e.currentTarget.style.backgroundColor =
                     "rgba(99,157,255,0.04)";
@@ -335,7 +335,7 @@ export default function HomePage() {
             }}
           >
             <div
-              className={`text-[22px] font-bold ${activeFilter === "risque" ? "text-amber-600 dark:text-[#FF9F0A]" : ""}`}
+              className={`text-[22px] font-bold ${activeFilter === "a_risque" ? "text-amber-600 dark:text-[#FF9F0A]" : ""}`}
             >
               {stats.risque}
             </div>
@@ -352,15 +352,15 @@ export default function HomePage() {
 
           {/* Bloqués pill */}
           <button
-            onClick={() => setActiveFilter("bloqué")}
+            onClick={() => setActiveFilter("bloque")}
             className={`relative z-10 flex-1 min-w-[120px] rounded-xl px-5 py-3 text-center border transition-all duration-200 backdrop-blur-[8px] ${
-              activeFilter === "bloqué"
+              activeFilter === "bloque"
                 ? "bg-white text-gray-900 font-semibold border-black/[0.08] scale-[1.03]"
                 : "bg-white/60 text-gray-500 border-black/[0.06] hover:bg-white/85 hover:text-gray-700 hover:scale-[1.02]"
             }`}
             style={
               isDark
-                ? activeFilter === "bloqué"
+                ? activeFilter === "bloque"
                   ? {
                       backgroundColor: "rgba(99,157,255,0.12)",
                       color: "#E8EFF8",
@@ -373,13 +373,13 @@ export default function HomePage() {
                     }
                 : {
                     boxShadow:
-                      activeFilter === "bloqué"
+                      activeFilter === "bloque"
                         ? "inset 0 1px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,1), 0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)"
                         : "inset 0 1px 3px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.04)",
                   }
             }
             onMouseEnter={(e) => {
-              if (activeFilter !== "bloqué") {
+              if (activeFilter !== "bloque") {
                 if (isDark) {
                   e.currentTarget.style.backgroundColor =
                     "rgba(99,157,255,0.08)";
@@ -391,7 +391,7 @@ export default function HomePage() {
               }
             }}
             onMouseLeave={(e) => {
-              if (activeFilter !== "bloqué") {
+              if (activeFilter !== "bloque") {
                 if (isDark) {
                   e.currentTarget.style.backgroundColor =
                     "rgba(99,157,255,0.04)";
@@ -404,9 +404,9 @@ export default function HomePage() {
             }}
           >
             <div
-              className={`text-[22px] font-bold ${activeFilter === "bloqué" ? "text-red-600 dark:text-[#FF6B6B]" : ""}`}
+              className={`text-[22px] font-bold ${activeFilter === "bloque" ? "text-red-600 dark:text-[#FF6B6B]" : ""}`}
             >
-              {stats.bloqué}
+              {stats.bloque}
             </div>
             <div className="text-[11px] uppercase tracking-wider mt-0.5">
               {t("bloques")}

@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { format } from 'date-fns'
 import { Moon, Sun } from 'lucide-react'
 import Sidebar from './Sidebar'
 import LanguageSelector from './LanguageSelector'
 import { useNotifications } from '../hooks/useNotifications'
 import { useTheme } from '../contexts/ThemeContext'
+import { calculateWorkPeriod, getPeriodDateRange } from '../utils/periodCalculations'
+import { getDateLocale } from '../utils/getDateLocale'
 
 export default function Layout({ currentAdmin, onLogout }) {
   const { t, i18n } = useTranslation()
@@ -47,6 +50,14 @@ export default function Layout({ currentAdmin, onLogout }) {
 
     return percentage
   }, [])
+
+  // Current work period label (20th of previous/current month → 19th of next month)
+  const periodLabel = useMemo(() => {
+    const { year, month } = calculateWorkPeriod()
+    const { startDate, endDate } = getPeriodDateRange(year, month)
+    const locale = getDateLocale()
+    return `${format(startDate, 'dd MMM yyyy', { locale })} → ${format(endDate, 'dd MMM yyyy', { locale })}`
+  }, [i18n.language])
 
   // Close on outside click
   useEffect(() => {
@@ -106,7 +117,7 @@ export default function Layout({ currentAdmin, onLogout }) {
           } : {}}
         >
           <div className="text-sm font-semibold text-[#374151] dark:text-[#E8EFF8] tracking-tight">
-            {t('periode')} · 20 {t('avr')} → 19 {t('mai')} 2026
+            {t('periode')} · {periodLabel}
           </div>
 
           {/* Period progress bar - 6px height per spec */}

@@ -11,7 +11,7 @@ import EmployeeDetailPanel from '../components/EmployeeDetailPanel'
 export default function CalendarPage() {
   const { t } = useTranslation()
   const { isDark } = useTheme()
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 3, 1)) // April 2026
+  const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(null)
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const { daysOff, loading, error, refetch } = useDaysOff()
